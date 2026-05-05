@@ -1,0 +1,11 @@
+Please, check the following article and the brief video on the definition of Security Model:
+
+http://whatis.techtarget.com/definition/Confidentiality-integrity-and-availability-CIA
+
+The following news bulltin and articles describe cyber security breaches with Cryptography representing the only effective method for guaranteed confidentiality.
+
+http://www.channel4.com/news/spy-cable-revealed-how-telecoms-firm-worked-with-gchq
+
+http://www.wired.co.uk/news/archive/2014-11/21/cable-and-wireless-vodafone-worked-with-gchq
+
+http://www.cyberdefensemagazine.com/british-firm-now-owned-by-vodafone-aided-gchq-in-wiretapping-undersea-cables/

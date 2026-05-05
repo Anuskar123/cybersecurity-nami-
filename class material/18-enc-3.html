@@ -1,0 +1,232 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (WinNT; U) [Netscape]">
+</head>
+<body bgcolor="#FFFFFF">
+
+<h1>
+&nbsp;Encryption -- Practical Encryption</h1>
+
+<hr class="PAGE-BREAK">
+<h2>
+Key Certification</h2>
+Consider an example of a "<b>man-in-the-middle</b>" attack -- Trudy convinces
+Bob that her (Trudy's) public key is that of Alice, and Bob is none the
+wiser. Public key systems are vulnerable to varieties of such attacks whenever
+the validity of a public key cannot be positively verified.
+<p>&nbsp;This problem can be solved by the use of a <b>Certificate Authority</b>,
+or <b>CA</b>. A CA is a <b>trusted intermediary</b> who <b>certifies</b>
+a public key as follows:
+<ol>
+<li>
+The CA first verifies the identity of the person or organisation seeking
+to have their public key certified. How this happens is up to the CA itself
+-- we simply have to <b>trust</b> that their methods are sufficient.</li>
+
+<br>&nbsp;
+<li>
+The verified applicant's public key is incorporated into an X.509 <b>certificate</b>.
+The certificate contains, in addition to the public key, the "distinguished
+name" of the applicant (sufficient to uniquely identify them), plus some
+other stuff. The certificate is <b>digitally signed</b> by the trusted
+<b>CA's
+private key</b>.</li>
+</ol>
+The CA's <b>public key</b> can subsequently be used by anyone to verify
+the validity (and truth) of the certificate, and thus can verify its holder's
+public key. For this to work, the CA's public key must be widely disseminated
+in such a way that <i>everyone</i> knows it and trusts that it is, indeed,
+the public key of the CA that it purports to be. It should be so well-known
+and widely available as to become "common knowledge" -- any attempt to
+fraudulently represent another key as being that of the CA should be easily
+detectable.
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+Typical Certificates</h2>
+One of the most common uses of CA-signed X.509 certificates is in <b>Web
+Commerce</b>, where they are normally called <b>site certificates</b>.
+Here are two examples:
+<blockquote><img SRC="l18fig1.gif" ALT="Text of site certificate from amazon.com" height=152 width=420></blockquote>
+
+<blockquote><img SRC="l18fig2.gif" ALT="Text of site certificate from www.ansett.com.au, somewhat historical now:-)" height=147 width=417></blockquote>
+NB: Web browsers normally are configured to trust a small set of CAs (or
+certificate issuers) -- either by configuration (see Preferences), or (in
+earlier versions) established at compile-time.
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+Secure Sockets Layer (SSL)</h2>
+Internet Web-based commerce ("E-Commerce") relies for security on a hybrid
+symmetric/public key system called <b>SSL</b>, originally developed by
+<a href="http://developer.netscape.com/docs/manuals/security/sslin/index.htm">Netscape</a>,
+but widely adopted by others. SSL adds a new protocol layer between the
+application and transport (TCP) layers. It provides the following:
+<ul>
+<li>
+Authentication of identity of server, using an X.509 <b>site certificate</b>
+as above. Recall that the sample certificates contain the <b>domain name</b>
+of their owner -- this can be checked against the sitename which supplied
+the certificate, so that we know that we are, for example, connecting to
+<b><tt>www.amazon.com</tt></b>
+and not <b><tt>hackers-r-us.com</tt></b> masquerading as them.</li>
+
+<br>&nbsp;
+<li>
+Optional (and currently rarely used) authentication of client. The protocol
+has provision for the initiating client to identify him/herself with a
+<b>personal
+certificate</b>. This has potential usefulness in future (so-called) "Business-to-business"
+E-Commerce applications.</li>
+
+<br>&nbsp;
+<li>
+Encryption of HTTP <b>session</b>, whereby all subsequent communication
+between the client and server is secured using a negotiated symmetric <b>session
+key</b>.</li>
+</ul>
+
+<hr class="PAGE-BREAK">
+<h2>
+SSL Protocol</h2>
+An SSL session is (as usual) initiated by the client, by connecting to
+a server on port 443:
+<blockquote><img SRC="l18fig3.gif" ALT="SSL handshake, grossly simplified" height=112 width=375></blockquote>
+
+<ul>
+<li>
+The initial connection ("Hello") message contains details of the client's
+preferred symmetric encryption algorithms -- SSL provides for a <i>large</i>
+number of different technologies -- so that the two parties can <b>negotiate</b>
+the use of a a common algorithm.</li>
+
+<br>&nbsp;
+<li>
+The server's response consists of an X.509 site certificate containing
+its public key and some other stuff, as well as its preferred symmetric
+algorithms.</li>
+
+<br>&nbsp;
+<li>
+The client verifies the contents of the server's site certificate, by checking
+both its contents (domain name, date, etc) and that it has been signed
+by a known and trusted CA. It also chooses an acceptable symmetric algorithm
+from those available.</li>
+
+<br>&nbsp;
+<li>
+The client generates a new, random "session key" appropriate to the negotiated
+symmetric algorithm. This is encrypted using the server's public key and
+sent back to the server.</li>
+
+<br>&nbsp;
+<li>
+All HTTP traffic between the client and the browser is encrypted using
+the session key.</li>
+</ul>
+
+<hr class="PAGE-BREAK">
+<h2>
+Certificate Authorities and PKI</h2>
+Most Web-based E-Commerce SSL sites purchase site certificates from a commercial
+provider such as <a href="http://www.verisign.com">Verisign</a>, <a href="http://www.thawte.com/">Thawte</a>
+and many others. In future, a
+<b>Public Key Infrastructure</b> will be
+needed to manage aspects of <b>certificate chains</b>.
+<br>&nbsp;
+<br>&nbsp;
+<blockquote><img SRC="l18fig4.gif" ALT="Certificate chain" height=284 width=321 align=LEFT></blockquote>
+More complex applications will involve certificates issued (for example)
+for use within an organisation, or department. In this case, a certificate
+is <b>signed</b> by its issuer. In order to establish the validity of the
+issuer's signature, the application may need to obtain the issuer's CA
+certificate as well, which is, in turn, signed by the next higher authority
+-- verifying a <b>certificate chain</b>. Note that the root CA is implicitly
+trusted -- as soon as the client software encounters a certificate signed
+by this CA, authentication is complete.
+<p>&nbsp;The protocols and procedures for issuing, managing and revoking
+signatures, certificates and registration authorities are still under development.
+Watch this space...
+<br>&nbsp;
+<br>&nbsp;
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+PGP (Pretty Good Privacy)</h2>
+The history of <a href="http://www.pgpi.org/">PGP</a> is outside the scope
+of our module, but is <a href="http://www.cypherspace.org/~adam/timeline/">well
+documented</a>. PGP is a free, "clean room" implementation of the original
+RSA public key cryptosystem, created with the honourable intention of facilitating
+encrypted email. It has become the most widely used public key software
+in the world.
+<p>&nbsp;PGP can operate in two modes: either <b>encrypting</b> a message
+where both authentication and secrecy are required, or simply
+<b>signing</b>
+a message if only authentication and message integrity are required.
+<p>&nbsp;PGP encryption is actually a <b>hybrid symmetric/public key</b>
+system. A new session key is created for each encryption, and is used to
+encrypt the document, using a standard algorithm such as IDEA. The session
+key is then encrypted with the recipient's
+<b>public key</b>, and the two
+items are rolled together into a single package. The receiver can use his
+private key to decrypt the session key, and thus recover the original message:
+<blockquote><img SRC="l18fig5.gif" ALT="PGP normal encryption operation" height=163 width=417></blockquote>
+This approach combines the best features of symmetric and public key encryption.
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+PGP Digital Signatures</h2>
+PGP uses the modern terminology for digital signatures, where the document
+itself is not encrypted, but an encrypted <b>message digest</b> is appended
+for transmission:
+<blockquote><img SRC="l18fig6.gif" ALT="PGP digital signature operation" height=161 width=440></blockquote>
+It's obvious that it is possible to both sign <i>and</i> encrypt a document
+in PGP if required. Exercise: how?
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+PGP Key Management</h2>
+PGP has the same difficulty as other public key systems: how to distribute
+keys in such a way as to avoid a successful "man-in-the-middle" attack.
+In commercial RSA-based products (such as SSL for Web-based E-Commerce)
+the solution is commercial Certificate Authorities. PGP adopts a more "low-tech"
+(but highly effective) approach called a <b>Web of Trust</b>.
+<p>&nbsp;PGP implements certificates, exactly analogous to the X.509 certificates
+discussed earlier -- in fact, PGP can use X.509 certificates. The PGP certificate
+extends to allowing <b>multiple signatures</b>, which allows several people
+to independently attest that the certificate is genuine. We saw earlier,
+the <b>trust model</b> was
+<b>hierarchic</b>. In PGP it is <b>cumulative</b>
+-- a certificate gains authority as more people sign it. A signer for a
+certificate becomes an <b>introducer</b> for that certificate. For example,
+if <b>you</b> trust
+<b>me</b>, and I appear as an introducer of a new certificate,
+then you will tend to trust the certificate as well -- as in: "I trust
+him, and he trusts the other guy, so I guess I trust the other guy as well..."
+Trust becomes <b>transitive</b>.
+<p>&nbsp;In the early days of PGP, an initial Web of Trust was established
+by holding PGP <b>signing parties</b>, where people would identify themselves
+to others, and then sign their certificates. PGP also has the notion of
+<b>complete
+trust</b> and
+<b>marginal trust</b>, in addition to untrusted certificates.
+<h4>
+More Information</h4>
+The links in the body of this section were primary sources. The following
+might also be useful:
+<p>&nbsp;<a href="http://www.pgpi.org/doc/pgpintro/">http://www.pgpi.org/doc/pgpintro/</a>
+<br><a href="http://world.std.com/~cme/html/web.html">http://world.std.com/~cme/html/web.html</a>
+<br><a href="http://www.rubin.ch/pgp/weboftrust.en.html">http://www.rubin.ch/pgp/weboftrust.en.html</a><a href="http://www.rsa.com/rsalabs/faq/">http://www.rsa.com/rsalabs/faq/</a>
+<br><a href="http://home.netscape.com/security/basics/index.html">http://home.netscape.com/security/basics/index.html</a>
+<br><a href="http://home.netscape.com/ja/newsref/ref/internet-security.html">http://home.netscape.com/ja/newsref/ref/internet-security.html</a>
+<br><a href="http://www.netcraft.co.uk/cgi-bin/Survey/sslwhats">http://www.netcraft.co.uk/cgi-bin/Survey/sslwhats</a>
+<br><a href="http://pebble.bbntech.com/docs/SSL.doc.html">http://pebble.bbntech.com/docs/SSL.doc.html</a>
+<br><a href="http://www.apacheweek.com/features/ssl">http://www.apacheweek.com/features/ssl</a>
+<br><a href="http://www.upside.com/texis/mvm/opinion/story?id=375c56d40">In
+VeriSign We Trust</a>
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

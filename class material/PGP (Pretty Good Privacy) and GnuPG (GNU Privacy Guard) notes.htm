@@ -1,0 +1,1269 @@
+<!-- -*-html-*- -->
+<!-- PGP-notes.html -->
+<!-- Prettyprinted by html-pretty flex version 1.01 [25-Aug-2001] -->
+<!-- on Thu Jan 30 08:04:28 2003 -->
+<!-- for Nelson H. F. Beebe (beebe@eilat) -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html><head>
+        <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"> <!-- needed for http://validator.w3.org/ validation -->
+        <title>
+            PGP (Pretty Good Privacy) and GnuPG (GNU Privacy Guard) notes
+        </title>
+        <link rev="made" href="mailto:beebe@math.utah.edu">
+    </head>
+    <body>
+        <!-- ======================================================= -->
+
+        <h1>
+            PGP (Pretty Good Privacy) and GnuPG (GNU Privacy Guard) notes
+        </h1>
+
+        <p>
+            Original version:
+            <b>
+                <font color="#ff0000">
+                    Thu Jan 30 08:04:28 2003
+                </font>
+            </b>
+            <br>
+            Last updates:
+            <b>
+                <font color="#ff0000">
+                    Sat May 22 09:41:49 2004 &nbsp;&nbsp;&nbsp;
+                    Fri Sep 24 11:44:50 2004 &nbsp;&nbsp;&nbsp;
+                    Thu Apr  7 08:26:13 2005 &nbsp;&nbsp;&nbsp;
+                    Thu Jun 23 09:05:11 2005
+                </font>
+            </b>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="http://validator.w3.org/check?uri=http%3A%2F%2Fwww.math.utah.edu%2F%7Ebeebe%2FPGP-notes.html;verbose=1">
+                <img src="PGP%20%28Pretty%20Good%20Privacy%29%20and%20GnuPG%20%28GNU%20Privacy%20Guard%29%20notes_files/valid-html32.png" alt="Valid HTML 3.2!" align="MIDDLE" border="0" height="31" width="88">
+            </a>
+        </p>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            Table of contents
+        </h2>
+        <ul>
+            <li>
+                <a href="#about-pgp-and-gnupg">
+                    About PGP and GnuPG
+                </a>
+            </li>
+            <li>
+                <a href="#e-mail-encryption">
+                    E-mail encryption
+                </a>
+            </li>
+            <li>
+                <a href="#e-mail-decryption">
+                    E-mail decryption
+                </a>
+            </li>
+            <li>
+                <a href="#digital-signatures">
+                     Digital signature creation and verification
+                </a>
+            </li>
+            <li>
+                <a href="#key-servers">
+                     Key servers for public keys
+                </a>
+            </li>
+            <li>
+                <a href="#adding-a-key">
+                     Adding a public key to your keyring
+                </a>
+            </li>
+            <li>
+                <a href="#signature-verification">
+                     Verifying a file signature
+                </a>
+            </li>
+            <li>
+                <a href="#key-verification">
+                     Verifying a public key
+                </a>
+            </li>
+            <li>
+                <a href="#reading-list">
+                     Annotated reading list
+                </a>
+            </li>
+        </ul>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="about-pgp-and-gnupg">
+                About PGP and GnuPG
+            </a>
+        </h2>
+
+        <p>
+            <a href="http://web.mit.edu/network/pgp.html">
+                PGP software
+            </a>
+            provides for highly-secure encryption and decryption of
+            data, and for creating and verifying digital signatures.
+        </p>
+
+        <p>
+            A secure encrypted channel permits people to communicate
+            with considerable confidence that others (including big
+            unnamed government agencies) cannot eavesdrop, <em>even if
+            the encrypted traffic is intercepted</em> (as anything
+            that traverses the Internet can be, with the right tools,
+            and either clandestine access or suitable privileges).
+        </p>
+
+        <p>
+            Digital signatures are useful for verifying that all
+            parties see the same file contents, and that any tampering
+            with those contents can be detected.
+        </p>
+
+        <p>
+            The
+            <a href="http://www.gnupg.org/">
+                GNU Privacy Guard (GnuPG)
+            </a>
+            package is a ``complete and free replacement for PGP.
+            Because it does <b>not use the patented IDEA</b>
+            algorithm, it can be used without any restrictions. GnuPG
+            is a RFC2440 (OpenPGP) compliant application.''
+        </p>
+
+        <p>
+            The
+            <a href="#reading-list">
+                short reading list
+            </a>
+            at the end of this document leads to important
+            comprehensive books on this subject.
+        </p>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="e-mail-encryption">
+                E-mail encryption
+            </a>
+        </h2>
+
+        <p>
+            Some e-mail clients implement support for sending and
+            receiving encrypted messages.  While that is certainly
+            convenient, it leaves users in a (usually) undesirable
+            state of ignorance about what is going on.  This section
+            tells how you can do each step yourself.
+        </p>
+
+        <p>
+            To exchange secret messages with me, proceed as follows:
+        </p>
+
+        <ol>
+            <li>
+                <p>
+                    Fetch <strong><em>my</em></strong> public key from
+                    my Web site.  The key file looks exactly like this
+                    (all lines should be flush left):
+                </p>
+
+                <blockquote>
+<pre>-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: 2.6.2
+
+mQCNAzWBPeIAAAEEANI3Ptvt8e0ur8iiN9u2sYTJwaLeeDU/+W2umnsWskR9COQm
+UklyxPVZF6M+EebaalqhL6VqqvWh7n0CxMD5puxxoBAPPKUM8bAks7j42QZMx8Oz
+xvzDSk4bqTasmGOBg667P9jH6AcOjKP08zfwQb5Qm3TCFdsruWfhK324XxlBAAUR
+tChOZWxzb24gSC4gRi4gQmVlYmUgPGJlZWJlQG1hdGgudXRhaC5lZHU+
+=ISkv
+-----END PGP PUBLIC KEY BLOCK-----
+</pre>
+                </blockquote>
+
+                <p>
+                    Save it in a temporary file, say <tt>foo.pubkey</tt>.
+                </p>
+
+            </li>
+            <li>
+                <p>
+                    Add it to <strong><em>your</em></strong> pgp public key ring:
+                </p>
+
+                <blockquote>
+<pre>% pgp -ka foo.pubkey
+</pre>
+                </blockquote>
+
+                <p>
+                    You only need to do this, and the preceding, step
+                    once.
+                </p>
+
+            </li>
+            <li>
+                <p>
+                    Create a file, say <tt>foo.msg</tt>, with
+                    <strong><em>your</em></strong> secret message, and
+                    encrypt it with <strong><em>my</em></strong>
+                    public key:
+                </p>
+
+                <blockquote>
+<pre>% pgp -eats foo.msg
+</pre>
+                </blockquote>
+
+                <p>
+                    PGP will ask for <strong><em>your</em></strong>
+                    secret key in order to be able to unlock your key
+                    ring.  Then it will ask for
+                    <strong><em>my</em></strong> public key's user ID
+                    to encrypt your message.  It will end with:
+                </p>
+
+                <blockquote>
+<pre>Transport armor file: foo.msg.asc
+</pre>
+                </blockquote>
+
+            </li>
+            <li>
+                <p>
+                    Mail that `transport armor' file to me:
+                </p>
+
+                <blockquote>
+<pre>Mail -s "Secret message" &lt; foo.msg.asc beebe@math.utah.edu
+</pre>
+                </blockquote>
+
+                <p>
+                    That is the simplest way in Unix to mail a text
+                    file to someone.  However, any decent mail client
+                    supports insertion of files into outgoing
+                    messages, so you could just insert
+                    <tt>foo.msg.asc</tt> into a message that way using
+                    your favorite mail program, possibly prefixing the
+                    insertion with some explanatory comments.
+                </p>
+
+                <p>
+                    If you give me a copy of
+                    <strong><em>your</em></strong> public key, which
+                    you can extract into a file that PGP will prompt
+                    you for, like this:
+                </p>
+
+                <blockquote>
+<pre>% pgp -kxa
+</pre>
+                </blockquote>
+
+                <p>
+                    or
+                </p>
+
+                <blockquote>
+<pre>% pgp -kxa your-username@your-host
+</pre>
+                </blockquote>
+
+                <p>
+                    then I can add it to <strong><em>my</em></strong>
+                    public key ring, and use it to encrypt messages to
+                    send back to you that only
+                    <strong><em>you</em></strong> can read.
+                </p>
+
+                <p>
+                    Your ability to read such a message from me to you
+                    that was encrypted with your public key is proof
+                    that your public key was not compromised during
+                    transmission to me, such as via e-mail, or a Web
+                    connection.  On the other hand, if you cannot read
+                    my message, then we'd both better duck, because
+                    someone nasty is attacking us.
+                </p>
+
+            </li>
+        </ol>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="e-mail-decryption">
+                 E-mail decryption
+            </a>
+        </h2>
+
+        <p>
+            When you receive a message that has been encrypted with
+            your public key, save it in a file, say <tt>secret.asc</tt>,
+            and then decrypt it like this:
+        </p>
+<pre>% pgp secret.asc
+Pretty Good Privacy(tm) Version 6.5.8
+(c) 1999 Network Associates Inc.
+
+Export of this software may be restricted by the U.S. government.
+
+File is encrypted.  Secret key is required to read it.
+
+Key for user ID:
+1024-bit DSS key, Key ID 0x........, created ..../../..
+Key can sign.
+
+You need a pass phrase to unlock your secret key.
+
+Enter pass phrase:
+Good signature from user "...".
+Signature made 2005/04/07 14:25 GMT
+
+Plaintext filename: secret
+</pre>
+        <p>
+            The resulting output file <tt>secret</tt> contains the
+            plaintext of the encrypted message.
+        </p>
+        <p>
+            If the plaintext is really secret, then it is a bad idea
+            to save it in a disk file, where it could possibly be read
+            by others, and be recorded in long-term filesystem
+            backups.  The solution is to display it on the screen with
+            the <tt>more</tt> pager:
+        </p>
+
+<pre>% pgp -m secret.asc
+...as before...
+Enter pass phrase:
+Good signature from user "...".
+Signature made 2005/04/07 14:25 GMT
+...plaintext appears on the screen here...
+</pre>
+
+        <p>
+            Here is the decryption procedure using GnuPG:
+        </p>
+<pre>% gpg secret.asc
+You need a passphrase to unlock the secret key for
+user: "...."
+2048-bit ELG-E key, ID ........, created 2003-01-30 (main key ID ........)
+
+gpg: encrypted with 2048-bit ELG-E key, ID ...., created ....-..-..
+      "...."
+gpg: Signature made Thu Apr 07 08:38:51 2005 MDT using DSA key ID ........
+gpg: Good signature from "...."
+</pre>
+
+        <p>
+            There does not appear to be a way with GnuPG to send the
+            plaintext directly to a screen pager utility.
+        </p>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="digital-signatures">
+                Digital signature creation and verification
+            </a>
+        </h2>
+
+        <p>
+            Digital signatures can be created as part of a document,
+            in the form of a short wrapper, or in separate files.
+            Both forms are useful: e-mail messages would normally use
+            the first way, while software distributions would use the
+            second approach.
+        </p>
+
+        <p>
+            To create an integrated digital signature for a file,
+            say, <tt>foo.msg</tt>:
+        </p>
+
+        <blockquote>
+<pre>% echo "This is a message." &gt;  foo.msg
+
+% cat foo.msg
+This is a message.
+
+% pgp -sta foo.msg
+...
+Enter pass phrase: XXXX
+Pass phrase is good.
+Key for user ID: Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+1024-bit key, Key ID B85F1941, created 1998/06/12
+Just a moment....
+Clear signature file: foo.msg.asc
+</pre>
+        </blockquote>
+
+        <p>
+           This produced a signed wrapper that I can give to someone.
+        </p>
+
+        <blockquote>
+<pre>% cat foo.msg.asc
+-----BEGIN PGP SIGNED MESSAGE-----
+
+This is a message.
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.2
+
+iQCVAwUBPjlRxWfhK324XxlBAQFdhgP/bdHMqstLCvXG8pGIfc7OzgUySzjewx1T
+GU+zi7aJzcj4WWrOxsSqceNyroIMTXpwBOwb1OP8kbBzGr+TW9Kzb+1P/UdMmnHH
+qgsZbXAcf3dVUwEPhrgn5XhxXk6mPocAvL0/7VhwHClbGPAefvrcKhkAyrSfxIP2
+i697b7szCeU=
+=5oN9
+-----END PGP SIGNATURE-----
+</pre>
+        </blockquote>
+
+        <p>
+           PGP makes this file readable only by its creator, but
+           in this case, we want it to be readable by anyone:
+        </p>
+
+        <blockquote>
+<pre>% chmod a+r foo.msg.asc
+</pre>
+        </blockquote>
+
+        <p>
+            At a remote site, the validity of the digital signature
+            can be checked, and the wrapper removed, by someone else
+            like this:
+        </p>
+
+        <blockquote>
+<pre>% pgp foo.msg.asc
+...
+File has signature.  Public key is required to check signature. .
+Good signature from user "Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;".
+Signature made 2003/01/30 16:25 GMT
+
+Plaintext filename: foo.msg
+</pre>
+        </blockquote>
+
+        <p>
+            You can also use GnuPG for signature verification:
+        </p>
+
+        <blockquote>
+<pre>% gpg foo.msg.asc
+gpg: WARNING: using insecure memory!
+gpg: please see http://www.gnupg.org/faq.html for more information
+gpg: Signature made Thu Jan 30 09:24:37 2003 MST using RSA key ID B85F1941
+gpg: Good signature from "Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;"
+gpg: checking the trustdb
+gpg: no ultimately trusted keys found
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 7C18 7199 BC82 5EAB 06EB  9B96 FD9E 0E97 A93C 57C2
+</pre>
+        </blockquote>
+        <p>
+            Suppose someone had tampered with the message, changing,
+            say, <tt>a message</tt>, to <tt>an altered message</tt>.
+            We can duplicate that tampering like this:
+        </p>
+
+        <blockquote>
+<pre>% sed -e "s/a message/an altered message/" foo.msg.asc &gt; foo2.msg.asc
+</pre>
+        </blockquote>
+
+        <p>
+            Signature verification now fails:
+        </p>
+
+        <blockquote>
+<pre>% pgp foo2.msg.asc
+...
+File has signature.  Public key is required to check signature. .
+WARNING: Bad signature, doesn't match file contents!
+
+Bad signature from user "Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;".
+Signature made 2003/01/30 16:25 GMT
+
+Plaintext filename: foo2.msg
+</pre>
+        </blockquote>
+
+        <p>
+            To create an ASCII signature in a separate <tt>.asc</tt> file:
+        </p>
+
+        <blockquote>
+<pre>% pgp -stab foo.msg
+...
+Enter pass phrase: XXXX
+Pass phrase is good.
+Key for user ID: Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+1024-bit key, Key ID B85F1941, created 1998/06/12
+Just a moment....
+Transport armor file: foo.msg.asc
+</pre>
+        </blockquote>
+
+        <p>
+            Here is what the signature file looks like:
+        </p>
+
+        <blockquote>
+<pre>% cat foo.msg.asc
+-----BEGIN PGP MESSAGE-----
+Version: 2.6.2
+
+iQCVAwUBPjlTkWfhK324XxlBAQEhyAQAo5XdKEeOpClpCmiSRfc+D/SL5xg21QRy
+wNOXEEZKEMhDeE7CWTWJIWyh9nbI6MUF93aLcEwdAHgv0+B2fdm7Fefe1+p+P6HU
+Ts54zBEoMdj10NiLTRdtES37V/0wj/HXkJW3T6WU9EeULv3Mk0133Q16OsIi1xsv
+Cy2Ky9VtCiA=
+=bnlu
+-----END PGP MESSAGE-----
+</pre>
+        </blockquote>
+
+        <p>
+            To create a binary signature in a separate <tt>.sig</tt>
+            file:
+        </p>
+        <blockquote>
+<pre>% pgp -sb foo.msg
+...
+Signature file: foo.xxx.sig
+</pre>
+        </blockquote>
+
+        <p>
+           To verify the signature at some other site, you can specify
+           either the base filename, or the signature filename.
+        </p>
+
+        <blockquote>
+<pre>% pgp foo.msg
+...
+File 'foo.msg.asc' has signature, but with no text.
+Text is assumed to be in file 'foo.msg'.
+Good signature from user "Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;".
+Signature made 2003/01/30 16:32 GMT
+
+Signature and text are separate.  No output file produced.
+</pre>
+        </blockquote>
+
+        <p>
+           If the basename is used, and both <tt>.asc</tt> and
+           <tt>.sig</tt> files exist, the <tt>.asc</tt> file is used
+           for the signature.
+        </p>
+        <p>
+           The GNU Project archives and the
+           <a href="ftp://ftp.math.utah.edu/pub/">
+               ftp://ftp.math.utah.edu/pub/
+           </a>
+           archives use binary <tt>.sig</tt> signature files.
+        </p>
+        <p>
+            At various places in our local
+            <a href="ftp://ftp.math.utah.edu/">
+                FTP
+            </a>
+            and
+            <a href="http://www.math.utah.edu/">
+                Web
+            </a>
+            filesystems, you can find files named <tt>MD5SUM.asc</tt>.
+            They contain MD5 checksums of files in the directory, plus
+            an embedded signature.  These were made like this:
+        </p>
+
+        <blockquote>
+<pre>% md5sum * &gt; MD5SUM
+% pgp -sta MD5SUM
+...
+</pre>
+        </blockquote>
+
+        <p>
+            A line in one such file looks something like this:
+        </p>
+
+        <blockquote>
+<pre>f6a8f9fa5d8d9872824d929db192405e  hoc-7.0.6.beta.tar.gz
+</pre>
+        </blockquote>
+
+        <p>
+            By verifying the digital signature on <tt>MD5SUM.asc</tt>
+            with <tt>pgp MD5SUM.asc</tt>, you can be sure that the
+            <tt>MD5SUM</tt> file matches what I created here.  If you
+            now fetch the indicated <tt>.tar.gz</tt> file, you can
+            reproduce the checksum line at your site like this:
+        </p>
+
+        <blockquote>
+<pre>% md5sum hoc-7.0.6.beta.tar.gz
+f6a8f9fa5d8d9872824d929db192405e  hoc-7.0.6.beta.tar.gz
+</pre>
+        </blockquote>
+
+        <p>
+            The checksum match verifies that the <tt>.tar.gz</tt> file
+            was not corrupted during transmission, and your copy
+            matches mine exactly.
+        </p><p>
+        </p><p>
+            Many of the archives also contain separate <tt>.sig</tt>
+            detached signature files, such as the
+            <tt>hoc-7.0.6.beta.tar.gz.sig</tt> file for the above
+            example.
+        </p>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="key-servers">
+                Key servers for public keys
+            </a>
+        </h2>
+
+        <p>
+            How do you know that someone's public key hasn't been
+            tampered with?  An attacker who managed to do this would
+            been able to decrypt messages sent to your intended
+            recipient, but that person would be unable to do so.
+        </p>
+
+        <p>
+            The solution to this problem is for users who create a new
+            public key to immediately register it with one or more
+            neutral third parties, called <em>public key servers</em>,
+            who act as (presumably incorruptible) escrow agents.
+        </p>
+
+        <p>
+            There is a small network of such servers for PGP keys
+            distributed across several countries.  Registration with
+            just one is sufficient, since they exchange their public
+            key archives, although it may take several days for a
+            newly-registered key to propagate widely.  Here is a short
+            list of some public key servers:
+        </p>
+
+        <ul>
+            <li>
+                <a href="http://math-www.uni-paderborn.de/pgp/">
+                    <tt>http://math-www.uni-paderborn.de/pgp/</tt>
+                </a>
+            </li>
+            <li>
+                <a href="http://pgp.mit.edu/">
+                    <tt>http://pgp.mit.edu/</tt>
+                </a>
+            </li>
+            <li>
+                <a href="http://pgp.zdv.uni-mainz.de/keyserver/pks-commands.html#extract">
+                    <tt>http://pgp.zdv.uni-mainz.de/keyserver/pks-commands.html#extract</tt>
+                </a>
+            </li>
+            <li>
+                <a href="http://subkeys.pgp.net/">
+                    <tt>http://subkeys.pgp.net/</tt>
+                </a>
+            </li>
+            <li>
+                <a href="http://www.cl.cam.ac.uk/PGP/pks-commands.html#extract">
+                    <tt>http://www.cl.cam.ac.uk/PGP/pks-commands.html#extract</tt>
+                </a>
+            </li>
+            <li>
+                <a href="http://www.keyserver.net/en/">
+                    <tt>http://www.keyserver.net/en/</tt>
+                </a>
+            </li>
+        </ul>
+
+        <p>
+            Key servers allow you to lookup keys by email addresses
+            and by personal name.  For example, at one of them, a
+            search for <tt>beebe@math.utah.edu</tt> produces:
+        </p>
+
+        <blockquote>
+<tt>
+Public Key Server -- Index ``beebe@math.utah.edu ''<br>
+<br>
+Type bits /keyID    Date       User ID<br>
+pub  1024D/<a href="http://pgp.mit.edu:11371/pks/lookup?op=get&amp;search=0xA93C57C2">A93C57C2</a> 2003/01/30 Nelson H. F. Beebe &lt;<a href="http://pgp.mit.edu:11371/pks/lookup?op=vindex&amp;search=0xA93C57C2">beebe@math.utah.edu</a>&gt;<br>
+pub  1024R/<a href="http://pgp.mit.edu:11371/pks/lookup?op=get&amp;search=0xB85F1941">B85F1941</a> 1998/06/12 Nelson H. F. Beebe &lt;<a href="http://pgp.mit.edu:11371/pks/lookup?op=vindex&amp;search=0xB85F1941">beebe@math.utah.edu</a>&gt;<br>
+</tt>
+        </blockquote>
+
+        <p>
+            As shown in this example, the keyID values are
+            hyperlinked: selecting one of them leads to a page with
+            the public key block for that person.  The email addresses
+            are also hyperlinked: they lead to a list of keys
+            registered by the person with that address.
+        </p>
+
+        <p>
+            A search for just <tt>Beebe</tt> turns up dozens of keys
+            registered by people with that name, along with their
+            email addresses.  A search for the more common name
+            <tt>Nelson</tt> turns up hundreds of keys. A search for
+            <tt>Nelson Utah</tt> turned up only three keys when this
+            experiment was made: the above two, plus a third
+            one. Thus, you can usually find a key, even when you don't
+            know the person's exact name or email address, but you do
+            know part of their name or location.
+        </p>
+
+        <p>
+            You can also search for keyIDs at some key servers, but
+            you need to make sure that the keyID is prefixed with 0x
+            (for hexadecimal).  For example, in my case, search for
+            0xA93C57C2 instead of A93C57C2.  Search by keyID is useful because
+            <a href="#signature-verification">
+                signature verification
+            </a>
+            may report just the keyID, without an associated human
+            name or email address.
+        </p>
+
+        <p>
+            <tt>gpg</tt> can search for keys at keyservers specified
+            in your <tt>$HOME/.gnupg/gpg.conf</tt> file:
+        </p>
+
+        <blockquote>
+<pre>% gpg --search 0xA93C57C2
+...
+gpg: searching for "0xA93C57C2" from HKP server wwwkeys.pgp.net
+Keys 1-1 of 1 for "0xA93C57C2"
+(1)     Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+          1024 bit DSA key A93C57C2, created 2003-01-30
+Enter number(s), N)ext, or Q)uit &gt; q
+</pre>
+        </blockquote>
+
+        <p>
+            You can also specify a keyserver on the command line:
+        </p>
+
+        <blockquote>
+<pre>% gpg --keyserver http://pgp.mit.edu/ --search 0xA93C57C2
+...
+gpg: searching for "0xA93C57C2" from HKP server pgp.mit.edu
+Keys 1-1 of 1 for "0xA93C57C2"
+(1)     Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+          1024 bit DSA key A93C57C2, created 2003-01-30
+Enter number(s), N)ext, or Q)uit &gt; q
+</pre>
+        </blockquote>
+
+        <p>
+            If you select a key by number from the displayed list,
+            <tt>gpg</tt> automatically adds it to your GnuPG keyring
+            (but <em>not</em> to your PGP keyring).  PGP does not
+            appear to have a similar key-search facility.
+        </p>
+
+        <blockquote>
+            <table border="10">
+                <tbody><tr>
+                    <td>
+                        Once a public key is registered with a key
+                        server, it cannot be revoked without knowledge
+                        of the original passphrase that led to its
+                        construction.  This makes it very hard for an
+                        attacker to delete a registered public key,
+                        and replace it with a bogus one, adding to the
+                        confidence that one can have in registered
+                        public keys.  Of course, if you forget your
+                        own pass phrase, you cannot revoke your own
+                        public key either!  Similarly, someone who
+                        manages to crack your computer account could
+                        impersonate you, and create and register a key
+                        whose encryptions you cannot decipher.
+                        Nothing is for certain, sigh...
+                    </td>
+                </tr>
+            </tbody></table>
+        </blockquote>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="adding-a-key">
+                Adding a public key to your keyring
+            </a>
+        </h2>
+
+        <p>
+            Once you have found a public key for the desired user,
+            save the public key block in a temporary file, say
+            <tt>tempfile</tt>.  This file will be 50 to 1000 lines
+            long, and look something like this:
+        </p>
+
+        <blockquote>
+<pre>% cat tempfile
+       Public Key Server -- Get ``0xA93C57C2 ''
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: PGP Key Server 0.9.6
+
+mQGiBD45JvoRBADB2wXsvcr0GkSy7ESDhND/7TSeDt/K8xGTiaZXs5weCGvdbngC
+2cdjtGAJEVtNMnXfXBigKnrrN6ozpjBl7HFyOz+bXxrpCt2yQ/TGjQKpooXryaNM
+...
+     uhbqgAAKCRD9ng6XqTxXwoz/AJ4xC9UlipWFMXEYvQco8GRA7ZgXpwCePBwSbhAw
+2fkncUHdprzxMorL3dE=
+=Oqpu
+-----END PGP PUBLIC KEY BLOCK-----
+</pre>
+        </blockquote>
+
+        <p>
+            To add that key to your keyring, do this:
+        </p>
+
+        <blockquote>
+<pre>% pgp -ka tempfile
+Pretty Good Privacy(tm) Version 6.5.8
+(c) 1999 Network Associates Inc.
+Uses the RSAREF(tm) Toolkit, which is copyright RSA Data Security, Inc.
+Export of this software may be restricted by the U.S. government.
+
+
+Looking for new keys...
+DSS  2048/1024 0xA93C57C2 2003/01/30 Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+sig?           0xA93C57C2             (Unknown signator, can't be checked)
+
+keyfile contains 1 new keys. Add these keys to keyring ? (Y/n) y
+
+
+New userid: "Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;".
+New signature from keyID 0xA93C57C2 on userid Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+
+Keyfile contains:
+   1 new key(s)
+   1 new signatures(s)
+   1 new user ID(s)
+
+
+Summary of changes :
+
+New userid: "Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;".
+New signature from keyID 0xA93C57C2 on userid Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+
+Added :
+   1 new key(s)
+   1 new signatures(s)
+   1 new user ID(s)
+</pre>
+        </blockquote>
+
+        <p>
+            During the key addition, <tt>pgp</tt> will update about
+            five files in your <tt>$HOME/.pgp</tt> directory.
+        </p>
+
+        <p>
+            You can also use the same key file to add the key to the
+            separate keyring maintained <tt>gpg</tt>:
+        </p>
+
+        <blockquote>
+<pre>% gpg --import tempfile
+gpg: /u/class/b/c-bnhf/.gnupg/trustdb.gpg: trustdb created
+gpg: key A93C57C2: public key "Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+</pre>
+        </blockquote>
+
+        <p>
+            GnuPG also has a PGP-like interface that takes the same
+            command-line options as <tt>pgp</tt>; use it like this:
+        </p>
+
+        <blockquote>
+<pre>% pgpgpg -ka tempfile
+gpg: key A93C57C2: "Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;" not changed
+gpg: Total number processed: 1
+gpg:              unchanged: 1
+</pre>
+        </blockquote>
+
+        <p>
+            Either of these key additions will cause GnuPG to update
+            two files in your <tt>$HOME/.gnupg</tt> directory.
+        </p>
+
+        <p>
+            Although GnuPG has an option to automatically import a key
+            from a keyserver, PGP does not:
+        </p>
+        <blockquote>
+<pre>% gpg --recv-keys 0xE707FDA5
+gpg: key E707FDA5: public key "Werner Lemberg &lt;wl@gnu.org&gt;" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+</pre>
+        </blockquote>
+        <p>
+             If you wish to use both GnuPG and PGP, then it is better
+             to fetch keys into temporary files, and then import them
+             manually.  The Unix shell script
+             <a href="http://www.math.utah.edu/%7Ebeebe/getpubkey.sh">
+                 getpubkey.sh
+             </a>
+             provides a convenient way to do this:
+         </p>
+        <blockquote>
+<pre>% getpubkey.sh 0xE707FDA5
+-rw-rw-r--  1 jones devel 1439 Sep 24 11:38 /tmp/pgp-0xE707FDA5.tmp.13306
+Try:    pgp -ka /tmp/pgp-0xE707FDA5.tmp.13306
+        pgpgpg -ka /tmp/pgp-0xE707FDA5.tmp.13306
+        rm -f /tmp/pgp-0xE707FDA5.tmp.13306
+</pre>
+        </blockquote>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="signature-verification">
+                Verifying a file signature
+            </a>
+        </h2>
+
+        <p>
+            Besides their use for decrypting messages, public keys can
+            be used to verify digital signatures on files.  To allow
+            detection of tampering, some Internet file archives
+            provide digital signature files.  For example, at the
+            GnuPG archive, you might find, and fetch, files like this:
+        </p>
+
+        <blockquote>
+<pre>% ncftp ftp://ftp.gnupg.org/GnuPG/gnupg/
+ncftp /GnuPG/gnupg &gt; dir gnupg-1.2.2*
+-rw-r--r--   1 103      65534      2225034 May  3 11:58 gnupg-1.2.2.tar.bz2
+-rw-r--r--   1 103      65534           65 May  3 11:58 gnupg-1.2.2.tar.bz2.sig
+-rw-r--r--   1 103      65534      3183869 May  1 18:00 gnupg-1.2.2.tar.gz
+-rw-r--r--   1 103      65534           65 May  1 18:00 gnupg-1.2.2.tar.gz.sig
+ncftp /GnuPG/gnupg &gt; get gnupg-1.2.2.tar.gz*
+gnupg-1.2.2.tar.gz.sig:                                 65.00 B  714.05 B/s
+gnupg-1.2.2.tar.gz:                                      3.04 MB  160.10 kB/s
+ncftp /GnuPG/gnupg &gt; quit
+</pre>
+        </blockquote>
+
+        <p>
+            You can then verify the integrity of the archive file with
+            PGP like this:
+        </p>
+
+        <blockquote>
+<pre>% pgp gnupg-1.2.2.tar.gz.sig
+Pretty Good Privacy(tm) Version 6.5.8
+(c) 1999 Network Associates Inc.
+Uses the RSAREF(tm) Toolkit, which is copyright RSA Data Security, Inc.
+Export of this software may be restricted by the U.S. government.
+
+File 'gnupg-1.2.2.tar.gz.sig' has signature, but with no text.
+Text is assumed to be in file 'gnupg-1.2.2.tar.gz'.
+signature not checked.
+Signature made 2003/05/01 15:10 GMT
+key does not meet validity threshold.
+
+WARNING:  Because this public key is not certified with a trusted
+signature, it is not known with high confidence that this public key
+actually belongs to: "(KeyID: 0x57548DCD)".
+</pre>
+        </blockquote>
+
+        <p>
+            Alternatively, you can use GnuPG like this:
+        </p>
+
+        <blockquote>
+<pre>% gpg gnupg-1.2.2.tar.gz.sig
+gpg: Signature made Thu 01 May 2003 09:10:15 AM MDT using DSA key ID 57548DCD
+gpg: Can't check signature: public key not found
+</pre>
+        </blockquote>
+
+        <p>
+            Both programs complained that they could not verify the
+            signature because the signer's key was not found on the
+            keyring.
+        </p>
+
+        <p>
+            To remedy that problem, fetch the signer's public key from
+            a trusted key server as described earlier, and add it to
+            your PGP and GnuPG keyrings:
+        </p>
+
+        <blockquote>
+<pre>% pgp -ka tempkoch
+Pretty Good Privacy(tm) Version 6.5.8
+(c) 1999 Network Associates Inc.
+Uses the RSAREF(tm) Toolkit, which is copyright RSA Data Security, Inc.
+Export of this software may be restricted by the U.S. government.
+
+
+Looking for new keys...
+DSS  1024      0x57548DCD 1998/07/07 Werner Koch (gnupg sig) &lt;dd9jn@gnu.org&gt;
+...
+
+% gpg --import tempkoch
+gpg: key 57548DCD: public key "Werner Koch (gnupg sig) &lt;dd9jn@gnu.org&gt;" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+</pre>
+        </blockquote>
+
+        <p>
+            Now verify the file signatures again:
+        </p>
+
+        <blockquote>
+<pre>% pgp gnupg-1.2.2.tar.gz.sig
+Pretty Good Privacy(tm) Version 6.5.8
+(c) 1999 Network Associates Inc.
+Uses the RSAREF(tm) Toolkit, which is copyright RSA Data Security, Inc.
+Export of this software may be restricted by the U.S. government.
+
+File 'gnupg-1.2.2.tar.gz.sig' has signature, but with no text.
+Text is assumed to be in file 'gnupg-1.2.2.tar.gz'.
+Good signature from user "Werner Koch (gnupg sig) &lt;dd9jn@gnu.org&gt;".
+Signature made 2003/05/01 15:10 GMT
+
+WARNING:  Because this public key is not certified with a trusted
+signature, it is not known with high confidence that this public key
+actually belongs to: "Werner Koch (gnupg sig) &lt;dd9jn@gnu.org&gt;".
+
+
+% gpg gnupg-1.2.2.tar.gz.sig
+gpg: Signature made Thu 01 May 2003 09:10:15 AM MDT using DSA key ID 57548DCD
+gpg: Good signature from "Werner Koch (gnupg sig) &lt;dd9jn@gnu.org&gt;"
+gpg: checking the trustdb
+gpg: no ultimately trusted keys found
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 6BD9 050F D8FC 941B 4341  2DCC 68B7 AB89 5754 8DCD
+</pre>
+        </blockquote>
+
+        <p>
+            Both PGP and GnuPG confirm that the digital signature on
+            the file is good, so we can be confident that the archive
+            file <tt>gnupg-1.2.2.tar.gz</tt> has contents that are
+            identical with the file that Werner Koch signed at his
+            site.
+        </p>
+
+        <p>
+            Both programs warn that Werner Koch's public key is not
+            certified by a trusted authority; consult their
+            documentation to find out more about how to key
+            certification works.  In practice, you may be satisfied to
+            know just that the digital signature was verified, and
+            that it matches the expected user's public key that you
+            downloaded from a public key server.  The next section
+            describes how you might increase trust in a public key.
+        </p>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="key-verification">
+                Verifying a public key
+            </a>
+        </h2>
+
+        <p>
+            Once you have someone's public key, perhaps obtained from
+            a keyserver or an FTP or Web site, you still don't know
+            that the key is genuine: you have to trust the source.
+        </p>
+        <p>
+            If you can contact the key owner by FAX, telephone, or
+            e-mail, you can request a <em>key fingerprint</em>, which
+            is a sequence of hexadecimal characters that represent a
+            checksum of the public key.  You can then compare it with
+            the fingerprint extracted from the purportedly-identical
+            public key on your keyring with either PGP or GnuPG:
+        </p>
+
+        <blockquote>
+<pre>% pgp -kvc 0xA93C57C2
+...
+Looking for user ID "0xA93C57C2".
+Type bits      keyID      Date       User ID
+DSS  2048/1024 0xA93C57C2 2003/01/30 expires 2102/01/05
+                                      Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+          Key fingerprint =  7C 18 71 99 BC 82 5E AB  06 EB 9B 96 FD 9E 0E 97  A9 3C 57 C2
+1 matching key found.
+
+% pgpgpg -kvc 0xA93C57C2
+pub  1024D/A93C57C2 2003-01-30 Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+     Key fingerprint = 7C18 7199 BC82 5EAB 06EB  9B96 FD9E 0E97 A93C 57C2
+sub  2048g/88DE0889 2003-01-30 [expires: ????-??-??]
+
+% gpg --fingerprint 0xA93C57C2
+pub  1024D/A93C57C2 2003-01-30 Nelson H. F. Beebe &lt;beebe@math.utah.edu&gt;
+     Key fingerprint = 7C18 7199 BC82 5EAB 06EB  9B96 FD9E 0E97 A93C 57C2
+sub  2048g/88DE0889 2003-01-30 [expires: ????-??-??]
+</pre>
+        </blockquote>
+
+        <p>
+            <em>If</em> they match, and <em>if</em> you have reason to
+            believe that the person who sent you the key was indeed
+            the key owner, then the public key has more trust that it
+            had before.
+        </p>
+
+        <!-- ======================================================= -->
+
+        <hr>
+
+        <h2>
+            <a name="reading-list">
+                Annotated reading list
+            </a>
+        </h2>
+
+        <ol>
+            <li>
+                Philip R. Zimmermann, <em>The Official PGP User's
+                Guide</em>, MIT Press, 1995, ISBN 0-262-74017-6, xviii
+                + 127 pages.<br>
+                [<em>The brief, and official, guide from the inventor
+                of PGP, who is truly a hero of the world's peoples,
+                and was unjustly persecuted for his belief in freedom
+                of speech and communication.</em>]
+            </li>
+            <li>
+                Simson Garfinkel, <em>PGP: Pretty Good Privacy</em>,
+                O'Reilly &amp; Associates, 1995, ISBN 1-56592-098-8,
+                xxxiii + 393 pages.<br>
+                [<em>An excellent, and detailed, account of how to use
+                PGP.</em>]
+            </li>
+            <li>
+                Bruce Schneier, <em>E-Mail Security: how to keep your
+                electronic messages private</em>, Wiley, 1995, ISBN 0-471-05318-X,
+                xii + 365 pages.<br>
+                [<em>An early book on secure e-mail, from a leading
+                authority on cryptography, security, and
+                privacy.</em>]
+            </li>
+            <li>
+                Bruce Schneier, <em>Applied Cryptography: Protocols,
+                Algorithms, and Source Code in C</em>, Wiley, 1996,
+                ISBN 0-471-12845-7 (cloth), 0-471-11709-9 (paper),
+                xxiii + 758 pages.<br>
+                [<em>The theory and software underlying modern
+                cryptography.</em>]
+            </li>
+            <li>
+                Electronic Frontier Foundation, <em>Cracking DES:
+                Secrets of Encryption Research, Wiretap Politics &amp;
+                Chip Design</em>, O'Reilly &amp; Associates, 1998, ISBN
+                1-56592-520-3, 272 pages.<br>
+                [<em>An interesting book on how encryption with the
+                U.S. Data Encryption Standard can be broken.  On
+                26-Nov-2001, DES was replaced by a much stronger
+                method, the
+                <a href="http://csrc.nist.gov/CryptoToolkit/aes/">
+                    Advanced Encryption Standard (AES), FIPS PUB 197.
+                </a>
+                AES was developed in an open competition of the
+                world's leading cryptography researchers, and is
+                expected to be deployed worldwide in both software and
+                hardware implementations.  Higher-level encryption
+                software, like PGP and Secure Shell (ssh), supports
+                multiple encryption methods, so AES support should be
+                available soon.</em>]
+            </li>
+            <li>
+                Netscape Communications, Inc., 
+                <a href="http://web.archive.org/web/20040827080204/http://developer.netscape.com/tech/security/ssl/howitworks.html">
+                    <em>How SSL works</em>
+                </a>
+                <br>
+                This is a reasonable tutorial on how the Secure
+                Sockets Layer (SSL) protocol works to provide a
+                private communications channel over a public network.
+                For example, Web browsers use SSL when the URL begins
+                with <em>https</em> intead of <em>http</em>.
+            </li>
+            <li>
+                Bruce Schneier, <em>Secrets and Lies: Digital Security
+                in a Networked World</em>, Wiley, 2000, ISBN
+                0-471-25311-1, xv + 412 pages.<br>
+                [<em>This is an outstanding, non-technical, and
+                highly-readable, account of how data security affects
+                the lives of everyone.  I consider it a must-read for
+                every computer user, every office manager, and every
+                politician, throughout the entire world.</em>]
+            </li>
+            <li>
+                Niels Ferguson and Bruce Schneier, <em>Practical
+                Cryptography</em>, Wiley, 2003, ISBN 0-471-22894-X, xx
+                + 410 pages.<br>
+                [<em>A more specialized text that is intermediate
+                between Applied Cryptography and Secrets and Lies.</em>]
+            </li>
+        </ol>
+
+        <p>
+            Cryptography and cryptanalysis are active research areas,
+            with a huge surge in activity since the invention of
+            public-key cryptography by Diffie and Hellman in 1976, and
+            independently, and in a different way, by Rivest, Shamir,
+            and Adleman (RSA) in 1978.  For coverage of much of the
+            important literature in these fields, visit the
+            <a href="http://www.math.utah.edu/pub/tex/bib/index-table.html">
+                TUG bibliography archives.
+            </a>
+            The coverage of cryptography starts with a book published
+           in 1606.
+        </p>
+
+    
+
+</body></html>

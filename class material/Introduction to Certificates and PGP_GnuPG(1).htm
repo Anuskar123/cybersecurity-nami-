@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"><title>Introduction to Certificates and PGP/GnuPG</title>
+  
+  <link type="text/css" rel="stylesheet" href="Introduction%20to%20Certificates%20and%20PGP_GnuPG_files/java2.htm"></head>
+
+<body style="background-color: rgb(255, 255, 255);">
+<table border="0" width="100%">
+  <tbody>
+    <tr>
+      <td align="left" width="40%">Computer Security lecture notes</td>
+      <td align="right" width="60%">Copyright © 2005 <a href="http://www.cs.bham.ac.uk/%7Emdr/">Mark Dermot Ryan</a><br>
+The University of Birmingham<br>
+      <small>Permission is granted to copy, distribute and/or modify
+this document<br>
+under the terms of the <a href="http://www.gnu.org/copyleft/fdl.html">GNU
+Free Documentation License</a>,</small> </td>
+    </tr>
+  </tbody>
+</table>
+<h1 align="center">Key certificates and PGP<br>
+</h1>
+<h3>Recap on issues about how cryptography is used</h3>
+Symmetric-key encryption allows agents to communicate securely, but
+leaves them with a hard problem: <span style="font-style: italic;">how
+to agree securely on a key?</span> The main solutions available to them
+are:<br>
+<ol type="a">
+  <li>Face-to-face key exchange</li>
+  <li>Key exchange via a trusted third party (TTP), with whom the
+agents already share a secret symmetric key.<br>
+  </li>
+</ol>
+These solutions are inconvenient and expensive, especially as they have
+to be done frequently, or you have a key-management headache. (With n
+parties, you have O(n<sup>2</sup>) keys, or O(2<sup>n</sup>) keys if
+you want to allow messages private to a group.)<br>
+<br>
+Public-key encryption solves the problem of key exchange, but gives us
+another problem: <span style="font-style: italic;">how to ensure the
+authenticity of other people's public keys?</span> The same solutions
+exist:<br>
+<ol type="a">
+  <li>Face-to-face key exchange</li>
+  <li>Key exchange via a TTP</li>
+</ol>
+but now they have to be done only once, since are only O(n) keys to
+manage. Public-key encryption also gives us another solution:<br>
+<ol start="3" type="a">
+  <li>Key certificates.</li>
+</ol>
+<h3>The concept of key certficate</h3>
+A key certificate is an assertion that a certain key belongs to a
+certain entity, which is digitally signed by an entity (usually a
+different one).<br>
+<br>
+<div style="margin-left: 40px;">If Alice trusts Bob and knows his
+public key, and Bob has signed asserting that Carol's key is K, then
+Alice may be willing to believe that Carol's key is K.&nbsp; <br>
+</div>
+<br>
+In this example, Bob might create a signed certificate saying that
+Carol's key is K.&nbsp; Anyone reading this certificate is assured that
+Bob asserts that Carol's&nbsp; key is K. Thus, Carol can present that
+certificate to anyone that she wants to give her key to. Bob does not
+need to be present, or to be involved in the transaction. Carol can
+reuse the certiticate he has signed as often as she wants.<br>
+<br>
+However, if Alice is to be convinced that Carol's key is K, she has to
+already know Bob's public key (in order to verify that he really states
+that Carol's key is K), and she has to trust him (in order to believe
+the statement).<br>
+<br>
+<span style="font-weight: bold;">Example:</span> when you use "https"
+(i.e., a secure web site, say gmail), then gmail sends your browser its
+public key.&nbsp; Your browser needs proof that that key really is
+gmail's key. So gmail sends a certificate asserting that the key is
+really gmail's key. The certificate is signed by a certificate
+authority, which in gmail's case is "Thawte Consulting (Pty) Ltd." Your
+browser will verify Thawte's signature on gmail's key, and warn you if
+it is incorrect. Your browser has Thawte's key built into it, so it can
+verify that Thawte really asserts that the key belongs to gmail. You
+are expected to believe Thawte, since it is a reputable key certificate
+authority.<br>
+<h3>Trust chains</h3>
+There can be trust chains. Suppose <br>
+<ul>
+  <li>A1 has signed asserting that A2's key is K2</li>
+  <li>A2 has signed asserting that A3's key is K3</li>
+  <li>. . .</li>
+  <li>A18 has signed asserting that A19's key is K19</li>
+  <li>A19 has signed asserting that A20's key is K20</li>
+  <li>A20 has signed asserting that B's key is K</li>
+</ul>
+If I know A1's key, and I trust A1, A2,..., A20, then I am willing to
+believe that B's key is K.<br>
+<br>
+A1 states that A2's key is K2. So, if A2 signs an assertion X, then A1
+states that A2 states X. Thus, in the situation above, A1 states that
+A2 states that A3 states ... that A19 states that A20 states that B's
+key is K. <br>
+<h3>X.509 certificates</h3>
+X.509 certificates are used by SSL/TLS, SET, S/MIME, IPSec and other
+protocols. They have these components:<br>
+<ul>
+  <li>Version</li>
+  <li>Serial number</li>
+  <li>Signature algorithm identifier</li>
+  <li style="color: rgb(153, 0, 0);">Issuer name</li>
+  <li>Period of validity</li>
+  <li style="color: rgb(153, 0, 0);">Subject name</li>
+  <li><span style="color: rgb(153, 0, 0);">Subject public-key </span>and
+algorithm</li>
+  <li>Issuer unique identifier</li>
+  <li>Subject unique identifier</li>
+  <li>Extensions</li>
+  <li style="color: rgb(153, 0, 0);">Signature</li>
+</ul>
+The unique identifier fields were added in version 2 to handle the
+possible re-use of subject and/or issuer names; rarely used.<br>
+<br>
+X.509 certificates are typically issued by a <span style="font-style: italic;">certificate authority</span> (CA). Anyone
+can be a CA, but not all CA's are trusted by everyone. Verisign is a
+top-level CA, trusted by most people. Its key (valid 9/11/94--7/1/10)
+is built into browsers. If you go to Amazon's secure server and you
+view the certificate information held by your browser, you will
+see that Verisign certifies its public key (valid 14/5/03--13/5/04). So
+the chain is:<br>
+<ul>
+  <li>The browser knows Verisign's key</li>
+  <li>Verisign signs Amazon's key</li>
+</ul>
+We trust Verisign, so we are assured of Amazon's key. Therefore we can
+be sure
+that we are dealing with Amazon, and not someone who is pretending to
+be Amazon (e.g, by launching a man-in-the-middle attack).<br>
+<br>
+If you go to <a href="http://sis.cs.bham.ac.uk/"><span style="font-family: monospace;">sis.cs.bham.ac.uk</span></a>, Mozilla
+will say:<br>
+<ul>
+  <li>Unable to verify the identity of School Information System.
+Possible reasons for this error: (a) Your browser does not recognise
+the CA; (b) The site's certificate is incomplete due to a server
+misconfiguration; (c) You are connected to a site pretending to be
+School of Information System, possibly to obtain your confidential
+information. </li>
+</ul>
+(You can continue anyway, at your own risk.) The reason is that SIS has
+not obtained a certificate from a CA recognised by the browser, such as
+Verisign or Thawte (because it is expensive and inconvenient to do so).<br>
+<br>
+<h3>PGP ("Pretty Good Privacy")</h3>
+PGP is a complete working system for
+cryptographic protection of files and email. It offers confidentiality,
+integrity, and non-repudiation, by using public-key cryptography
+algorithms. The original version by Phil Zimmermann
+was&nbsp; released on the Internet in 1991. <br>
+<br>
+PGP is now commercial, though freeware versions for Windows and other
+non-Linux platforms exist for individual, non-commercial use. OpenPGP
+is
+a set of standards which describes the formats for encrypted messages,
+keys, and digital signatures. GnuPG (or gpg) is an open-source GPL
+implementation of the standards, and is the usual implementation found
+on GNU/Linux systems. Most of what you read about PGP applies also to
+GnuPG, and vice versa.<br>
+<br>
+A "PGP key" has several parts: <br>
+<ul>
+  <li>the name of its owner</li>
+  <li>the numerical value(s) comprising the key</li>
+  <li>what the key is to be used for (e.g., for signing; for encryption)</li>
+  <li>the algorithm the key is to be used with, e.g. El Gamal; RSA; DSA</li>
+  <li>(possibly) an expiration date</li>
+</ul>
+These fields are similar to those of an X.509 certificate. But a PGP
+key is not yet a certificate (no-one has signed it yet).<br>
+<br>
+The PGP software will generate keys for you, and help you manage them.
+Usually
+you will have a different key for signing as for encryption. You may
+even have two keys for signing; one for signing <span style="font-style: italic;">keys</span> and one for signing email and
+everything else. This is for extra security; your key-signing key is
+the most important one, and if other keys were compromised you would
+like that one not to be automatically compromised too.<br>
+<br>
+When using PGP, you will need to store lots of keys. <br>
+<ul>
+  <li>your own secret key (this will be stored encrypted with a
+passphrase)</li>
+  <li>your own public key and the public keys of your friends and
+associates (stored in the clear)<br>
+  </li>
+</ul>
+The PGP software puts them in a file, called your <span style="font-style: italic;">keyring</span>. Your private keys are in a
+file only you can read; for extra security, they are stored encrypted
+with a pass phrase. The public keys don't have to be protected.&nbsp;
+The keyring also stores certificates, i.e. copies of other people's
+public keys which are signed by you. These ones are known with
+certainty by you to belong to the people they claim to belong to. <br>
+<br>
+When you send someone a "signed message", PGP actually signs a hash of
+the message. This is because<br>
+<ul>
+  <li>it is more efficient; it only has to sign 160 bits instead of
+your whole message, for remember that PK crypto is expensive;</li>
+  <li>it means that the signature is a manageable length (160 bits,
+ASCII-armoured, so perhaps 50 or 60 bytes)</li>
+</ul>
+When you send someone a message "encrypted with their public key", PGP
+actually encrypts it with a newly-generated symmetric key, and then you
+send that encrypted version appended to the symmetric key
+encrypted with the public key. It's more efficient. It also means you
+can prepare a message for reading by several people: just append the
+symmetric key several times, each time encrypted with one of the public
+keys of the intended recipient.<br>
+<br>
+Thus, PGP puts together the ideas of symmetric-key encryption,
+public-key encryption, and hash functions, and also text compression,
+in a practical and usable way to enable you to sign and/or encrypt
+email. The algorithms PGP uses are: <br>
+<ul>
+  <li>RSA, DSS, Diffie-Hellman for public-key encryption</li>
+  <li>3DES, IDEA, CAST-128 for symmetric-key encryption</li>
+  <li>SHA-1 for hashing</li>
+  <li>ZIP for compression<br>
+  </li>
+</ul>
+<h3>Key management</h3>
+I need to have Bob's public key on my keyring if<br>
+<ul>
+  <li>I want to send Bob an encrypted message</li>
+  <li>I want to verify the authenticity of a message which appears to
+have come from Bob</li>
+</ul>
+So, how do I get Bob's key onto my keyring? Here are some ways in which
+Bob can give me his key in a secure way:<br>
+<ul>
+  <li>He can give it to me physically, e.g. on his business card, on a
+floppy disk/CDROM/. . .</li>
+  <li>He can read it to me on the phone (assuming I can recognise him)</li>
+  <li>He can register with Verisign, but this is expensive and
+inconvenient and rather against the universal spirit of PGP.</li>
+</ul>
+More often, I will get Bob's key in an insecure way. . .<br>
+<ul>
+  <li>I get it from his web page</li>
+  <li>He sends it to me by email</li>
+  <li>I get it from an untrusted PGP key server</li>
+</ul>
+. . . and then I will verify it, e.g.<br>
+<ul>
+  <li>By reading a hash of it on the phone (assuming I can recognise
+him by phone)</li>
+  <li>By checking a hash of it obtained in a secure way</li>
+  <li>By establishing a key-signing chain like the one with A1, A2, . .
+., A20 above. This is the basis for. . .<br>
+  </li>
+</ul>
+<h3>The web of trust</h3>
+A key in your public keyring has the following attributes associated
+with it:<br>
+<ul>
+  <li>The owner</li>
+  <li>The owner trust, assigned by the user. It is a measure of how
+much the user trusts the owner to sign keys. Values are</li>
+  <ul>
+    <li>ultimate trust: the owner is the user</li>
+    <li>complete trust: the owner is <span style="font-style: italic;">always</span>
+trusted</li>
+    <li>marginal trust: the owner is <span style="font-style: italic;">usually</span>
+trusted</li>
+    <li>untrusted: the owner is not trusted</li>
+    <li>unknown</li>
+  </ul>
+  <li>Zero or more signatures, each one associated with a signatory
+trust. It takes the same range of values as the owner trust. If the
+signatory's key is in the keyring, then its owner trust is used; else, <span style="font-style: italic;">unknown</span> is used.</li>
+  <li>The key legitimacy, computed by PGP from the collection of
+signatory trust fields.&nbsp; If a signatory has owner-trust ultimate,
+then the key
+legitimacy is set to complete. Otherwise, PGP computes a weighted sum
+of the trust values. A weight of 1/X is given to always-trusted
+signatures, and 1/Y to usually-trusted signatures, where X,Y are set by
+the user (defaults: X=1, Y=2). When the sum reaches 1, the legitimacy
+is set to complete. Thus, X always-trusted signatures or Y
+usually-trusted signatures, or some combination, is needed for you to
+consider a key legitimate.<br>
+  </li>
+</ul>
+<br>
+The diagram below is reproduced from William Stallings' excellent book,
+<span style="font-style: italic;">Cryptography and Network Security</span>
+[2]. These diagrams are copyright 2003&nbsp; by Pearson Education Inc.,
+and are not covered by the Gnu Free Documentation License which covers
+the other parts of this document.<br>
+<img src="Introduction%20to%20Certificates%20and%20PGP_GnuPG_files/pgp_web.htm" alt="Example web of trust" style="width: 729px; height: 579px;"><br>
+<br>
+The diagram illustrates how signature trust and key-signing combine to
+produce
+key
+legitimacy. The user (marked "you") always trusts agents D, E, F, and L
+to
+sign other keys and partially trusts users A and B to sign other
+keys. The arrows show who has signed whose key.<br>
+<ul>
+  <li>X may sign Y's key, and also trust Y. Example: you and D. You're
+best
+friends, or frequent associates.</li>
+  <li>X may sign Y's key, without trusting Y. Example: you and C. In
+this case, you assert you know it's C's key, but you don't necessarily
+have reason to believe in C's judgment.</li>
+  <li>X may not have signed Y's key, but still trust Y. Example: you
+and L. You're friends, but you haven't had much electronic
+communication yet.</li>
+  <li>X may not have signed Y's key, and not trust Y. Example: you and
+P, or you and R, or you and S. They don't know each other.</li>
+</ul>
+<h3>Getting started with PGP/GnuPG<br>
+</h3>
+Look to see what support your mail client has.&nbsp; If none, change to
+Mutt
+if you like an ascii text-only client, or Mozilla Thunderbird if you
+want a GUI. They're both free.<br>
+<h3>Why does no-one use it?</h3>
+Sadly, nearly no-one uses PGP. Among the 80 staff at SoCS, none of them
+use it regularly. Among the 73 PhD students, two use PGP regularly. Yet
+these people are among the most computer-literate people you can find,
+and they also have the right sort of political profile to be interested
+in PGP. I think there are several reasons why PGP is not much used.<br>
+<ul>
+  <li>It's not considered necessary. There's not that much call for
+encrypted email, and not that much email forgery. (However, <a href="http://computercops.biz/article4580.html">phishing is on the
+increase</a>, and spam could easily be solved if everyone used PGP. So
+this reason will disappear soon.)</li>
+  <li>It's commonly felt that, <span style="font-style: italic;">since
+there is no such thing as 100% security</span>, you might go to a lot
+of effort and still be compromised. The cryptography is almost
+certainly secure, but all the bits around the edges are not. You can be
+tricked into accepting illigitimate keys. And <a href="http://www.suse.de/de/security/2003_048_gpg.html">implementations
+can have bugs</a>.</li>
+  <li>It's quite complicated. You need to spend a day to understand it
+properly. And even then, understanding is not guaranteed!</li>
+  <li>It's a hassle. You need to maintain your keys, your web of trust,
+you need to configure your mail client.</li>
+</ul>
+<a href="http://www.gaudior.net/alma/johnny.pdf">Why
+Johnny can't encrypt</a> is an interesting article attempting to
+explain why people can't/don't want to use PGP. The problems here are
+among the most difficult ones in computer security.&nbsp; I think they
+can be
+overcome, and I think they will have to be in the long term, as attacks
+on privacy (including identity theft, spam, phishing) continue to
+increase.<br>
+<h3>Sources
+</h3>
+<ol>
+  <li>S. Garfinkel and G. Spafford, <span style="font-style: italic;">Web
+Security, Privacy &amp; Commerce</span>, O'Reilly, Second edition,
+2002. There is very readable and good information about PGP/OpenPGP in
+Chapters 4, 6, 7.</li>
+  <li>William Stallings, <span style="font-style: italic;">Cryptography
+and Network Security, Principles and Practice</span><span style="font-style: italic;">,</span>&nbsp; Prentice Hall, 1999.</li>
+  <li><a href="http://www.gnupg.org/gph/en/manual.html">The Gnu Privacy
+handboook</a> is a good intro to getting started with GPG (at least
+under Linux; not sure about the situation for other operating systems)</li>
+  <li><a href="http://www.mutt.org/">Mutt</a> is an easy-to-use
+text-based email client which can <a href="http://www.mutt.org/doc/PGP-Notes.txt">easily be set up</a> to
+use PGP or GPG, for email signing, signature verification, and
+encryption/decryption.</li>
+</ol>
+Trivia:<br>
+<p><a href="http://www.theregister.co.uk/content/55/34801.html">VeriSign
+dead certificate</a>: After the cert VeriSign used to sign other certs
+expired, the chain of
+trust was broken, leaving some aps unable to set up a secure
+connection. These apps then defaulted to trying to access Verisign's
+certificate revocation list server (crl.verisign.com) which, faced with
+a huge extra load, buckled under the pressure.
+</p>
+<p> End<br>
+</p>
+</body></html>

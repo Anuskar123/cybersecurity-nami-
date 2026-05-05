@@ -1,0 +1,327 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+ </head>
+<body bgcolor="#FFFFFF">
+&nbsp;
+<h1>
+Introduction to Encryption</h1>
+
+
+<hr class="PAGE-BREAK">
+
+In most multiaccess networks, the Internet, it is trivially easy for a host to set its
+network interface into "promiscuous mode", and capture copies of all data
+frames which pass across the network.
+<p>&nbsp;This is called <b>eavesdropping</b> or
+<b>packet
+sniffing.</b> Once an eavesdropper has copies of all the
+frames he desires, he can easily view the application data they contain.
+<p>&nbsp;As most current application protocols send
+data across the Internet as "strings of printable ASCII" -- ie, the data
+is sent as <b>plaintext</b>. Thus it is simple to observe messages transmitted
+by others, if one has access to an appropriate point in the network. This
+is the origin of the assertion that
+<b><i>"The
+Internet is insecure".</i></b> The solution is <b>encryption</b> -- encoding
+the message so that it is unintelligible to the intruder, but can be easily
+"unscrambled" by the intended recipient. This is <b>secure communication</b>.
+<blockquote><font size=-1>An area where this insecurity can present a
+<b>Really
+Serious Problem</b> is <b>password authentication</b>. Many application
+protocols (eg Telnet, FTP, POP3, etc) send usernames and passwords across
+the network as plain text, exactly the same as other data -- ie, <b>unencrypted</b>.
+You need to always be aware of this possibility!</font></blockquote>
+
+
+Encryption is a vast technical, scientific and political topic, tightly
+intertwined with the history of computing itself.
+
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+Cryptography Basics</h2>
+A message to be <b>encrypted</b> (known as
+<b>plaintext</b>) is transformed
+by the use of a function (or algorithm) parameterised by a <b>key</b>.
+Traditionally, the same key is used for exncryption and decryption, thus:
+<blockquote><img SRC="l16fig1.gif" ALT="Encryption system diagram" height=169 width=479></blockquote>
+The security of the ciphertext depends on two factors:
+<ul>
+<li>
+The nature of the encryption method, or algorithm. It is nowadays generally
+agreed that open publication of details of the algorithm is a Good Thing.</li>
+
+<br>&nbsp;
+<li>
+The secrecy of the key. Current opinion is that, given a suitably powerful
+encryption algorithm, the security of the system should depend <b>entirely</b>
+on:</li>
+
+<ol type="i">
+<li>
+keeping the key secret, and</li>
+
+<li>
+the length (usually measured in bits) of the key itself, which is usually
+a very good indicator of the <b>work factor</b> required to crack the ciphertext
+by trying every possible key in turn -- <b>exhaustive search</b> or <b>brute
+force</b> attacks.</li>
+</ol>
+</ul>
+
+<hr class="PAGE-BREAK">
+<h2>
+Substitution Ciphers</h2>
+This is the simplest technique, whereby each character in the message is
+replaced by another using some <b>rule</b>. The order of the encrypted
+characters is the same as in the plaintext.
+<p>&nbsp;There are many examples of this technique. Most fall into the
+general category of <b>monoalphabetic substitution</b>, where the output
+alphabet is the same as the input. For example, in the classic
+<b>Caesar
+Cipher</b>, letters of the alphabet were shifted by 3 positions, hence
+<i>a</i>
+becomes <i>D</i>, <i>b</i> becomes
+<i>E</i>, etc. In this case, the key
+could be said to be "3" -- the distance by which each character was translated.
+A more complex example uses a "random" reordering of the letters:
+<blockquote>
+<pre>plaintext:&nbsp; a b c d e f g h i j k l m n o p q r s t u v w x y z
+ciphertext: Q W E R T Y U I O P A S D F G H J K L Z X C V B N M</pre>
+</blockquote>
+hence <i>bad</i> is encrypted as <i>WQR</i><sup><a href="#fn1">[1]</a></sup>.
+<p>&nbsp;This type of cipher turns out to be relatively easy to break,
+despite the huge (<b><tt>26!</tt></b>) keyspace, by using known statistical
+characteristics of English (or other languages), eg:
+<br>&nbsp;
+<br>&nbsp;
+<ul>
+<li>
+letter frequencies - <i>e</i> is most common, then <i>t</i>, etc.</li>
+
+<li>
+trigrams (eg <i>the</i>, <i>and</i>) are common.</li>
+
+<li>
+Some words may be more likely in the particular context.</li>
+</ul>
+<a NAME="fn1"></a><font size=-1><sup>[1]</sup> using the common convention
+that plaintext is shown in <i>italicised lowercase</i> and ciphertext is
+<i>ITALICISED
+UPPERCASE</i>.</font>
+<hr class="PAGE-BREAK">
+<h2>
+Implementing a Simple Substitution Cypher</h2>
+Whilst it's not considered even slightly useful for a "production quality"
+encryption system when used alone, the
+<b><tt>Exclusive-OR</tt></b> (or
+<b><tt>XOR</tt></b>)
+function is worth examining as a simple example of a <b>symmetric</b> encryption
+method. <b><tt>XOR</tt></b> is a
+<b>bitwise</b> (or Boolean) operator,
+with the following
+<b>truth table</b>:
+<blockquote>&nbsp;
+<table ALIGN=LEFT BORDER hspace="25" >
+<tr>
+<td ALIGN=CENTER><b><tt>&nbsp; A&nbsp;</tt></b></td>
+
+<td ALIGN=CENTER><b><tt>&nbsp; B&nbsp;</tt></b></td>
+
+<td ALIGN=CENTER><b><tt>&nbsp; A XOR B&nbsp;</tt></b></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER><tt>0</tt></td>
+
+<td ALIGN=CENTER><tt>0</tt></td>
+
+<td ALIGN=CENTER><tt>0</tt></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER><tt>0</tt></td>
+
+<td ALIGN=CENTER><tt>1</tt></td>
+
+<td ALIGN=CENTER><tt>1</tt></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER><tt>1</tt></td>
+
+<td ALIGN=CENTER><tt>0</tt></td>
+
+<td ALIGN=CENTER><tt>1</tt></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER><tt>1</tt></td>
+
+<td ALIGN=CENTER><tt>1</tt></td>
+
+<td ALIGN=CENTER><tt>0</tt></td>
+</tr>
+</table>
+</blockquote>
+Most programming languages provide an <b><tt>XOR</tt></b> function. To
+"encrypt" (for example) a byte of data, we could do (in Java, all variables
+of Java primitive type "<b><tt>byte</tt></b>"):
+<blockquote>
+<pre>cipher = plainText ^ key;</pre>
+</blockquote>
+The <b>symmetric</b> aspect of <b><tt>XOR</tt></b> comes from the fact
+that to recover the plain text, we can simply repeat the operation on the
+ciphertext:
+<blockquote>
+<pre>plainText = cipher ^ key;</pre>
+</blockquote>
+Symmetic encryption and decyption (ie, using the same algorithm and key
+to both encrypt and decrypt) is a characteristic of all production "single-key"
+systems, unlike "Public Key" systems.&nbsp; The
+<b><tt>XOR</tt></b> function
+is a <b>key component</b> in these "Real World" algorithms.
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+Transposition Ciphers</h2>
+In this system, the <b>order</b> of the plaintext characters is changed,
+but the characters themselves are not -- that is, the encrypted message
+contains all the same characters as the plaintext. For example, a simple
+<b>columnar
+cipher</b> could be constructed thus:
+<blockquote><img SRC="l16fig2.gif" ALT="Character transposition encryption" height=279 width=379></blockquote>
+Hence, the ciphertext is:
+<blockquote>
+<pre><i>EATITNIHMEXNETMGMEDT</i></pre>
+</blockquote>
+Multi-stage transposition was the basis of the famous
+<b>Enigma</b> encryption
+machine used by German armed forces and famously cracked by the British
+intelligence service at Bletchely Park in the second world war.
+<p>&nbsp;Neither substitution nor transposition ciphers alone are regarded
+as secure for serious modern use. The current approach is to combine both
+techniques, on binary data and with much more complex algorithms (see
+<a href="#des">DES</a>).
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+One-Time Pads</h2>
+Another approach (although rarely used) is the <b>one-time pad</b>, (or
+<b>Vernam
+Cipher</b>) where a simple algorithm is used in conjunction with a key
+of the <b>same length as the message</b>, and employing a brand new key
+for every message transmitted.
+<p>&nbsp;For example, convert both the plaintext and the key to bit strings
+(which will be, necessarily, of the same length). Apply the
+<b><tt>XOR</tt></b>
+function function bitwise between the strings, giving the ciphertext. The
+recipient can then apply the same key to the ciphertext using <b><tt>XOR</tt></b>
+function and thus recover the original plaintext.
+<p>&nbsp;This is, in every respect, unbreakable, but rather impractical
+for real-world use in most cases. Some reasons:
+
+<ul>
+<li>
+The key is the same length as the message, which means that it will probably
+be too long to memorise, hence a written (or other mechanical) copy is
+needed -- potentially dangerous.</li>
+
+
+<li>
+The length of the message is limited by the amount of key available.</li>
+
+
+<li>
+If synchronisation is lost, subsequent messages will be garbled.</li>
+</ul>
+
+<p>
+<hr class="PAGE-BREAK"><a NAME="des"></a>
+<h2>
+DES - The Data Encryption Standard</h2>
+DES is a <b>block cipher</b>, which operates on 64-bit data fragments,
+using a 56-bit key. The basic DES algorithm is described as follows:
+<blockquote><img SRC="l16fig3.gif" ALT="DES internal operation" HSPACE=25 height=277 width=264 align=LEFT></blockquote>
+
+<ul>
+<li>
+The substitution stages in DES involve re-arranging the order of the bits
+from the previous stage, and using the <b><tt>XOR</tt></b> function to
+combine them with the key.</li>
+
+<li>
+The transposition stages re-arrange (ie, swap) the positions of all of
+the 64 bits.</li>
+</ul>
+Note that DES is designed so that decryption is performed by the exact
+same algorithm as encryption, using the same key -- hence a
+<b>symmetric,
+single key</b> cryptosystem.
+<p>&nbsp;The effectiveness of DES is based on the complexity of the 19
+stages. In the above diagram, two identical 64-bit plaintexts will result
+in identical ciphertexts. This is called the <b>Electronic Code Book</b>
+(ECB) mode of operation.
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+DES In Practice</h2>
+The ECB mode of operation is now rarely used, since it is now generally
+agreed that it is breakable given sufficient resources.
+<p>&nbsp;In the <b>Chain Block Cipher</b> (CBC) mode, each block of plaintext
+is exclusive-ORed with the ciphertext output from the previous encryption
+operation. Thus, the next block of ciphertext is a function of its corresponding
+plaintext, the 56-bit key and the previous block of ciphertext. Identical
+blocks of plaintext no longer generate identical ciphertext, which makes
+this system much more difficult to break.
+<blockquote><img SRC="l16fig4.gif" ALT="DES Chain-block cipher" height=172 width=238></blockquote>
+The CBC mode of DES is the normal technique used for encryption in modern
+business data communications. A variation on CBC is used where the message
+may not be a multiple of 64 bits, or where interactive (character at a
+time) encryption and decryption is desired. This is called <b>Cypher Feedback
+Mode</b> (CBM), and uses shift registers to permit one byte at a time to
+be encrypted or decrypted.
+<br>&nbsp;
+<br>&nbsp;
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+Issues with DES</h2>
+DES has always been controversial:
+<ul>
+<li>
+The original (IBM) algorithm which was the basis of DES used a 128 bit
+key, changed by the the US government to a 56 bit key before it was issued
+as a standard. This made DES considerably less secure.</li>
+
+<br>&nbsp;
+<li>
+Many people believe that the US government has a "<b>backdoor</b>" (or
+trapdoor) decryption technique which is infeasible at 128 bits, but possible
+with 56. This has never been confirmed, and is probably untrue.</li>
+
+<br>&nbsp;
+<li>
+56 bit DES is nowadays regarded as "relatively easily crackable". A variation
+called <b>triple DES (3DES)</b> uses either two keys (<font size=-1>112
+bits -- encrypt with the first key, then the second, then again with the
+first</font>) or more commonly three keys (168 bits) and is still considered
+sufficiently secure for production use.</li>
+
+<br>&nbsp;
+<li>
+Other common encryption algorithms in current use include 3DES, <b>IDEA</b>,
+<b>Blowfish</b>,
+<b>RC2</b>
+and <b>RC5</b>. These are all considered to be appropriate for secure communications.</li>
+
+<br>&nbsp;
+<li>
+The US Government has mandated (in 2000) a new encryption algorithm which
+is intended to replace DES, but it is apparently not yet in wide use.</li>
+</ul>
+There are some good Internet resources on cryptography.&nbsp;&nbsp;
+<hr class="PAGE-BREAK">
+</body>
+</html>

@@ -1,0 +1,1 @@
+http://etutorials.org/Linux+systems/secure+linux-based+servers/Chapter+2.+Designing+Perimeter+Networks/Section+2.2.+Types+of+Firewall+and+DMZ+Architectures/

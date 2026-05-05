@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSec Academy | Premium Learning</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- PAGE: LOGIN -->
+    <div id="loginPage" class="page auth-container">
+        <div class="glass-card">
+            <div class="auth-header">
+                <h1>CYBERSEC<br>ACADEMY</h1>
+                <p>Secure Access Terminal</p>
+            </div>
+
+            <div class="input-group">
+                <label>Access PIN</label>
+                <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="6"
+                    style="letter-spacing: 5px; text-align: center;">
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter Password">
+            </div>
+
+            <div id="loginError" class="error-msg"></div>
+
+            <button class="btn-primary" onclick="handleLogin()">AUTHENTICATE</button>
+            <p style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
+                Protected by SHA-256 Hashing Algorithm
+            </p>
+        </div>
+    </div>
+
+    <!-- PAGE: DASHBOARD -->
+    <div id="dashboardPage" class="page dashboard-container hidden">
+        <div class="header-nav">
+            <h2>Command Center</h2>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span>admin_01</span>
+                <div style="width: 30px; height: 30px; background: var(--primary); border-radius: 50%;"></div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 20px; color: var(--text-muted);">Available Modules</h3>
+        <div id="courseGrid" class="course-grid">
+            <!-- Populated by JS -->
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <h3 style="color: var(--primary); margin-bottom: 15px;">Certification Prep</h3>
+            <button class="btn-primary" style="width: 100%; max-width: 400px; font-size: 1.1rem; letter-spacing: 2px;" onclick="startTCAExam()">START TCA EXAM (HARD MODE)</button>
+        </div>
+    </div>
+
+    <!-- PAGE: LEARN -->
+    <div id="learnPage" class="page hidden">
+        <div class="learn-layout">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <button onclick="showPage('dashboardPage')"
+                        style="background: none; border: none; color: var(--text-muted); cursor: pointer;">&larr; Back
+                        to Dashboard</button>
+                    <h3 style="margin-top: 10px; color: var(--text-main);">Module Navigation</h3>
+                </div>
+                <div id="slideList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content-area">
+                <div id="slideContent" class="slide-container">
+                    <!-- Slide Content -->
+                </div>
+
+                <div style="display: flex; justify-content: space-between; max-width: 800px;">
+                    <button id="prevBtn" class="btn-primary"
+                        style="width: auto; padding: 10px 30px; background: rgba(255,255,255,0.1);">Previous</button>
+                    <button id="nextBtn" class="btn-primary" style="width: auto; padding: 10px 30px;">Next</button>
+                </div>
+            </div>
+
+            <!-- Notes Panel (Right) -->
+            <div style="width: 250px; background: #050505; border-left: 1px solid var(--glass-border); padding: 20px;">
+                <h4 style="color: var(--primary); margin-bottom: 20px;">SecNotes™</h4>
+                <div id="notesContent"
+                    style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;">
+                    <!-- Notes appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: TCA EXAM -->
+    <div id="examPage" class="page hidden">
+        <div class="header-nav">
+            <h2>TCA Certification Exam</h2>
+            <div id="examTimer" style="color: var(--primary); font-size: 1.2rem; font-family: monospace; letter-spacing: 2px;">00:00:00</div>
+        </div>
+        
+        <div class="exam-container" style="max-width: 900px; margin: 0 auto; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <span id="examProgressText" style="color: var(--text-muted);">Question 1 of 20</span>
+                <span id="examScore" class="hidden" style="color: #00ff9d; font-weight: bold;">Score: 0%</span>
+            </div>
+            
+            <div class="progress-bar-bg" style="margin-bottom: 30px; height: 10px;">
+                <div id="examProgressBar" class="progress-bar-fill" style="width: 0%; background: var(--primary);"></div>
+            </div>
+
+            <div id="examQuestionContainer" class="glass-card" style="padding: 40px;">
+                <!-- Populated by JS -->
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                <button id="examPrevBtn" class="btn-primary" style="width: auto; padding: 10px 30px; background: rgba(255,255,255,0.1);" onclick="navExam(-1)">Previous</button>
+                <button id="examSubmitBtn" class="btn-primary hidden" style="width: auto; padding: 10px 30px; background: #ff0055;" onclick="submitExam()">Submit Exam</button>
+                <button id="examNextBtn" class="btn-primary" style="width: auto; padding: 10px 30px;" onclick="navExam(1)">Next</button>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <button onclick="exitExam()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; text-decoration: underline;">Exit Exam (Lose Progress)</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/questions.js"></script>
+    <script src="assets/js/questions2.js"></script>
+    <script src="assets/js/questions3.js"></script>
+    <script src="assets/js/questions4.js"></script>
+    <script src="assets/js/questions5.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>

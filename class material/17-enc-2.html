@@ -1,0 +1,371 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (WinNT; U) [Netscape]">
+</head>
+<body bgcolor="#FFFFFF">
+
+<h1>
+&nbsp;Encryption -- Public Key Systems</h1>
+
+<hr class="PAGE-BREAK">
+<h2>
+Public Key Systems</h2>
+DES and its derivatives works well, but relies on both parties having a
+copy of the same secret key. The problem of <b>Key Distribution</b> in
+such systems can be a <b>very difficult</b> to overcome. In 1976, Diffie
+and, Hellman proposed an enitrely new system called
+<b>Public Key Cryptography.</b>
+The basic ideas are:
+<br>&nbsp;
+<ul>
+<li>
+An encryption method <i><tt>E</tt></i> is applied to the plaintext <i><tt>P</tt></i>
+giving <i><tt>E(P)</tt></i>, the ciphertext.</li>
+
+<li>
+A decryption method <i><tt>D</tt></i> can be applied to the ciphertext
+to yield the plaintext, thus:</li>
+
+<blockquote>
+<pre><i>P</i> = <i>D</i> ( <i>E</i> ( <i>P</i> ) )</pre>
+</blockquote>
+
+<li>
+It is exceedingly difficult to deduce <i><tt>D</tt></i> from <i><tt>E</tt></i>.</li>
+
+<li>
+<i><tt>E</tt></i> cannot be broken by any standard attack.</li>
+</ul>
+The original algorithm proposed by Diffie and Hellman for implementing
+Public Key Cryptography turned out to be insufficiently strong to implement
+a secure system. However, the idea of this type of cryptosystem was considered
+worthy of further work.
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+RSA</h2>
+In 1978, Rivest, Shamir and Adleman of MIT proposed a number-theoretic
+way of implementing a Public Key Cryptosystem. Their method has been widely
+adopted. The basic technique is:
+<ul>
+<li>
+Choose two large prime numbers, <i><tt>p</tt></i> and <i><tt>q</tt></i>.</li>
+
+<li>
+compute <tt><i>n</i> = <i>p</i> * <i>q</i></tt> and <tt><i>x</i> = (<i>p</i>-1)*(<i>q</i>-1)</tt></li>
+
+<li>
+Choose a number relatively prime to <i><tt>x</tt></i> and call it <i><tt>d</tt></i>.
+This means that <i><tt>d</tt></i> is not a prime factor of <i><tt>x</tt></i>
+or a multiple of it.</li>
+
+<li>
+Find <i><tt>e</tt></i> such that <tt><i>e</i> * <i>d</i> = 1 mod <i>x</i></tt>.</li>
+</ul>
+To use this technique, divide the plaintext (regarded as a bit string)
+into blocks so that each plaintext message <i><tt>P</tt></i> falls into
+the interval
+<tt>0 &lt;= <i>P</i> &lt; <i>n</i></tt>. This can be done
+by dividing it into blocks of <i><tt>k</tt></i> bits where <i><tt>k</tt></i>
+is the largest integer for which
+<tt>2<i><sup>k</sup></i> &lt; <i>n</i></tt>
+is true.
+<blockquote>To encrypt: <tt><i>C</i> = <i>P<sup>e</sup></i> (mod <i>n</i>)</tt>
+<br>To decrypt: <tt><i>P</i> = <i>C<sup>d</sup></i> (mod <i>n</i>)</tt></blockquote>
+The public key, used to encrypt, is thus: <tt>(<i>e</i>, <i>n</i>)</tt>
+and the private key, used to decrypt, is <tt>(<i>d</i>, <i>n</i>)</tt>)
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+RSA Example -- Key Generation</h2>
+
+<table BORDER CELLPADDING=10 WIDTH="90%" >
+<tr>
+<td WIDTH="70%">To create the public key, select two large positive prime
+numbers <i><tt>p</tt></i> and <i><tt>q</tt></i></td>
+
+<td><tt><i>p</i> = 7, <i>q</i> = 17</tt>
+<br>Large enough for us!</td>
+</tr>
+
+<tr>
+<td WIDTH="70%">Compute <tt>(<i>p</i>-1) * (<i>q</i>-1)</tt></td>
+
+<td><tt><i>x</i> = 96</tt></td>
+</tr>
+
+<tr>
+<td WIDTH="70%">Choose an integer <i><tt>E</tt></i> which is relatively
+prime to <i><tt>x</tt></i></td>
+
+<td><tt><i>E</i> = 5</tt></td>
+</tr>
+
+<tr>
+<td WIDTH="70%">Compute <tt><i>n</i> = <i>p</i> * <i>q</i></tt></td>
+
+<td><tt><i>n</i> = 119</tt></td>
+</tr>
+
+<tr>
+<td WIDTH="70%"><i><tt>K<sub>p</sub></tt></i> is then <i><tt>n</tt></i>
+concatenated with <i><tt>E</tt></i></td>
+
+<td><i><tt>K<sub>p</sub></tt></i><tt> = 119, 5</tt></td>
+</tr>
+</table>
+
+<table BORDER CELLPADDING=10 WIDTH="90%" >
+<tr>
+<td WIDTH="70%">To create the secret key, compute <i><tt>D</tt></i> such
+that <tt>(<i>D</i> * <i>E</i>) mod <i>x</i> = 1</tt></td>
+
+<td><i><tt>K<sub>s</sub></tt></i><tt> = 119, 77</tt></td>
+</tr>
+</table>
+
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+RSA Example -- Encryption and Decryption</h2>
+
+<table BORDER CELLPADDING=10 WIDTH="90%" >
+<tr>
+<td WIDTH="70%">To compute the ciphertext <i><tt>C</tt></i> of plaintext
+<i><tt>P</tt></i>,
+treat <i><tt>P</tt></i> as a numerical value</td>
+
+<td><tt><i>P</i> = 19</tt></td>
+</tr>
+
+<tr>
+<td WIDTH="70%"><tt><i>C</i> = <i>P<sup>E</sup></i> mod <i>n</i></tt></td>
+
+<td><tt><i>C</i> = 66</tt></td>
+</tr>
+</table>
+
+<table BORDER CELLPADDING=10 WIDTH="90%" >
+<tr>
+<td WIDTH="70%">To compute the plaintext <i><tt>P</tt></i> from ciphertext
+<i><tt>C</tt></i>:</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td WIDTH="70%"><tt><i>P</i> = <i>C<sup>D</sup></i> mod <i>n</i></tt></td>
+
+<td><tt><i>P</i> = 19</tt></td>
+</tr>
+</table>
+
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+RSA in Practice</h2>
+RSA works because knowledge of the public key does not reveal the private
+key. Note that both the public and private keys contain the important number
+<i><tt>n
+= p * q</tt></i>. The security of the system relies on the fact that <i><tt>n</tt></i>
+is
+<b>hard to factor</b> -- that is, given a large number (even one which
+is known to have only two prime factors) there is no easy way to discover
+what they are. This is a well known mathematical fact. If a fast method
+of factorisation <i>is</i> ever discovered then RSA will cease to be useful.
+<p>&nbsp;It <b>is</b> obviously possible to break RSA with a
+<b>brute force</b>
+attack -- simply factorise
+<i><tt>n</tt></i>. To make this difficult, it's
+usually recommended that <i><tt>p</tt></i> and <i><tt>q</tt></i> be chosen
+so that
+<i><tt>n</tt></i> is (in 2002 numbers) at least 1024 bits.
+<p>&nbsp;One <b>excellent</b> feature of RSA is that it is
+<b>symmetrical</b>.
+We already know that if you encrypt a message with my public key then only
+I can decrypt that ciphertext, using my secret key. However, it also turns
+out that a message encrypted with my secret key <b>can only be decrypted
+with my public key</b>. This has important implications, see later.
+<p>&nbsp;The RSA algorithm operates with <i>huge</i> numbers, and involves
+lots of exponentiation (ie, repeated multiplication) and modulus arithmetic.
+Such operations are <b>computationally expensive</b> (ie, they take a long
+time!) and so RSA encryption and decryption are <b>incredibly slow</b>,
+even on fast computers. <font size=-1>Compare this to the operations involved
+in
+<b>DES</b> (and other single-key systems) which consist of repeated
+simple <b><tt>XOR</tt></b>s and transpositions. Typical numbers are that
+DES is 100 times faster than RSA on equivalent hardware. Furthermore, DES
+can be easily implemented in dedicated hardware (RSA is, generally speaking,
+a software-only technology) giving a speed improvement of up to 10,000
+times.</font>
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+Public Key Cryptography In Summary</h2>
+
+<ul>
+<li>
+A <b>public key</b> is used to encrypt and a separate, different <b>private
+key</b> to decrypt the message.</li>
+
+<br>&nbsp;
+<li>
+Each party involved generates a <b>key pair</b>.</li>
+
+<br>&nbsp;
+<li>
+Each party publishes their public key. This is made widely known to all
+potential communication partners.</li>
+
+<br>&nbsp;
+<li>
+Each party secures their private key, which must remain secret.</li>
+
+<br>&nbsp;
+<li>
+Assuming A desires to send a message to B, A first encrypts the message
+using B's public key.</li>
+
+<br>&nbsp;
+<li>
+B can decrypt the message using its private key. Since no one else knows
+B's private key, this is absolutely secure -- no one else can decrypt it.</li>
+
+<br>&nbsp;
+<li>
+There still remain difficult problems of authentication of public keys,
+compromised keys, bogus &amp; out of date keys. Further, Public Key encryption
+is very, very slow compared to single key systems.</li>
+
+<br>&nbsp;
+<li>
+A very useful and common way of using public key cryptography is as a means
+of establishing/distributing secret keys for conventional single key cryptography,
+see later.</li>
+</ul>
+
+<hr class="PAGE-BREAK">
+<h2>
+Public Key Authentication</h2>
+This is the technique by which an entity verifies that her communication
+partner is who he purports to be and not an imposter. Authentication can
+be easily achieved if both parties share a common secret key or keys, (eg,
+typical password authentication) however it's much more nicely done using
+Public Key cryptography:
+<p>&nbsp;Public key cryptosystems can provide authentication if, in addition
+to:
+<blockquote>
+<pre><i>P</i> = <i>D</i> ( <i>E</i> ( <i>P</i> ) )</pre>
+</blockquote>
+we also have:
+<blockquote>
+<pre><i>P</i> = <i>E</i> ( <i>D</i> ( <i>P</i> ) )</pre>
+</blockquote>
+This is true for RSA. Now consider Alice, who wishes to authenticate herself
+to a communications partner Bob. Bob already knows Alice's public key.
+<br>&nbsp;
+<br>&nbsp;
+<blockquote><img SRC="l17fig1.gif" HSPACE=25 height=132 width=296 align=LEFT></blockquote>
+Alice announces to Bob that she wishes to communicate. Bob responds by
+choosing a large, single-use random number <b><tt>R</tt></b> (sometimes
+called a <b>nonce</b>) which he sends to Alice. Alice encrypts the random
+number using her <b>private key</b>,
+<b><tt>d<sub>a</sub></tt></b> and
+returns the encrypted value to Bob. Bob applies Alice's <b>public key</b>
+to the returned value, and if it decrypts to <b><tt>R</tt></b> then he
+can be certain of the identity of his communication partner. It's obvious
+that this protocol could be extended to verify the identity of Bob as well.
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+Digital Signatures</h2>
+These extend the basic Public Key authentication protocols to
+<b>documents</b>
+or <b>messages</b>. The three key objectives are:
+<br>&nbsp;
+<ol>
+<li>
+The receiver can verify the claimed identity of the sender, because only
+the sender's public key will decrypt it.</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<li>
+The sender cannot later repudiate the contents of the message, because
+only the possessor of the specific private key could have generated it.</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<li>
+The receiver cannot possibly have concocted the message himself.</li>
+</ol>
+The <b>recipient's public key</b> can (optionally) be used to encrypt the
+message, so that only the recipient can read it. This step is only necessary
+if both <b>authentication</b> and
+<b>secrecy</b> are needed. We can take
+a plaintext message P, and encode it thus:
+<blockquote><img SRC="l17fig2.gif" ALT="Digital signature operation" height=151 width=437></blockquote>
+
+<hr class="PAGE-BREAK">
+<h2>
+Message Digests</h2>
+The digital signature method of the previous slide creates an encrypted
+message. It's often preferable to leave the message as plaintext, but append
+a signature which verifies its integrity. A <b>message digest</b> is a
+one-way hash function which has the following characteristics:
+<br>&nbsp;
+<br>&nbsp;
+<ul>
+<li>
+Given <i><tt>P</tt></i>, it is easy to calculate <i><tt>MD(P)</tt></i>.
+MD(P) is much shorter than the message itself.</li>
+
+<br>&nbsp;
+<li>
+Given <i><tt>MD(P)</tt></i>, it is effectively impossible to find <i><tt>P</tt></i>.</li>
+
+<br>&nbsp;
+<li>
+No one can generate two messages that have the same <i><tt>MD(P)</tt></i>.</li>
+</ul>
+The Internet standard for message digests is the <b>MD5</b> algorithm,
+invented by Rivest. Software implementations of this algorithm are widely
+available. MD5 produces a 128 bit (16 byte) message digest which can be
+appended to the message. Message digests such as MD5 are often referred
+to as <b>cryptograhic checksums</b>, because they reveal whether the message
+has been altered.
+<p>&nbsp;Typical usage of message digests combines public key cryptography
+with the message digest function. In this case, a sender first computes
+an MD5 digest as above, then encrypts it using her
+<b>private</b> key,
+and finally appends the encrypted digest to the message. A recipient can
+read the message, and can be confident that it originated from the sender.
+<p>
+<hr class="PAGE-BREAK">
+<h2>
+Digression: The Politics of Encryption</h2>
+Most of the governments of the world are <b>very</b> interested in encryption.
+Over the past 20 years, the USA government has proposed and/or mandated
+a variety of encryption laws to either restrict the use of strong encryption,
+or to force developers to provide a "<b>back door</b>" to their systems,
+which would allow officials to read encrypted data. In addition, for many
+years they have classified all forms of strong encryption as
+<b>munitions</b>,
+and restricted export of encryption products. It's only in the past year
+or so that restrictions on encryption exports have been eased/lifted.
+<p>&nbsp;Other governments (eg France, Malaysia, China, etc) have, at various
+times, simply banned the private use of strong encryption. In most cases,
+these policies have subsequently been reversed.
+<p>&nbsp;The problem for governments is that strong (ie, unbreakable) encryption
+can be used by criminals (or political enemies?) to communicate securely,
+so there is a an obvious vested interest in restricting it. On the other
+hand, strong encryption is absolutely necessary to enable Internet-based
+commerce (we see some applications later), so a government which restricts
+its use is limiting its people from participating in the new world of Internet-based
+business.
+<p>
+<hr class="PAGE-BREAK">
+</body>
+</html>
