@@ -171,6 +171,118 @@ const scenarioQuestions = [
                 a: "Strength: PGP provides excellent end-to-end encryption, ensuring privacy even if the email server is compromised. Limitation: PGP is notoriously difficult for average users to manage (keyrings, trust levels), lacks forward secrecy, and does not encrypt email metadata (subject lines, sender/receiver addresses)."
             }
         ]
+    },
+    {
+        id: "s-ids-1",
+        topic: "Intrusion Detection Systems",
+        title: "IDS Alert Fatigue and Tuning",
+        context: "A Security Operations Center (SOC) recently deployed a signature-based Network Intrusion Detection System (NIDS). After a week, the analysts are overwhelmed by thousands of alerts per day, most of which are false positives, causing them to miss a real data exfiltration event.",
+        questions: [
+            {
+                q: "Explain the difference between a false positive and a false negative in an IDS.",
+                a: "A false positive occurs when the IDS incorrectly flags legitimate, benign traffic as malicious. A false negative occurs when the IDS fails to detect actual malicious traffic, allowing an attack to go unnoticed."
+            },
+            {
+                q: "Describe the concept of 'alert fatigue' and its impact on the SOC.",
+                a: "Alert fatigue happens when analysts are bombarded with so many false or low-priority alerts that they become desensitized. The impact is that they start ignoring or quickly closing alerts without proper investigation, which ultimately leads to missing critical, real attacks (like the data exfiltration event)."
+            },
+            {
+                q: "Explain the difference between an IDS and an IPS.",
+                a: "An Intrusion Detection System (IDS) is passive; it monitors traffic and generates alerts but does not stop the attack. An Intrusion Prevention System (IPS) is active; it sits inline with traffic and can automatically drop malicious packets or block IP addresses."
+            },
+            {
+                q: "Identify a reason why the signature-based NIDS generated so many false positives.",
+                a: "The NIDS might be using default, out-of-the-box rule sets that are not tailored to the organization's specific network environment. For example, a rule might flag standard internal administrative scripts as 'suspicious network scanning'."
+            },
+            {
+                q: "Propose a strategy to optimize the IDS and reduce alert fatigue.",
+                a: "The SOC needs to perform 'tuning.' This involves analyzing the false positives, disabling irrelevant signatures, creating custom rules for the specific network, and adjusting alert thresholds. Additionally, correlating IDS logs with other sources via a SIEM can help prioritize truly critical alerts."
+            }
+        ]
+    },
+    {
+        id: "s-web-1",
+        topic: "Web Security",
+        title: "SQL Injection in a Customer Portal",
+        context: "An e-commerce website uses a backend database to authenticate users. An attacker enters `' OR 1=1 --` into the username field of the login page and successfully gains administrative access without knowing a valid password.",
+        questions: [
+            {
+                q: "Explain the mechanism of a SQL Injection (SQLi) attack.",
+                a: "SQLi occurs when a web application takes user input and passes it directly into a backend database query without sanitization. The attacker crafts malicious input that alters the structure of the SQL query, forcing the database to execute unintended commands."
+            },
+            {
+                q: "Analyze how the payload `' OR 1=1 --` bypassed the authentication.",
+                a: "The payload alters the backend query (e.g., `SELECT * FROM users WHERE username = '' OR 1=1 --' AND password = '...'`). The `1=1` statement is always true. The `--` comments out the rest of the query (like the password check). Thus, the database returns a valid user record, granting access."
+            },
+            {
+                q: "Identify the primary coding flaw that enables this vulnerability.",
+                a: "The primary flaw is the lack of input validation and the use of dynamic string concatenation to build SQL queries, rather than treating user input strictly as data."
+            },
+            {
+                q: "Propose the most effective programmatic defense against SQL injection.",
+                a: "The most effective defense is the use of Parameterized Queries (or Prepared Statements). This approach separates the SQL code from the user-provided data, ensuring the database treats the input strictly as a literal value, not as executable SQL commands."
+            },
+            {
+                q: "Evaluate the role of a Web Application Firewall (WAF) in this scenario.",
+                a: "A WAF can inspect incoming HTTP traffic and block common SQLi payloads (like `' OR 1=1`) before they reach the web server. While highly effective as a compensating control, it does not fix the underlying vulnerable code, so it should be used in conjunction with secure coding practices."
+            }
+        ]
+    },
+    {
+        id: "s-vpn-1",
+        topic: "VPN & Network Security",
+        title: "Securing Remote Access with VPNs",
+        context: "Due to a sudden shift to remote work, employees are accessing sensitive corporate file shares from public coffee shop Wi-Fi networks without any encryption, leading to credentials being compromised.",
+        questions: [
+            {
+                q: "Explain the risk of using public Wi-Fi without encryption.",
+                a: "Public Wi-Fi networks are often unsecured. Attackers on the same network can use packet sniffers (like Wireshark) to capture unencrypted traffic. If employees transmit passwords or sensitive files in plain text, the attacker can easily read and steal this information in a Man-in-the-Middle (MitM) attack."
+            },
+            {
+                q: "Describe how a Virtual Private Network (VPN) mitigates this risk.",
+                a: "A VPN establishes a secure, encrypted 'tunnel' between the employee's device and the corporate network over the public internet. Even if an attacker intercepts the traffic on the public Wi-Fi, they will only see unreadable ciphertext, preserving confidentiality and integrity."
+            },
+            {
+                q: "Compare IPsec VPNs and SSL/TLS VPNs.",
+                a: "IPsec VPNs operate at the Network Layer (Layer 3), typically requiring dedicated client software, and are often used for site-to-site or full-device tunneling. SSL/TLS VPNs operate at the Application/Transport Layer, can often be accessed simply via a web browser without special software, and provide more granular, application-level access."
+            },
+            {
+                q: "Identify a critical vulnerability if the VPN only requires a username and password.",
+                a: "If the VPN relies only on a username and password, it is highly vulnerable to credential theft (e.g., via phishing, brute force, or credential stuffing). If an attacker gets the password, the VPN provides direct access to the internal network."
+            },
+            {
+                q: "Recommend a control to strengthen VPN authentication.",
+                a: "The organization must implement Multi-Factor Authentication (MFA). By requiring a second factor (like a time-based code from an authenticator app or a hardware token), an attacker cannot access the VPN even if they successfully steal the user's password."
+            }
+        ]
+    },
+    {
+        id: "s-ir-1",
+        topic: "Policy & Incident Response",
+        title: "Ransomware Outbreak and Response",
+        context: "An employee clicks on a phishing email attachment, triggering a ransomware attack that encrypts the company's main file server. The IT team immediately unplugs the server from the network and prepares to pay the ransom.",
+        questions: [
+            {
+                q: "Identify the phase of the Incident Response lifecycle that failed initially.",
+                a: "The Preparation/Prevention phase failed, specifically regarding user awareness training (the employee fell for phishing) and technical controls (email filtering failed to block the malicious attachment)."
+            },
+            {
+                q: "Evaluate the IT team's decision to immediately unplug the server.",
+                a: "Unplugging the server from the network (Containment) is a good immediate step to prevent the ransomware from spreading laterally to other systems. However, completely powering it off might destroy volatile memory (RAM) evidence needed for forensics and potentially corrupt files."
+            },
+            {
+                q: "Analyze the risks of paying the ransom.",
+                a: "Paying the ransom provides no guarantee the attackers will actually provide the decryption key. It also encourages further criminal behavior, marks the organization as a willing payer (inviting future attacks), and may violate government sanctions depending on the threat actor."
+            },
+            {
+                q: "Propose the correct recovery strategy instead of paying the ransom.",
+                a: "The organization should utilize offline, immutable backups to restore the data. The affected systems should be completely wiped and rebuilt from clean images. The vulnerability (phishing susceptibility) must be addressed before reconnecting the restored systems."
+            },
+            {
+                q: "Explain the importance of the 'Lessons Learned' phase after this incident.",
+                a: "The 'Lessons Learned' (or Post-Incident Activity) phase is crucial for analyzing what went wrong and how the response can be improved. The organization must update their policies, implement better email filtering, and improve employee training to prevent a similar attack from occurring again."
+            }
+        ]
     }
 ];
 
