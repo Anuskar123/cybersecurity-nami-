@@ -1,137 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberSec Academy | Premium Learning</title>
+    <title>CSY3062 — TCA Exam Prep</title>
+    <meta name="description" content="Comprehensive TCA exam preparation platform for CSY3062 Cyber Security and Applied Cryptography">
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
-    <!-- PAGE: LOGIN -->
-    <div id="loginPage" class="page auth-container">
-        <div class="glass-card">
-            <div class="auth-header">
-                <h1>CYBERSEC<br>ACADEMY</h1>
-                <p>Secure Access Terminal</p>
-            </div>
+    <!-- ===== LOGIN ===== -->
+    <div id="loginPage" class="login-page">
+        <div class="login-card">
+            <h1>CSY3062 Exam Prep</h1>
+            <p class="subtitle">Cyber Security & Applied Cryptography</p>
 
-            <div class="input-group">
+            <div class="form-group">
                 <label>Access PIN</label>
-                <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="6"
-                    style="letter-spacing: 5px; text-align: center;">
+                <input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6">
             </div>
 
-            <div class="input-group">
+            <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="passwordInput" placeholder="Enter Password">
+                <input type="password" id="passwordInput" placeholder="Password">
             </div>
 
             <div id="loginError" class="error-msg"></div>
-
-            <button class="btn-primary" onclick="handleLogin()">AUTHENTICATE</button>
-            <p style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
-                Protected by SHA-256 Hashing Algorithm
-            </p>
+            <button class="btn btn-primary" onclick="handleLogin()">Log In</button>
         </div>
     </div>
 
-    <!-- PAGE: DASHBOARD -->
-    <div id="dashboardPage" class="page dashboard-container hidden">
-        <div class="header-nav">
-            <h2>Command Center</h2>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <span>admin_01</span>
-                <div style="width: 30px; height: 30px; background: var(--primary); border-radius: 50%;"></div>
+    <!-- ===== DASHBOARD ===== -->
+    <div id="dashboardPage" class="dashboard hidden">
+        <div class="top-bar">
+            <h2>CSY3062 Exam Prep</h2>
+            <span class="user-info">Ready to study</span>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-nav" id="dashTabs">
+            <button class="tab-btn active" data-tab="notes">📖 Study Notes</button>
+            <button class="tab-btn" data-tab="mcq">📝 MCQ Practice</button>
+            <button class="tab-btn" data-tab="scenarios">🎯 Scenario Questions</button>
+            <button class="tab-btn" data-tab="exam">🏆 Full Exam</button>
+        </div>
+
+        <!-- TAB: Study Notes -->
+        <div id="tab-notes" class="tab-panel">
+            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">Read through every topic. Click a module to start reading.</p>
+            <div id="notesGrid" class="module-grid">
+                <!-- Populated by JS -->
             </div>
         </div>
 
-        <h3 style="margin-bottom: 20px; color: var(--text-muted);">Available Modules</h3>
-        <div id="courseGrid" class="course-grid">
+        <!-- TAB: MCQ Practice -->
+        <div id="tab-mcq" class="tab-panel hidden">
+            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">Practice by module. Pick a module to get instant-feedback MCQs.</p>
+            <div class="filter-bar" id="mcqFilterBar">
+                <button class="filter-pill active" data-module="all">All Modules</button>
+                <!-- Populated by JS -->
+            </div>
+            <div style="margin-bottom: 16px;">
+                <span id="mcqCount" style="font-size: 0.85rem; color: var(--text-secondary);"></span>
+            </div>
+            <button class="btn btn-primary" style="max-width: 300px;" onclick="startModuleMCQ()">Start Practice</button>
+        </div>
+
+        <!-- TAB: Scenario Questions -->
+        <div id="tab-scenarios" class="tab-panel hidden">
+            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">TCA-style scenario questions from your DOCX files. Read the scenario, then answer the discussion points.</p>
+            <div class="filter-bar" id="scenarioFilterBar">
+                <button class="filter-pill active" data-topic="all">All Topics</button>
+                <!-- Populated by JS -->
+            </div>
+            <div id="scenarioList">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- TAB: Full Exam -->
+        <div id="tab-exam" class="tab-panel hidden">
+            <div style="max-width: 500px;">
+                <h3 style="margin-bottom: 12px; font-size: 1.1rem;">Full TCA Practice Exam</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">All 230+ hard MCQs shuffled. 60 minute timer. Instant feedback after each answer.</p>
+                <ul style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 20px; margin-bottom: 24px;">
+                    <li>Covers all 11 modules</li>
+                    <li>Anti-bias: option lengths balanced</li>
+                    <li>Correct answer randomized across A/B/C/D</li>
+                    <li>Detailed explanation after each question</li>
+                </ul>
+                <button class="btn btn-primary" style="max-width: 300px;" onclick="startTCAExam()">Start Full Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== NOTES READER ===== -->
+    <div id="notesPage" class="notes-page hidden">
+        <div class="notes-sidebar">
+            <button class="back-btn" onclick="exitNotes()">← Back</button>
+            <h3 id="notesSidebarTitle">Topics</h3>
+            <div id="notesSidebarList">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+        <div class="notes-content">
+            <div class="note-card" id="notesContentArea">
+                <!-- Populated by JS -->
+            </div>
+            <div class="slide-nav">
+                <button class="btn btn-outline" id="notesPrevBtn" onclick="navNote(-1)">← Previous</button>
+                <button class="btn btn-primary" id="notesNextBtn" onclick="navNote(1)">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EXAM PAGE ===== -->
+    <div id="examPage" class="exam-page hidden">
+        <div class="exam-header">
+            <h2 id="examTitle">MCQ Practice</h2>
+            <div class="exam-timer" id="examTimer">00:00:00</div>
+        </div>
+        <div class="exam-meta">
+            <span id="examProgressText">Question 1 of 20</span>
+            <span id="examScore" class="hidden"></span>
+        </div>
+        <div class="progress-bar-wrap">
+            <div id="examProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
+        </div>
+
+        <div class="question-card" id="examQuestionContainer">
             <!-- Populated by JS -->
         </div>
 
-        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <h3 style="color: var(--primary); margin-bottom: 15px;">Certification Prep</h3>
-            <button class="btn-primary" style="width: 100%; max-width: 400px; font-size: 1.1rem; letter-spacing: 2px;" onclick="startTCAExam()">START TCA EXAM (HARD MODE)</button>
+        <div class="exam-nav">
+            <button class="btn btn-outline" id="examPrevBtn" onclick="navExam(-1)">← Previous</button>
+            <button class="btn btn-danger hidden" id="examSubmitBtn" onclick="submitExam()">Submit Exam</button>
+            <button class="btn btn-primary" id="examNextBtn" onclick="navExam(1)">Next →</button>
         </div>
-    </div>
-
-    <!-- PAGE: LEARN -->
-    <div id="learnPage" class="page hidden">
-        <div class="learn-layout">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="showPage('dashboardPage')"
-                        style="background: none; border: none; color: var(--text-muted); cursor: pointer;">&larr; Back
-                        to Dashboard</button>
-                    <h3 style="margin-top: 10px; color: var(--text-main);">Module Navigation</h3>
-                </div>
-                <div id="slideList">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div class="content-area">
-                <div id="slideContent" class="slide-container">
-                    <!-- Slide Content -->
-                </div>
-
-                <div style="display: flex; justify-content: space-between; max-width: 800px;">
-                    <button id="prevBtn" class="btn-primary"
-                        style="width: auto; padding: 10px 30px; background: rgba(255,255,255,0.1);">Previous</button>
-                    <button id="nextBtn" class="btn-primary" style="width: auto; padding: 10px 30px;">Next</button>
-                </div>
-            </div>
-
-            <!-- Notes Panel (Right) -->
-            <div style="width: 250px; background: #050505; border-left: 1px solid var(--glass-border); padding: 20px;">
-                <h4 style="color: var(--primary); margin-bottom: 20px;">SecNotes™</h4>
-                <div id="notesContent"
-                    style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;">
-                    <!-- Notes appear here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PAGE: TCA EXAM -->
-    <div id="examPage" class="page hidden">
-        <div class="header-nav">
-            <h2>TCA Certification Exam</h2>
-            <div id="examTimer" style="color: var(--primary); font-size: 1.2rem; font-family: monospace; letter-spacing: 2px;">00:00:00</div>
-        </div>
-        
-        <div class="exam-container" style="max-width: 900px; margin: 0 auto; padding: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <span id="examProgressText" style="color: var(--text-muted);">Question 1 of 20</span>
-                <span id="examScore" class="hidden" style="color: #00ff9d; font-weight: bold;">Score: 0%</span>
-            </div>
-            
-            <div class="progress-bar-bg" style="margin-bottom: 30px; height: 10px;">
-                <div id="examProgressBar" class="progress-bar-fill" style="width: 0%; background: var(--primary);"></div>
-            </div>
-
-            <div id="examQuestionContainer" class="glass-card" style="padding: 40px;">
-                <!-- Populated by JS -->
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-                <button id="examPrevBtn" class="btn-primary" style="width: auto; padding: 10px 30px; background: rgba(255,255,255,0.1);" onclick="navExam(-1)">Previous</button>
-                <button id="examSubmitBtn" class="btn-primary hidden" style="width: auto; padding: 10px 30px; background: #ff0055;" onclick="submitExam()">Submit Exam</button>
-                <button id="examNextBtn" class="btn-primary" style="width: auto; padding: 10px 30px;" onclick="navExam(1)">Next</button>
-            </div>
-            
-            <div style="margin-top: 20px; text-align: center;">
-                <button onclick="exitExam()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; text-decoration: underline;">Exit Exam (Lose Progress)</button>
-            </div>
-        </div>
+        <div id="examScoreCard" class="exam-score hidden"></div>
+        <button class="exit-link" onclick="exitExam()">Exit (lose progress)</button>
     </div>
 
     <script src="assets/js/data.js"></script>
@@ -140,7 +148,7 @@
     <script src="assets/js/questions3.js"></script>
     <script src="assets/js/questions4.js"></script>
     <script src="assets/js/questions5.js"></script>
+    <script src="assets/js/scenarios.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
-
 </html>
