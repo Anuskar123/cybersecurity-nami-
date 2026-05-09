@@ -347,9 +347,17 @@ function renderScenarios(topic) {
         card.innerHTML = `
             <h3>${scenario.title}</h3>
             <div class="scenario-context">${scenario.context}</div>
-            <button class="scenario-toggle" onclick="toggleScenarioQ('${questionsId}', this)">Show Questions ▼</button>
+            <button class="scenario-toggle" onclick="toggleScenarioQ('${questionsId}', this)">Show Questions & Answers ▼</button>
             <ol id="${questionsId}" class="hidden" style="margin-top: 16px;">
-                ${scenario.questions.map(q => `<li>${q}</li>`).join('')}
+                ${scenario.questions.map(item => `
+                    <li style="margin-bottom: 16px;">
+                        <strong>Q: ${item.q}</strong>
+                        <div class="explanation-box" style="margin-top: 8px;">
+                            <h4 style="color: var(--accent);">Detailed Answer</h4>
+                            <p>${item.a}</p>
+                        </div>
+                    </li>
+                `).join('')}
             </ol>
         `;
         list.appendChild(card);
@@ -360,10 +368,10 @@ function toggleScenarioQ(id, btn) {
     const el = document.getElementById(id);
     if (el.classList.contains('hidden')) {
         el.classList.remove('hidden');
-        btn.textContent = 'Hide Questions ▲';
+        btn.textContent = 'Hide Questions & Answers ▲';
     } else {
         el.classList.add('hidden');
-        btn.textContent = 'Show Questions ▼';
+        btn.textContent = 'Show Questions & Answers ▼';
     }
 }
 
