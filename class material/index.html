@@ -43,6 +43,7 @@
             <button class="tab-btn active" data-tab="notes">📖 Study Notes</button>
             <button class="tab-btn" data-tab="mcq">📝 MCQ Practice</button>
             <button class="tab-btn" data-tab="scenarios">🎯 Scenario Questions</button>
+            <button class="tab-btn" data-tab="mocktest">📘 Mock Test</button>
             <button class="tab-btn" data-tab="exam">🏆 Full Exam</button>
         </div>
 
@@ -75,6 +76,21 @@
                 <!-- Populated by JS -->
             </div>
             <div id="scenarioList">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- TAB: Mock Test (CSY3023 May 2025) -->
+        <div id="tab-mocktest" class="tab-panel hidden">
+            <div class="mocktest-header">
+                <h3>CSY3023 — Mock Test Assignment (May 2025)</h3>
+                <p class="mocktest-subtitle">University of Northampton · Cyber Security and Cryptography · Bank Scenario</p>
+                <p class="mocktest-instructions">All 5 questions are answered below in full. Each sub-question includes a <strong>detailed answer</strong>, an <strong>explanation</strong>, and <strong>key points</strong> for quick revision. Tap a question card to expand.</p>
+            </div>
+            <div class="filter-bar" id="mockFilterBar">
+                <button class="filter-pill active" data-mocknum="all" onclick="filterMockTest('all', this)">All Questions</button>
+            </div>
+            <div id="mockTestList">
                 <!-- Populated by JS -->
             </div>
         </div>
@@ -152,6 +168,7 @@
     <script src="assets/js/questions4.js"></script>
     <script src="assets/js/questions5.js"></script>
     <script src="assets/js/scenarios.js"></script>
+    <script src="assets/js/mocktest.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 </html>

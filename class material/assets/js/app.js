@@ -72,6 +72,7 @@ function initDashboard() {
     buildNotesGrid();
     buildMCQFilters();
     buildScenarioSection();
+    buildMockTestSection();
 }
 
 // ===== NOTES GRID =====
@@ -372,6 +373,113 @@ function toggleScenarioQ(id, btn) {
     } else {
         el.classList.add('hidden');
         btn.textContent = 'Show Questions & Answers ▼';
+    }
+}
+
+// ===== MOCK TEST (CSY3023 — May 2025) =====
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function buildMockTestSection() {
+    if (typeof window.mockTestQuestions === 'undefined') return;
+
+    const bar = document.getElementById('mockFilterBar');
+    if (bar) {
+        bar.innerHTML = '<button class="filter-pill active" data-mocknum="all" onclick="filterMockTest(\'all\', this)">All Questions</button>';
+        mockTestQuestions.forEach(mt => {
+            const pill = document.createElement('button');
+            pill.className = 'filter-pill';
+            pill.dataset.mocknum = mt.number;
+            pill.textContent = `${mt.number} · ${mt.topic}`;
+            pill.onclick = () => filterMockTest(mt.number, pill);
+            bar.appendChild(pill);
+        });
+    }
+
+    renderMockTest('all');
+}
+
+function filterMockTest(num, pill) {
+    document.querySelectorAll('#mockFilterBar .filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    renderMockTest(num);
+}
+
+function renderMockTest(num) {
+    const list = document.getElementById('mockTestList');
+    if (!list) return;
+    const filtered = num === 'all' ? mockTestQuestions : mockTestQuestions.filter(m => m.number === num);
+
+    list.innerHTML = '';
+    filtered.forEach(mt => {
+        const card = document.createElement('div');
+        card.className = 'mock-card';
+
+        let subQHtml = '';
+        mt.questions.forEach((sub, i) => {
+            const subId = `${mt.id}-sub-${i}`;
+            const pointsHtml = (sub.points && sub.points.length)
+                ? `<div class="key-points">
+                       <h4>Key Points</h4>
+                       <ul>${sub.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+                   </div>`
+                : '';
+            const expHtml = sub.exp
+                ? `<div class="real-life-box">
+                       <h4>💡 Explanation / Example</h4>
+                       <p>${escapeHtml(sub.exp)}</p>
+                   </div>`
+                : '';
+
+            subQHtml += `
+                <div class="mock-sub">
+                    <button class="mock-sub-toggle" onclick="toggleMockSub('${subId}', this)">
+                        <span class="mock-sub-q">${escapeHtml(sub.q)}</span>
+                        <span class="mock-sub-arrow">▼</span>
+                    </button>
+                    <div id="${subId}" class="mock-sub-body hidden">
+                        <div class="explanation-box">
+                            <h4 style="color: var(--accent);">Detailed Answer</h4>
+                            <p>${escapeHtml(sub.a)}</p>
+                        </div>
+                        ${expHtml}
+                        ${pointsHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="mock-card-header">
+                <span class="mock-badge">${escapeHtml(mt.number)}</span>
+                <div>
+                    <h3>${escapeHtml(mt.title)}</h3>
+                    <span class="mock-topic">${escapeHtml(mt.topic)}</span>
+                </div>
+            </div>
+            <div class="scenario-context">${escapeHtml(mt.context)}</div>
+            <div class="mock-subs">${subQHtml}</div>
+        `;
+        list.appendChild(card);
+    });
+}
+
+function toggleMockSub(id, btn) {
+    const el = document.getElementById(id);
+    const arrow = btn.querySelector('.mock-sub-arrow');
+    if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        if (arrow) arrow.textContent = '▲';
+        btn.classList.add('open');
+    } else {
+        el.classList.add('hidden');
+        if (arrow) arrow.textContent = '▼';
+        btn.classList.remove('open');
     }
 }
 
