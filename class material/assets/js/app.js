@@ -416,6 +416,20 @@ function renderMockTest(num) {
     const filtered = num === 'all' ? mockTestQuestions : mockTestQuestions.filter(m => m.number === num);
 
     list.innerHTML = '';
+
+    if (filtered.length > 1) {
+        const controls = document.createElement('div');
+        controls.className = 'mock-controls';
+        controls.innerHTML = `
+            <span class="mock-count">${filtered.length} question${filtered.length > 1 ? 's' : ''}</span>
+            <div class="mock-control-btns">
+                <button class="mock-action-btn" onclick="expandAllMock(true)">Expand all</button>
+                <button class="mock-action-btn" onclick="expandAllMock(false)">Collapse all</button>
+            </div>
+        `;
+        list.appendChild(controls);
+    }
+
     filtered.forEach(mt => {
         const card = document.createElement('div');
         card.className = 'mock-card';
@@ -423,28 +437,33 @@ function renderMockTest(num) {
         let subQHtml = '';
         mt.questions.forEach((sub, i) => {
             const subId = `${mt.id}-sub-${i}`;
+            const letter = String.fromCharCode(97 + i); // a, b, c
             const pointsHtml = (sub.points && sub.points.length)
-                ? `<div class="key-points">
+                ? `<div class="mock-points">
                        <h4>Key Points</h4>
                        <ul>${sub.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
                    </div>`
                 : '';
             const expHtml = sub.exp
-                ? `<div class="real-life-box">
-                       <h4>💡 Explanation / Example</h4>
+                ? `<div class="mock-example">
+                       <span class="mock-example-label">Example</span>
                        <p>${escapeHtml(sub.exp)}</p>
                    </div>`
                 : '';
 
+            // strip leading "(a) " etc from question text since we show our own letter badge
+            const qText = sub.q.replace(/^\([a-z]\)\s*/i, '');
+
             subQHtml += `
                 <div class="mock-sub">
                     <button class="mock-sub-toggle" onclick="toggleMockSub('${subId}', this)">
-                        <span class="mock-sub-q">${escapeHtml(sub.q)}</span>
-                        <span class="mock-sub-arrow">▼</span>
+                        <span class="mock-sub-letter">${letter}</span>
+                        <span class="mock-sub-q">${escapeHtml(qText)}</span>
+                        <span class="mock-sub-arrow">+</span>
                     </button>
                     <div id="${subId}" class="mock-sub-body hidden">
-                        <div class="explanation-box">
-                            <h4 style="color: var(--accent);">Detailed Answer</h4>
+                        <div class="mock-answer">
+                            <h4>Answer</h4>
                             <p>${escapeHtml(sub.a)}</p>
                         </div>
                         ${expHtml}
@@ -457,12 +476,12 @@ function renderMockTest(num) {
         card.innerHTML = `
             <div class="mock-card-header">
                 <span class="mock-badge">${escapeHtml(mt.number)}</span>
-                <div>
+                <div class="mock-card-titles">
                     <h3>${escapeHtml(mt.title)}</h3>
                     <span class="mock-topic">${escapeHtml(mt.topic)}</span>
                 </div>
             </div>
-            <div class="scenario-context">${escapeHtml(mt.context)}</div>
+            <div class="mock-context">${escapeHtml(mt.context)}</div>
             <div class="mock-subs">${subQHtml}</div>
         `;
         list.appendChild(card);
@@ -474,13 +493,31 @@ function toggleMockSub(id, btn) {
     const arrow = btn.querySelector('.mock-sub-arrow');
     if (el.classList.contains('hidden')) {
         el.classList.remove('hidden');
-        if (arrow) arrow.textContent = '▲';
+        if (arrow) arrow.textContent = '−';
         btn.classList.add('open');
     } else {
         el.classList.add('hidden');
-        if (arrow) arrow.textContent = '▼';
+        if (arrow) arrow.textContent = '+';
         btn.classList.remove('open');
     }
+}
+
+function expandAllMock(open) {
+    document.querySelectorAll('#mockTestList .mock-sub-toggle').forEach(btn => {
+        const id = btn.getAttribute('onclick').match(/'([^']+)'/);
+        if (!id) return;
+        const body = document.getElementById(id[1]);
+        const arrow = btn.querySelector('.mock-sub-arrow');
+        if (open) {
+            body.classList.remove('hidden');
+            btn.classList.add('open');
+            if (arrow) arrow.textContent = '−';
+        } else {
+            body.classList.add('hidden');
+            btn.classList.remove('open');
+            if (arrow) arrow.textContent = '+';
+        }
+    });
 }
 
 // ===== EXAM ENGINE =====
