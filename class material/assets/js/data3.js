@@ -4,7 +4,7 @@ const appDataPart3 = [
     {
         id: "firewalls-net",
         title: "9. Network Security & Firewalls",
-        description: "Stateless, Stateful, Proxies, and IDS/IPS.",
+        description: "Stateless, Stateful, Proxies, NGFW, IDS/IPS.",
         slides: [
             {
                 type: "content",
@@ -35,6 +35,24 @@ const appDataPart3 = [
                     "Breaks direct connection.",
                     "Layer 7 (Application) inspection.",
                     "Can be slow."
+                ]
+            },
+            {
+                type: "content",
+                title: "Next-Generation Firewall (NGFW)",
+                content: `
+                    <p><strong>Definition:</strong> An NGFW is a network security appliance that builds on classic <strong>stateful firewall</strong> functions (routing IP/port rules and tracking connection state) but adds deeper insight and enforcement. It ties traffic not only to <strong>five-tuple</strong> headers (IPs, ports, protocol) but to <strong>applications</strong>, <strong>users or groups</strong> (often via integration with LDAP/Active Directory), and <strong>content</strong> inside sessions.</p>
+                    <p><strong>Capabilities (typical):</strong> <strong>Application awareness</strong> so policies can say “allow Microsoft 365 email” rather than blindly opening TCP 443; <strong>Deep Packet Inspection (DPI)</strong> and protocol-aware parsing; embedded or coupled <strong>IPS</strong> (and sometimes IDS) against exploits and anomalies; optional <strong>SSL/TLS inspection</strong> (decrypt, inspect, re-encrypt) where policy allows; <strong>URL filtering</strong>, <strong>malware/antivirus signatures</strong>, and sometimes <strong>sandbox/file detonation</strong> for unknown payloads; feeds from <strong>threat intelligence</strong>. Many vendors ship these as blades or subscriptions on one platform.</p>
+                    <p><strong>Compared to legacy firewalls:</strong> Older stateful/perimeter gear mainly asked “Which IP/port is this?” NGFW asks “Which <em>application</em> and <em>user</em>, is it allowed, does the payload match a threat?” That reduces reliance on pretending every attack uses predictable ports.</p>
+                    <p><strong>Trade-offs:</strong> Higher CPU/memory and licensing complexity; TLS decryption raises <strong>privacy and key-management</strong> requirements; sizing and tuning (App-IDs, updates) matter or risk latency and misses.</p>
+                `,
+                realLifeExample: "A classic firewall is airport security counting bags by weight only. An NGFW is security that reads bag labels (application), ties them to your passport (identity), scans inside with X‑ray rules (IPS/DPI), and can block forbidden items—even if someone hides them in an allowed-looking suitcase.",
+                notes: "Exam tip: cite stateful baseline + App-ID/use identity + DPI/IPS (+ optional TLS inspect) when defining NGFW. Examples: Palo Alto PA-Series, Fortinet FortiGate, Cisco Secure Firewall (formerly FirePOWER).",
+                keyPoints: [
+                    "Stateful inspection + application/user awareness + DPI.",
+                    "Often includes IPS, URL/filtering, malware, threat intel on one chassis.",
+                    "TLS inspection optional but sensitive (keys, privacy, perf).",
+                    "Costs more to size and tune than plain packet/stateful ACLs."
                 ]
             },
             {
