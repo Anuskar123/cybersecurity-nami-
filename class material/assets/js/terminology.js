@@ -580,9 +580,25 @@ const terminologyEntries = [
         id: "term-ngfw",
         category: "Firewall Types",
         term: "Next-Generation Firewall (NGFW)",
-        definition: "Builds on stateful inspection by adding application identification (App-ID), user identity (AD/LDAP integration), deep packet inspection, integrated IPS, URL filtering, optional SSL/TLS decryption, and threat intelligence feeds.",
-        example: "Instead of 'allow TCP 443', policy says 'allow Microsoft 365 for Finance group' and blocks risky file uploads inside HTTPS.",
-        points: ["Examples: Palo Alto, FortiGate, Cisco Secure Firewall.", "Higher cost and tuning effort than basic firewalls.", "Often the enterprise perimeter standard today."]
+        definition: "An NGFW builds on classic stateful firewall functions (IP/port ACLs and five-tuple state table) but adds application awareness (App-ID), user/group identity (LDAP/AD), deep packet inspection (DPI), integrated IPS, URL filtering, optional SSL/TLS decryption, and threat intelligence. Legacy firewalls ask 'which IP and port?'; NGFW asks 'which application and user, is it allowed, does the payload contain a threat?'",
+        example: "Classic firewall is airport security weighing every bag the same. NGFW reads bag labels (application), checks your ID (user), X-rays contents (DPI/IPS), and blocks contraband even inside HTTPS when TLS inspection is enabled.",
+        points: ["Stateful baseline + App-ID + identity + DPI + IPS.", "Policy example: allow M365 for Finance, not blind TCP 443.", "Vendors: Palo Alto, FortiGate, Cisco Secure Firewall.", "Trade-offs: cost, CPU, TLS inspect privacy/key management."]
+    },
+    {
+        id: "term-kms",
+        category: "Cryptography — Key Management",
+        term: "Key Management System (KMS) / HSM",
+        definition: "Systems that automate the cryptographic key lifecycle: generation, storage, distribution, rotation, revocation, and destruction. HSMs are tamper-resistant hardware for root keys; KMS (e.g. AWS KMS, Azure Key Vault, HashiCorp Vault) provides software APIs with audit and IAM policies. Keys must never be stored in plaintext on the same server as encrypted data.",
+        example: "Hospital encrypts patient DB with AES; the AES key is wrapped by a master key inside AWS KMS—stealing the database file without KMS access does not reveal records.",
+        points: ["Module IX: lifecycle = generate → store → distribute → use → rotate → revoke → destroy.", "Envelope encryption: DEK encrypts data, KEK in KMS wraps DEK.", "CRL/OCSP for certificate revocation."]
+    },
+    {
+        id: "term-key-lifecycle",
+        category: "Cryptography — Key Management",
+        term: "Cryptographic Key Lifecycle",
+        definition: "End-to-end handling of keys: secure random generation (CSPRNG), protected storage (HSM/KMS), secure distribution (TLS, DH, RSA wrap), controlled usage with auditing, periodic rotation, immediate revocation when compromised, and secure destruction when retired.",
+        example: "Bank rotates TLS certificates annually, revokes an employee's smartcard key the same day they leave, and destroys old HSM backups after migration.",
+        points: ["Weak randomness breaks generation.", "Separation of duties: admin ≠ key custodian.", "Strong algorithms fail if keys are mishandled."]
     },
     {
         id: "term-dpi",

@@ -1089,6 +1089,150 @@ body {
     font-weight: 500;
 }
 
+/* ===== CHEAT SHEET ===== */
+.cheatsheet-header {
+    background: linear-gradient(135deg, #4a3d8f 0%, #6b5ce7 55%, #9b8df7 100%);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin-bottom: 20px;
+}
+
+.cheatsheet-header h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.cheatsheet-header p { font-size: 0.88rem; opacity: 0.92; margin-bottom: 12px; }
+
+.cheatsheet-download {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.cheatsheet-download:hover { background: rgba(255,255,255,0.35); }
+
+.cheatsheet-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.cheatsheet-toolbar .terminology-search {
+    flex: 1;
+    min-width: 200px;
+    max-width: 420px;
+    border-color: rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.95);
+}
+
+.cheatsheet-jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background: #f4f2ff;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.cheatsheet-jump-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
+
+.cheat-jump-btn {
+    font-family: var(--font);
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border: 1px solid #c4b8f0;
+    background: #fff;
+    color: #4a3d8f;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.cheat-jump-btn:hover {
+    background: #6b5ce7;
+    color: #fff;
+    border-color: #6b5ce7;
+}
+
+.cheatsheet-content {
+    max-width: 900px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.cheat-body h2 { font-size: 1.2rem; margin: 24px 0 10px; color: #4a3d8f; }
+.cheat-body h3 { font-size: 1.05rem; margin: 20px 0 8px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.cheat-body h4 { font-size: 0.95rem; margin: 14px 0 6px; color: var(--accent); }
+.cheat-body p { font-size: 0.9rem; line-height: 1.65; margin-bottom: 10px; color: var(--text); }
+.cheat-body ul.cheat-ul { margin: 8px 0 14px 20px; }
+.cheat-body li { font-size: 0.88rem; line-height: 1.55; margin-bottom: 4px; }
+.cheat-pre {
+    background: #f6f8fc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin: 10px 0;
+    white-space: pre-wrap;
+}
+
+.cheat-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 18px;
+    font-size: 0.85rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.cheat-table th {
+    background: #4a3d8f;
+    color: #fff;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid #3d3280;
+}
+
+.cheat-table td {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+    background: #fff;
+}
+
+.cheat-table tbody tr:nth-child(even) td {
+    background: #f8f7fc;
+}
+
+.cheat-table tbody tr:hover td {
+    background: #f0edff;
+}
+.cheat-hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.cheat-check { font-size: 0.88rem; color: var(--text-secondary); }
+.cheat-body code { background: #eef2ff; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+
 .term-controls {
     display: flex;
     justify-content: flex-end;

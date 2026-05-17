@@ -45,6 +45,7 @@
             <button class="tab-btn" data-tab="scenarios">🎯 Scenario Questions</button>
             <button class="tab-btn" data-tab="mocktest">📘 Mock Test</button>
             <button class="tab-btn" data-tab="terminology">📚 Terminology</button>
+            <button class="tab-btn" data-tab="cheatsheet">📋 Cheat Sheet</button>
             <button class="tab-btn" data-tab="exam">🏆 Full Exam</button>
         </div>
 
@@ -109,6 +110,20 @@
             </div>
             <div class="filter-bar" id="terminologyFilterBar"></div>
             <div id="terminologyList"></div>
+        </div>
+
+        <!-- TAB: Cheat Sheet -->
+        <div id="tab-cheatsheet" class="tab-panel hidden">
+            <div class="cheatsheet-header">
+                <h3>Exam Scenario Cheat Sheet</h3>
+                <p>Full guide — all 20 sections: templates, topic finder, copy-ready answers for crypto, malware, PGP, firewalls, NIST, mock test, and more.</p>
+                <div class="cheatsheet-toolbar">
+                    <input type="search" id="cheatSheetSearch" class="terminology-search" placeholder="Search cheat sheet (e.g. DMZ, AES, trojan)…" oninput="filterCheatSheet()">
+                    <a class="cheatsheet-download" href="CSY3062-Exam-Scenario-Cheat-Sheet.md" download>Download .md</a>
+                </div>
+            </div>
+            <div class="cheatsheet-jump" id="cheatSheetJump"></div>
+            <div id="cheatSheetContent" class="cheatsheet-content"></div>
         </div>
 
         <!-- TAB: Full Exam -->
@@ -186,6 +201,7 @@
     <script src="assets/js/scenarios.js"></script>
     <script src="assets/js/mocktest.js"></script>
     <script src="assets/js/terminology.js?v=2"></script>
-    <script src="assets/js/app.js?v=2"></script>
+    <script src="assets/js/cheatsheet.js?v=2"></script>
+    <script src="assets/js/app.js?v=4"></script>
 </body>
 </html>

@@ -74,6 +74,9 @@ function initTabs() {
             if (btn.dataset.tab === 'terminology') {
                 ensureTerminologySection();
             }
+            if (btn.dataset.tab === 'cheatsheet') {
+                loadCheatSheet();
+            }
         });
     });
 }
@@ -722,6 +725,161 @@ function toggleTermEntry(id, btn) {
         if (arrow) arrow.textContent = '+';
         btn.classList.remove('open');
     }
+}
+
+// ===== CHEAT SHEET =====
+let cheatSheetLoaded = false;
+let cheatSheetFullHtml = '';
+
+function loadCheatSheet() {
+    if (cheatSheetLoaded) return;
+    const el = document.getElementById('cheatSheetContent');
+    if (!el) return;
+
+    function render(md) {
+        cheatSheetFullHtml = markdownToHtml(md);
+        el.innerHTML = cheatSheetFullHtml;
+        buildCheatSheetJumpNav(md);
+        cheatSheetLoaded = true;
+    }
+
+    if (typeof window.cheatSheetMarkdown === 'string' && window.cheatSheetMarkdown.length > 0) {
+        render(window.cheatSheetMarkdown);
+        return;
+    }
+
+    fetch('CSY3062-Exam-Scenario-Cheat-Sheet.md?v=1')
+        .then(r => {
+            if (!r.ok) throw new Error('not found');
+            return r.text();
+        })
+        .then(render)
+        .catch(() => {
+            el.innerHTML = '<p class="terminology-empty">Could not load cheat sheet. Refresh the page or use <strong>Download .md</strong> above.</p>';
+        });
+}
+
+function buildCheatSheetJumpNav(md) {
+    const jump = document.getElementById('cheatSheetJump');
+    if (!jump) return;
+    const sections = [];
+    md.split('\n').forEach(line => {
+        const m = line.match(/^## (\d+)\.\s+(.+)$/);
+        if (m) sections.push({ num: m[1], title: m[2].trim() });
+    });
+    if (!sections.length) {
+        jump.innerHTML = '';
+        return;
+    }
+    jump.innerHTML = '<span class="cheatsheet-jump-label">Jump to:</span>' +
+        sections.map(s => `<button type="button" class="cheat-jump-btn" onclick="scrollToCheatSection('${s.num}')">${s.num}. ${escapeHtml(s.title.length > 28 ? s.title.slice(0, 26) + '…' : s.title)}</button>`).join('');
+}
+
+function scrollToCheatSection(num) {
+    const h = document.getElementById('cheat-sec-' + num);
+    if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function filterCheatSheet() {
+    const q = (document.getElementById('cheatSheetSearch')?.value || '').trim().toLowerCase();
+    const el = document.getElementById('cheatSheetContent');
+    if (!el || !cheatSheetFullHtml) return;
+    if (!q) {
+        el.innerHTML = cheatSheetFullHtml;
+        return;
+    }
+    const md = typeof window.cheatSheetMarkdown === 'string' ? window.cheatSheetMarkdown : '';
+    if (!md) {
+        el.innerHTML = cheatSheetFullHtml;
+        return;
+    }
+    const parts = md.split(/\n(?=## \d+\.)/);
+    const intro = parts[0];
+    const matched = parts.filter((block, i) => i === 0 || block.toLowerCase().includes(q));
+    el.innerHTML = markdownToHtml(matched.join('\n'));
+}
+
+function markdownToHtml(md) {
+    const lines = md.split('\n');
+    let html = '';
+    let inCode = false;
+    let listOpen = false;
+
+    function closeList() {
+        if (listOpen) { html += '</ul>'; listOpen = false; }
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.startsWith('```')) {
+            closeList();
+            if (!inCode) { html += '<pre class="cheat-pre">'; inCode = true; }
+            else { html += '</pre>'; inCode = false; }
+            continue;
+        }
+        if (inCode) {
+            html += escapeHtml(line) + '\n';
+            continue;
+        }
+        if (line.startsWith('### ')) { closeList(); html += '<h4>' + inlineMd(line.slice(4)) + '</h4>'; continue; }
+        if (line.startsWith('## ')) {
+            closeList();
+            const sec = line.match(/^## (\d+)\./);
+            const idAttr = sec ? ' id="cheat-sec-' + sec[1] + '"' : '';
+            html += '<h3' + idAttr + '>' + inlineMd(line.slice(3)) + '</h3>';
+            continue;
+        }
+        if (line.startsWith('# ')) { closeList(); html += '<h2>' + inlineMd(line.slice(2)) + '</h2>'; continue; }
+        if (line.startsWith('- [ ] ')) { closeList(); html += '<p class="cheat-check">☐ ' + inlineMd(line.slice(6)) + '</p>'; continue; }
+        if (line.startsWith('- ')) {
+            if (!listOpen) { html += '<ul class="cheat-ul">'; listOpen = true; }
+            html += '<li>' + inlineMd(line.slice(2)) + '</li>';
+            continue;
+        }
+        if (line.trim() === '---') { closeList(); html += '<hr class="cheat-hr">'; continue; }
+        if (line.trim() === '') { closeList(); continue; }
+        if (line.startsWith('|')) {
+            closeList();
+            if (line.match(/^\|[\s\-:|]+\|$/)) continue;
+            const cells = line.split('|').slice(1, -1).map(c => c.trim());
+            if (!cells.length) continue;
+            const nextLine = lines[i + 1] || '';
+            const isHeaderRow = nextLine.match(/^\|[\s\-:|]+\|$/);
+            if (isHeaderRow) {
+                html += '<table class="cheat-table"><thead><tr>';
+                cells.forEach(c => { html += '<th>' + inlineMd(c) + '</th>'; });
+                html += '</tr></thead><tbody>';
+                i++;
+            } else {
+                if (!html.includes('<table class="cheat-table">') || html.endsWith('</table>')) {
+                    html += '<table class="cheat-table"><tbody>';
+                }
+                html += '<tr>';
+                cells.forEach(c => { html += '<td>' + inlineMd(c) + '</td>'; });
+                html += '</tr>';
+            }
+            const after = lines[i + 1] || '';
+            if (!after.startsWith('|') || after.match(/^\|[\s\-:|]+\|$/)) {
+                html += '</tbody></table>';
+            }
+            continue;
+        }
+        closeList();
+        html += '<p>' + inlineMd(line) + '</p>';
+    }
+    closeList();
+    if (inCode) html += '</pre>';
+    if (html.includes('<table class="cheat-table">') && !html.trimEnd().endsWith('</table>')) {
+        html += '</tbody></table>';
+    }
+    return '<div class="cheat-body">' + html + '</div>';
+}
+
+function inlineMd(s) {
+    return escapeHtml(s)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>');
 }
 
 function expandAllTerms(open) {
