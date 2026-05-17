@@ -1081,6 +1081,14 @@ body {
     font-size: 0.9rem;
 }
 
+.terminology-loading {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 24px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
 .term-controls {
     display: flex;
     justify-content: flex-end;

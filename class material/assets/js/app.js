@@ -70,6 +70,10 @@ function initTabs() {
             // Show corresponding panel
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
             document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+
+            if (btn.dataset.tab === 'terminology') {
+                ensureTerminologySection();
+            }
         });
     });
 }
@@ -81,7 +85,7 @@ function initDashboard() {
     buildMCQFilters();
     buildScenarioSection();
     buildMockTestSection();
-    buildTerminologySection();
+    // Terminology loads when user opens the tab (faster login on GitHub Pages / mobile)
 }
 
 // ===== NOTES GRID =====
@@ -541,9 +545,29 @@ function expandAllMock(open) {
 // ===== TERMINOLOGY GLOSSARY =====
 let terminologyCategory = 'all';
 let terminologyQuery = '';
+let terminologySectionReady = false;
+let terminologyRenderToken = 0;
+
+function ensureTerminologySection() {
+    const list = document.getElementById('terminologyList');
+    if (!list) return;
+
+    if (typeof window.terminologyEntries === 'undefined') {
+        list.innerHTML = '<p class="terminology-empty">Terminology data failed to load. Hard-refresh the page (Ctrl+F5) or wait 2–3 minutes after a site update, then try again.</p>';
+        return;
+    }
+
+    if (terminologySectionReady) return;
+
+    list.innerHTML = '<p class="terminology-loading">Loading terminology…</p>';
+    requestAnimationFrame(() => buildTerminologySection());
+}
 
 function buildTerminologySection() {
-    if (typeof window.terminologyEntries === 'undefined') return;
+    if (typeof window.terminologyEntries === 'undefined') {
+        ensureTerminologySection();
+        return;
+    }
 
     const bar = document.getElementById('terminologyFilterBar');
     if (!bar) return;
@@ -563,6 +587,7 @@ function buildTerminologySection() {
     if (search) search.value = '';
     terminologyCategory = 'all';
     terminologyQuery = '';
+    terminologySectionReady = true;
     renderTerminology();
 }
 
@@ -609,6 +634,7 @@ function renderTerminology() {
             : `${filtered.length} of ${terminologyEntries.length} terms`;
     }
 
+    const token = ++terminologyRenderToken;
     list.innerHTML = '';
 
     if (!filtered.length) {
@@ -626,42 +652,62 @@ function renderTerminology() {
     `;
     list.appendChild(controls);
 
-    filtered.forEach(entry => {
-        const card = document.createElement('div');
-        card.className = 'term-card';
-        const bodyId = entry.id + '-body';
-        const pointsHtml = (entry.points && entry.points.length)
-            ? `<div class="term-points">
-                   <h4>Key Points (exam)</h4>
-                   <ul>${entry.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
-               </div>`
-            : '';
-        const exampleHtml = entry.example
-            ? `<div class="term-example">
-                   <span class="term-example-label">Example</span>
-                   <p>${escapeHtml(entry.example)}</p>
-               </div>`
-            : '';
+    const loadingNote = document.createElement('p');
+    loadingNote.className = 'terminology-loading';
+    loadingNote.textContent = 'Rendering terms…';
+    list.appendChild(loadingNote);
 
-        card.innerHTML = `
-            <button class="term-toggle" onclick="toggleTermEntry('${bodyId}', this)">
-                <div class="term-toggle-main">
-                    <span class="term-cat-badge">${escapeHtml(entry.category)}</span>
-                    <h3 class="term-title">${escapeHtml(entry.term)}</h3>
+    const BATCH = 12;
+    let index = 0;
+
+    function appendBatch() {
+        if (token !== terminologyRenderToken) return;
+        const end = Math.min(index + BATCH, filtered.length);
+        for (; index < end; index++) {
+            const entry = filtered[index];
+            const card = document.createElement('div');
+            card.className = 'term-card';
+            const bodyId = entry.id + '-body';
+            const pointsHtml = (entry.points && entry.points.length)
+                ? `<div class="term-points">
+                       <h4>Key Points (exam)</h4>
+                       <ul>${entry.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+                   </div>`
+                : '';
+            const exampleHtml = entry.example
+                ? `<div class="term-example">
+                       <span class="term-example-label">Example</span>
+                       <p>${escapeHtml(entry.example)}</p>
+                   </div>`
+                : '';
+
+            card.innerHTML = `
+                <button class="term-toggle" onclick="toggleTermEntry('${bodyId}', this)">
+                    <div class="term-toggle-main">
+                        <span class="term-cat-badge">${escapeHtml(entry.category)}</span>
+                        <h3 class="term-title">${escapeHtml(entry.term)}</h3>
+                    </div>
+                    <span class="term-arrow">+</span>
+                </button>
+                <div id="${bodyId}" class="term-body hidden">
+                    <div class="term-definition">
+                        <h4>Definition</h4>
+                        <p>${escapeHtml(entry.definition)}</p>
+                    </div>
+                    ${exampleHtml}
+                    ${pointsHtml}
                 </div>
-                <span class="term-arrow">+</span>
-            </button>
-            <div id="${bodyId}" class="term-body hidden">
-                <div class="term-definition">
-                    <h4>Definition</h4>
-                    <p>${escapeHtml(entry.definition)}</p>
-                </div>
-                ${exampleHtml}
-                ${pointsHtml}
-            </div>
-        `;
-        list.appendChild(card);
-    });
+            `;
+            list.appendChild(card);
+        }
+        if (index < filtered.length) {
+            requestAnimationFrame(appendBatch);
+        } else if (loadingNote.parentNode) {
+            loadingNote.remove();
+        }
+    }
+
+    requestAnimationFrame(appendBatch);
 }
 
 function toggleTermEntry(id, btn) {
