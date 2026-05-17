@@ -44,6 +44,7 @@
             <button class="tab-btn" data-tab="mcq">📝 MCQ Practice</button>
             <button class="tab-btn" data-tab="scenarios">🎯 Scenario Questions</button>
             <button class="tab-btn" data-tab="mocktest">📘 Mock Test</button>
+            <button class="tab-btn" data-tab="terminology">📚 Terminology</button>
             <button class="tab-btn" data-tab="exam">🏆 Full Exam</button>
         </div>
 
@@ -93,6 +94,21 @@
             <div id="mockTestList">
                 <!-- Populated by JS -->
             </div>
+        </div>
+
+        <!-- TAB: Terminology -->
+        <div id="tab-terminology" class="tab-panel hidden">
+            <div class="terminology-header">
+                <h3>Full Course Terminology</h3>
+                <p class="terminology-subtitle">All key terms from course PDFs, PowerPoints, DOCX, HTML, and Study Notes — crypto, malware, VPN, frameworks, firewalls, pen testing, Wi‑Fi, web/DB security, and more</p>
+                <p class="terminology-instructions">Every term includes a <strong>detailed definition</strong>, an <strong>everyday example</strong>, and <strong>exam key points</strong>. Tap a card to expand. Use search or filter by category.</p>
+            </div>
+            <div class="terminology-toolbar">
+                <input type="search" id="terminologySearch" class="terminology-search" placeholder="Search terms (e.g. AES, ransomware, DMZ, NIST)…" oninput="filterTerminology()">
+                <span id="terminologyCount" class="terminology-count"></span>
+            </div>
+            <div class="filter-bar" id="terminologyFilterBar"></div>
+            <div id="terminologyList"></div>
         </div>
 
         <!-- TAB: Full Exam -->
@@ -169,6 +185,8 @@
     <script src="assets/js/questions5.js"></script>
     <script src="assets/js/scenarios.js"></script>
     <script src="assets/js/mocktest.js"></script>
+    <script src="assets/js/terminology-extra.js"></script>
+    <script src="assets/js/terminology.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 </html>

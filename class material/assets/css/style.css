@@ -994,6 +994,267 @@ body {
     .mock-controls { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 
+/* ===== TERMINOLOGY ===== */
+.terminology-header {
+    background: linear-gradient(135deg, #1a4d2e 0%, #2d8a4e 55%, #5cb87a 100%);
+    color: #ffffff;
+    border-radius: var(--radius);
+    padding: 26px 30px;
+    margin-bottom: 22px;
+    box-shadow: 0 8px 24px rgba(45,138,78,0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.terminology-header::after {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -30px;
+    width: 160px;
+    height: 160px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.terminology-header h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    position: relative;
+}
+
+.terminology-subtitle {
+    font-size: 0.82rem;
+    opacity: 0.88;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.terminology-instructions {
+    font-size: 0.85rem;
+    opacity: 0.95;
+    line-height: 1.65;
+    max-width: 720px;
+    position: relative;
+}
+
+.terminology-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.terminology-search {
+    flex: 1;
+    min-width: 220px;
+    max-width: 480px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 0.9rem;
+    background: var(--surface);
+    color: var(--text);
+}
+
+.terminology-search:focus {
+    outline: none;
+    border-color: #2d8a4e;
+    box-shadow: 0 0 0 3px rgba(45,138,78,0.15);
+}
+
+.terminology-count {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.terminology-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 40px 20px;
+    font-size: 0.9rem;
+}
+
+.term-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+.term-control-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.term-action-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: #2d8a4e;
+    font-family: var(--font);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.term-action-btn:hover {
+    background: rgba(45,138,78,0.06);
+    border-color: #2d8a4e;
+}
+
+.term-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: box-shadow 0.18s;
+}
+
+.term-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.term-toggle {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 16px 18px;
+    cursor: pointer;
+    font-family: var(--font);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: background 0.15s;
+}
+
+.term-toggle:hover {
+    background: rgba(45,138,78,0.04);
+}
+
+.term-toggle.open {
+    background: rgba(45,138,78,0.07);
+    border-bottom: 1px solid var(--border);
+}
+
+.term-toggle-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.term-cat-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #2d8a4e;
+    margin-bottom: 4px;
+}
+
+.term-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.35;
+}
+
+.term-arrow {
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: #2d8a4e;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+}
+
+.term-body {
+    padding: 0 18px 18px;
+}
+
+.term-definition h4,
+.term-example-label,
+.term-points h4 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+}
+
+.term-definition h4 { color: var(--accent); }
+.term-example-label { color: #b45309; display: block; }
+.term-points h4 { color: #1f8b3a; }
+
+.term-definition p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text);
+}
+
+.term-example {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: #fff8f0;
+    border-radius: 10px;
+    border-left: 3px solid #f59e0b;
+}
+
+.term-example p {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.term-points {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: #f0faf4;
+    border-radius: 10px;
+    border-left: 3px solid #1f8b3a;
+}
+
+.term-points ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.term-points li {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    padding: 4px 0 4px 22px;
+    position: relative;
+}
+
+.term-points li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    color: #1f8b3a;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .terminology-header { padding: 20px; }
+    .terminology-toolbar { flex-direction: column; align-items: stretch; }
+    .terminology-search { max-width: none; }
+}
+
 /* ===== FILTER PILLS ===== */
 .filter-bar {
     display: flex;

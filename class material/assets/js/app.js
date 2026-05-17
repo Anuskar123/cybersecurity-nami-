@@ -81,6 +81,7 @@ function initDashboard() {
     buildMCQFilters();
     buildScenarioSection();
     buildMockTestSection();
+    buildTerminologySection();
 }
 
 // ===== NOTES GRID =====
@@ -525,6 +526,164 @@ function expandAllMock(open) {
         if (!id) return;
         const body = document.getElementById(id[1]);
         const arrow = btn.querySelector('.mock-sub-arrow');
+        if (open) {
+            body.classList.remove('hidden');
+            btn.classList.add('open');
+            if (arrow) arrow.textContent = '−';
+        } else {
+            body.classList.add('hidden');
+            btn.classList.remove('open');
+            if (arrow) arrow.textContent = '+';
+        }
+    });
+}
+
+// ===== TERMINOLOGY GLOSSARY =====
+let terminologyCategory = 'all';
+let terminologyQuery = '';
+
+function buildTerminologySection() {
+    if (typeof window.terminologyEntries === 'undefined') return;
+
+    const bar = document.getElementById('terminologyFilterBar');
+    if (!bar) return;
+
+    const categories = [...new Set(terminologyEntries.map(t => t.category))].sort();
+    bar.innerHTML = '<button class="filter-pill active" data-termcat="all" onclick="filterTerminologyCategory(\'all\', this)">All Terms</button>';
+    categories.forEach(cat => {
+        const pill = document.createElement('button');
+        pill.className = 'filter-pill';
+        pill.dataset.termcat = cat;
+        pill.textContent = cat;
+        pill.onclick = () => filterTerminologyCategory(cat, pill);
+        bar.appendChild(pill);
+    });
+
+    const search = document.getElementById('terminologySearch');
+    if (search) search.value = '';
+    terminologyCategory = 'all';
+    terminologyQuery = '';
+    renderTerminology();
+}
+
+function filterTerminologyCategory(cat, pill) {
+    terminologyCategory = cat;
+    document.querySelectorAll('#terminologyFilterBar .filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    renderTerminology();
+}
+
+function filterTerminology() {
+    const search = document.getElementById('terminologySearch');
+    terminologyQuery = search ? search.value.trim().toLowerCase() : '';
+    renderTerminology();
+}
+
+function getFilteredTerminology() {
+    let list = terminologyEntries;
+    if (terminologyCategory !== 'all') {
+        list = list.filter(t => t.category === terminologyCategory);
+    }
+    if (terminologyQuery) {
+        const q = terminologyQuery;
+        list = list.filter(t =>
+            t.term.toLowerCase().includes(q) ||
+            t.category.toLowerCase().includes(q) ||
+            t.definition.toLowerCase().includes(q) ||
+            (t.example && t.example.toLowerCase().includes(q)) ||
+            (t.points && t.points.some(p => p.toLowerCase().includes(q)))
+        );
+    }
+    return list;
+}
+
+function renderTerminology() {
+    const list = document.getElementById('terminologyList');
+    const countEl = document.getElementById('terminologyCount');
+    if (!list) return;
+
+    const filtered = getFilteredTerminology();
+    if (countEl) {
+        countEl.textContent = filtered.length === terminologyEntries.length
+            ? `${filtered.length} terms`
+            : `${filtered.length} of ${terminologyEntries.length} terms`;
+    }
+
+    list.innerHTML = '';
+
+    if (!filtered.length) {
+        list.innerHTML = '<p class="terminology-empty">No terms match your search. Try another keyword or clear filters.</p>';
+        return;
+    }
+
+    const controls = document.createElement('div');
+    controls.className = 'term-controls';
+    controls.innerHTML = `
+        <div class="term-control-btns">
+            <button class="term-action-btn" onclick="expandAllTerms(true)">Expand all</button>
+            <button class="term-action-btn" onclick="expandAllTerms(false)">Collapse all</button>
+        </div>
+    `;
+    list.appendChild(controls);
+
+    filtered.forEach(entry => {
+        const card = document.createElement('div');
+        card.className = 'term-card';
+        const bodyId = entry.id + '-body';
+        const pointsHtml = (entry.points && entry.points.length)
+            ? `<div class="term-points">
+                   <h4>Key Points (exam)</h4>
+                   <ul>${entry.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+               </div>`
+            : '';
+        const exampleHtml = entry.example
+            ? `<div class="term-example">
+                   <span class="term-example-label">Example</span>
+                   <p>${escapeHtml(entry.example)}</p>
+               </div>`
+            : '';
+
+        card.innerHTML = `
+            <button class="term-toggle" onclick="toggleTermEntry('${bodyId}', this)">
+                <div class="term-toggle-main">
+                    <span class="term-cat-badge">${escapeHtml(entry.category)}</span>
+                    <h3 class="term-title">${escapeHtml(entry.term)}</h3>
+                </div>
+                <span class="term-arrow">+</span>
+            </button>
+            <div id="${bodyId}" class="term-body hidden">
+                <div class="term-definition">
+                    <h4>Definition</h4>
+                    <p>${escapeHtml(entry.definition)}</p>
+                </div>
+                ${exampleHtml}
+                ${pointsHtml}
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+
+function toggleTermEntry(id, btn) {
+    const el = document.getElementById(id);
+    const arrow = btn.querySelector('.term-arrow');
+    if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        if (arrow) arrow.textContent = '−';
+        btn.classList.add('open');
+    } else {
+        el.classList.add('hidden');
+        if (arrow) arrow.textContent = '+';
+        btn.classList.remove('open');
+    }
+}
+
+function expandAllTerms(open) {
+    document.querySelectorAll('#terminologyList .term-toggle').forEach(btn => {
+        const match = btn.getAttribute('onclick').match(/'([^']+)'/);
+        if (!match) return;
+        const body = document.getElementById(match[1]);
+        const arrow = btn.querySelector('.term-arrow');
         if (open) {
             body.classList.remove('hidden');
             btn.classList.add('open');
