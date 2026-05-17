@@ -6,6 +6,14 @@ async function sha256(message) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 // ===== STATE =====
 let currentUser = null;
 let currentCourse = null;
@@ -340,25 +348,42 @@ function renderScenarios(topic) {
     const filtered = topic === 'all' ? scenarioQuestions : scenarioQuestions.filter(s => s.topic === topic);
 
     list.innerHTML = '';
-    filtered.forEach((scenario, idx) => {
+    filtered.forEach((scenario) => {
         const card = document.createElement('div');
         card.className = 'scenario-card';
-        
+
         const questionsId = `sq-${scenario.id}`;
-        card.innerHTML = `
-            <h3>${scenario.title}</h3>
-            <div class="scenario-context">${scenario.context}</div>
-            <button class="scenario-toggle" onclick="toggleScenarioQ('${questionsId}', this)">Show Questions & Answers ▼</button>
-            <ol id="${questionsId}" class="hidden" style="margin-top: 16px;">
-                ${scenario.questions.map(item => `
-                    <li style="margin-bottom: 16px;">
-                        <strong>Q: ${item.q}</strong>
-                        <div class="explanation-box" style="margin-top: 8px;">
-                            <h4 style="color: var(--accent);">Detailed Answer</h4>
-                            <p>${item.a}</p>
+        const qHtml = scenario.questions.map((item) => {
+            const expHtml = item.exp
+                ? `<div class="mock-example">
+                       <span class="mock-example-label">Example</span>
+                       <p>${escapeHtml(item.exp)}</p>
+                   </div>`
+                : '';
+            const pointsHtml = (item.points && item.points.length)
+                ? `<div class="mock-points">
+                       <h4>Key Points</h4>
+                       <ul>${item.points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+                   </div>`
+                : '';
+            return `
+                    <li class="scenario-q-item">
+                        <strong class="scenario-q-text">Q: ${escapeHtml(item.q)}</strong>
+                        <div class="mock-answer scenario-answer">
+                            <h4>Answer</h4>
+                            <p>${escapeHtml(item.a)}</p>
                         </div>
-                    </li>
-                `).join('')}
+                        ${expHtml}
+                        ${pointsHtml}
+                    </li>`;
+        }).join('');
+
+        card.innerHTML = `
+            <h3>${escapeHtml(scenario.title)}</h3>
+            <div class="scenario-context">${escapeHtml(scenario.context)}</div>
+            <button type="button" class="scenario-toggle" onclick="toggleScenarioQ('${questionsId}', this)">Show Questions & Answers ▼</button>
+            <ol id="${questionsId}" class="scenario-q-list hidden">
+                ${qHtml}
             </ol>
         `;
         list.appendChild(card);
@@ -377,14 +402,6 @@ function toggleScenarioQ(id, btn) {
 }
 
 // ===== MOCK TEST (CSY3023 — May 2025) =====
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-
 function buildMockTestSection() {
     if (typeof window.mockTestQuestions === 'undefined') return;
 

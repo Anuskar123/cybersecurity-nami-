@@ -617,6 +617,35 @@ body {
     padding-left: 24px;
 }
 
+.scenario-q-list.scenario-q-list {
+    padding-left: 22px;
+    margin-top: 18px;
+}
+
+.scenario-q-item {
+    margin-bottom: 22px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed var(--border);
+}
+
+.scenario-q-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.scenario-q-text {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.scenario-q-item .mock-answer,
+.scenario-q-item .mock-example,
+.scenario-q-item .mock-points {
+    margin-left: -4px;
+}
+
 .scenario-card li {
     font-size: 0.9rem;
     color: var(--text);
