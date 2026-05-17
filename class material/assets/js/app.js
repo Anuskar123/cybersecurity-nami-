@@ -732,7 +732,7 @@ let cheatSheetLoaded = false;
 let cheatSheetFullHtml = '';
 
 function loadCheatSheet() {
-    if (cheatSheetLoaded) return;
+    if (cheatSheetLoaded && cheatSheetFullHtml) return;
     const el = document.getElementById('cheatSheetContent');
     if (!el) return;
 
@@ -799,18 +799,73 @@ function filterCheatSheet() {
     el.innerHTML = markdownToHtml(matched.join('\n'));
 }
 
+function normalizeCheatSymbols(text) {
+    return text
+        .replace(/\u2014/g, ' – ')
+        .replace(/\u2013/g, ' – ')
+        .replace(/\u2011/g, '-')
+        .replace(/\u2192/g, ' → ')
+        .replace(/\u2260/g, ' ≠ ')
+        .replace(/\u00a7/g, '§')
+        .replace(/\u2026/g, '...')
+        .replace(/[\u2018\u2019]/g, "'")
+        .replace(/[\u201c\u201d]/g, '"');
+}
+
+function parseTableRow(line) {
+    return line.split('|').slice(1, -1).map(c => c.trim());
+}
+
+function isTableSeparator(line) {
+    return /^\|[\s\-:|]+\|$/.test(line.trim());
+}
+
+function renderCheatTable(tableLines) {
+    const rows = tableLines.filter(l => l.trim().startsWith('|'));
+    if (!rows.length) return '';
+
+    let html = '<div class="cheat-table-wrap"><table class="cheat-table">';
+    const hasHeader = rows.length > 1 && isTableSeparator(rows[1]);
+    let startIdx = 0;
+
+    if (hasHeader) {
+        html += '<thead><tr>';
+        parseTableRow(rows[0]).forEach(c => { html += '<th>' + inlineMd(c || ' ') + '</th>'; });
+        html += '</tr></thead><tbody>';
+        startIdx = 2;
+    } else {
+        html += '<tbody>';
+    }
+
+    for (let r = startIdx; r < rows.length; r++) {
+        if (isTableSeparator(rows[r])) continue;
+        const cells = parseTableRow(rows[r]);
+        if (!cells.length) continue;
+        html += '<tr>';
+        cells.forEach(c => { html += '<td>' + inlineMd(c) + '</td>'; });
+        html += '</tr>';
+    }
+
+    html += '</tbody></table></div>';
+    return html;
+}
+
 function markdownToHtml(md) {
+    md = normalizeCheatSymbols(md.replace(/\r\n/g, '\n'));
     const lines = md.split('\n');
     let html = '';
     let inCode = false;
     let listOpen = false;
+    let olOpen = false;
 
     function closeList() {
         if (listOpen) { html += '</ul>'; listOpen = false; }
+        if (olOpen) { html += '</ol>'; olOpen = false; }
     }
 
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        let line = lines[i];
+
         if (line.startsWith('```')) {
             closeList();
             if (!inCode) { html += '<pre class="cheat-pre">'; inCode = true; }
@@ -821,7 +876,24 @@ function markdownToHtml(md) {
             html += escapeHtml(line) + '\n';
             continue;
         }
-        if (line.startsWith('### ')) { closeList(); html += '<h4>' + inlineMd(line.slice(4)) + '</h4>'; continue; }
+
+        if (line.startsWith('|')) {
+            closeList();
+            const tableLines = [];
+            while (i < lines.length && lines[i].trim().startsWith('|')) {
+                tableLines.push(lines[i]);
+                i++;
+            }
+            i--;
+            html += renderCheatTable(tableLines);
+            continue;
+        }
+
+        if (line.startsWith('### ')) {
+            closeList();
+            html += '<h4>' + inlineMd(line.slice(4)) + '</h4>';
+            continue;
+        }
         if (line.startsWith('## ')) {
             closeList();
             const sec = line.match(/^## (\d+)\./);
@@ -829,57 +901,66 @@ function markdownToHtml(md) {
             html += '<h3' + idAttr + '>' + inlineMd(line.slice(3)) + '</h3>';
             continue;
         }
-        if (line.startsWith('# ')) { closeList(); html += '<h2>' + inlineMd(line.slice(2)) + '</h2>'; continue; }
-        if (line.startsWith('- [ ] ')) { closeList(); html += '<p class="cheat-check">☐ ' + inlineMd(line.slice(6)) + '</p>'; continue; }
-        if (line.startsWith('- ')) {
-            if (!listOpen) { html += '<ul class="cheat-ul">'; listOpen = true; }
-            html += '<li>' + inlineMd(line.slice(2)) + '</li>';
-            continue;
-        }
-        if (line.trim() === '---') { closeList(); html += '<hr class="cheat-hr">'; continue; }
-        if (line.trim() === '') { closeList(); continue; }
-        if (line.startsWith('|')) {
+        if (line.startsWith('# ')) {
             closeList();
-            if (line.match(/^\|[\s\-:|]+\|$/)) continue;
-            const cells = line.split('|').slice(1, -1).map(c => c.trim());
-            if (!cells.length) continue;
-            const nextLine = lines[i + 1] || '';
-            const isHeaderRow = nextLine.match(/^\|[\s\-:|]+\|$/);
-            if (isHeaderRow) {
-                html += '<table class="cheat-table"><thead><tr>';
-                cells.forEach(c => { html += '<th>' + inlineMd(c) + '</th>'; });
-                html += '</tr></thead><tbody>';
-                i++;
-            } else {
-                if (!html.includes('<table class="cheat-table">') || html.endsWith('</table>')) {
-                    html += '<table class="cheat-table"><tbody>';
-                }
-                html += '<tr>';
-                cells.forEach(c => { html += '<td>' + inlineMd(c) + '</td>'; });
-                html += '</tr>';
-            }
-            const after = lines[i + 1] || '';
-            if (!after.startsWith('|') || after.match(/^\|[\s\-:|]+\|$/)) {
-                html += '</tbody></table>';
-            }
+            html += '<h2>' + inlineMd(line.slice(2)) + '</h2>';
             continue;
         }
+
+        if (line.startsWith('> ')) {
+            closeList();
+            html += '<blockquote class="cheat-quote">' + inlineMd(line.slice(2)) + '</blockquote>';
+            continue;
+        }
+
+        if (line.startsWith('- [ ] ')) {
+            closeList();
+            html += '<p class="cheat-check"><span class="cheat-check-icon" aria-hidden="true">&#9744;</span> ' + inlineMd(line.slice(6)) + '</p>';
+            continue;
+        }
+        if (/^-\s/.test(line)) {
+            closeList();
+            if (!listOpen) { html += '<ul class="cheat-ul">'; listOpen = true; }
+            html += '<li>' + inlineMd(line.replace(/^-\s+/, '')) + '</li>';
+            continue;
+        }
+        if (/^\d+\.\s/.test(line)) {
+            if (listOpen) { html += '</ul>'; listOpen = false; }
+            if (!olOpen) { html += '<ol class="cheat-ol">'; olOpen = true; }
+            html += '<li>' + inlineMd(line.replace(/^\d+\.\s+/, '')) + '</li>';
+            continue;
+        }
+
+        if (line.trim() === '---') {
+            closeList();
+            html += '<hr class="cheat-hr">';
+            continue;
+        }
+        if (line.trim() === '') {
+            closeList();
+            continue;
+        }
+
         closeList();
-        html += '<p>' + inlineMd(line) + '</p>';
+        if (/^\*\*[^*]+\*\*:\s*$/.test(line.trim())) {
+            html += '<p class="cheat-label">' + inlineMd(line.trim()) + '</p>';
+        } else {
+            html += '<p class="cheat-p">' + inlineMd(line) + '</p>';
+        }
     }
+
     closeList();
     if (inCode) html += '</pre>';
-    if (html.includes('<table class="cheat-table">') && !html.trimEnd().endsWith('</table>')) {
-        html += '</tbody></table>';
-    }
     return '<div class="cheat-body">' + html + '</div>';
 }
 
 function inlineMd(s) {
-    return escapeHtml(s)
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>');
+    if (!s) return '';
+    let t = escapeHtml(normalizeCheatSymbols(s));
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/`([^`]+)`/g, '<code class="cheat-code">$1</code>');
+    t = t.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+    return t;
 }
 
 function expandAllTerms(open) {

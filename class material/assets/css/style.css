@@ -1167,7 +1167,8 @@ body {
 }
 
 .cheatsheet-content {
-    max-width: 900px;
+    width: 100%;
+    max-width: 960px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -1175,34 +1176,93 @@ body {
     box-shadow: var(--shadow);
     max-height: 75vh;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.cheat-body h2 { font-size: 1.2rem; margin: 24px 0 10px; color: #4a3d8f; }
-.cheat-body h3 { font-size: 1.05rem; margin: 20px 0 8px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 4px; }
-.cheat-body h4 { font-size: 0.95rem; margin: 14px 0 6px; color: var(--accent); }
+.cheat-body {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.cheat-body h2 { font-size: 1.2rem; margin: 28px 0 12px; color: #4a3d8f; line-height: 1.35; }
+.cheat-body h3 {
+    font-size: 1.05rem;
+    margin: 22px 0 10px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    line-height: 1.4;
+    scroll-margin-top: 12px;
+}
+.cheat-body h4 { font-size: 0.95rem; margin: 16px 0 8px; color: #0a3d8f; line-height: 1.4; }
+.cheat-body p.cheat-p,
+.cheat-body p.cheat-label,
 .cheat-body p { font-size: 0.9rem; line-height: 1.65; margin-bottom: 10px; color: var(--text); }
-.cheat-body ul.cheat-ul { margin: 8px 0 14px 20px; }
-.cheat-body li { font-size: 0.88rem; line-height: 1.55; margin-bottom: 4px; }
+.cheat-body p.cheat-label { font-weight: 600; margin-bottom: 6px; }
+
+.cheat-quote {
+    margin: 12px 0 16px;
+    padding: 14px 16px 14px 18px;
+    border-left: 4px solid #6b5ce7;
+    background: linear-gradient(90deg, #f4f2ff 0%, #faf9ff 100%);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--text);
+}
+
+.cheat-body ul.cheat-ul { margin: 8px 0 14px; padding-left: 22px; list-style: disc; }
+.cheat-body ol.cheat-ol { margin: 8px 0 14px; padding-left: 24px; list-style: decimal; }
+.cheat-body li { font-size: 0.88rem; line-height: 1.6; margin-bottom: 6px; padding-left: 4px; }
+
+.cheat-code {
+    background: #eef2ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-family: 'Consolas', 'Monaco', monospace;
+    word-break: break-word;
+}
+
+.cheat-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+}
+.cheat-check-icon { flex-shrink: 0; font-size: 1rem; line-height: 1.4; }
 .cheat-pre {
     background: #f6f8fc;
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 12px 14px;
-    font-size: 0.8rem;
-    line-height: 1.5;
+    padding: 14px 16px;
+    font-size: 0.82rem;
+    line-height: 1.55;
     overflow-x: auto;
-    margin: 10px 0;
+    margin: 12px 0;
     white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.cheat-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 14px 0 18px;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    border: 1px solid var(--border);
 }
 
 .cheat-table {
     width: 100%;
+    min-width: 520px;
     border-collapse: collapse;
-    margin: 14px 0 18px;
-    font-size: 0.85rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border-radius: 8px;
-    overflow: hidden;
+    font-size: 0.84rem;
+    table-layout: auto;
 }
 
 .cheat-table th {
@@ -1212,14 +1272,19 @@ body {
     text-align: left;
     padding: 10px 12px;
     border: 1px solid #3d3280;
+    white-space: nowrap;
+    vertical-align: top;
 }
 
 .cheat-table td {
-    padding: 9px 12px;
+    padding: 10px 12px;
     border: 1px solid var(--border);
     vertical-align: top;
     line-height: 1.5;
     background: #fff;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 280px;
 }
 
 .cheat-table tbody tr:nth-child(even) td {
@@ -1228,6 +1293,14 @@ body {
 
 .cheat-table tbody tr:hover td {
     background: #f0edff;
+}
+
+@media (max-width: 768px) {
+    .cheatsheet-content { padding: 16px; max-height: 70vh; }
+    .cheat-table th { white-space: normal; font-size: 0.78rem; }
+    .cheat-table td { font-size: 0.8rem; max-width: 200px; }
+    .cheat-body h2 { font-size: 1.05rem; }
+    .cheat-body h3 { font-size: 0.95rem; }
 }
 .cheat-hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 .cheat-check { font-size: 0.88rem; color: var(--text-secondary); }
