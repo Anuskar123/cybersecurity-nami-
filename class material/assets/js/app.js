@@ -27,6 +27,7 @@ let examTimerInterval = null;
 let examTimeSeconds = 0;
 let examSubmitted = false;
 let selectedMcqModule = 'all';
+let selectedScenarioMcqTopic = 'all';
 
 // ===== PAGE ROUTER =====
 function showPage(pageId) {
@@ -86,6 +87,7 @@ function initDashboard() {
     initTabs();
     buildNotesGrid();
     buildMCQFilters();
+    buildScenarioMcqFilters();
     buildScenarioSection();
     buildMockTestSection();
     // Terminology loads when user opens the tab (faster login on GitHub Pages / mobile)
@@ -294,6 +296,98 @@ function updateMcqCount() {
 function getAllQuestions() {
     // All question parts are already merged into window.tcaQuestions by the individual files
     return (typeof window.tcaQuestions !== 'undefined') ? window.tcaQuestions : [];
+}
+
+function getScenarioMcqQuestions() {
+    return (typeof window.scenarioMcqQuestions !== 'undefined') ? window.scenarioMcqQuestions : [];
+}
+
+function buildScenarioMcqFilters() {
+    const bar = document.getElementById('scenarioMcqFilterBar');
+    if (!bar) return;
+
+    const allQ = getScenarioMcqQuestions();
+    const topics = [...new Set(allQ.map(q => q.scenarioTopic))];
+
+    bar.innerHTML = '<button class="filter-pill active" data-scenario-topic="all" onclick="selectScenarioMcqTopic(\'all\', this)">All Scenario Topics</button>';
+
+    topics.forEach(topic => {
+        const count = allQ.filter(q => q.scenarioTopic === topic).length;
+        const pill = document.createElement('button');
+        pill.className = 'filter-pill';
+        pill.dataset.scenarioTopic = topic;
+        pill.textContent = `${topic} (${count})`;
+        pill.onclick = () => selectScenarioMcqTopic(topic, pill);
+        bar.appendChild(pill);
+    });
+
+    updateScenarioMcqCount();
+}
+
+function selectScenarioMcqTopic(topic, pill) {
+    selectedScenarioMcqTopic = topic;
+    document.querySelectorAll('#scenarioMcqFilterBar .filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    updateScenarioMcqCount();
+}
+
+function updateScenarioMcqCount() {
+    const el = document.getElementById('scenarioMcqCount');
+    if (!el) return;
+    const allQ = getScenarioMcqQuestions();
+    const filtered = selectedScenarioMcqTopic === 'all'
+        ? allQ
+        : allQ.filter(q => q.scenarioTopic === selectedScenarioMcqTopic);
+    el.textContent = `${filtered.length} scenario MCQs available`;
+}
+
+function startScenarioMCQ() {
+    const allQ = getScenarioMcqQuestions();
+    if (allQ.length === 0) {
+        alert('Scenario MCQs are not loaded. Refresh the page and try again.');
+        return;
+    }
+
+    let filtered = selectedScenarioMcqTopic === 'all'
+        ? allQ
+        : allQ.filter(q => q.scenarioTopic === selectedScenarioMcqTopic);
+
+    if (filtered.length === 0) {
+        alert('No scenario MCQs for this topic.');
+        return;
+    }
+
+    examSubmitted = false;
+    currentExamIndex = 0;
+    examQuestions = JSON.parse(JSON.stringify(filtered));
+    shuffleArray(examQuestions);
+    examAnswers = new Array(examQuestions.length).fill(null);
+
+    const title = selectedScenarioMcqTopic === 'all'
+        ? 'Scenario MCQs — All Topics'
+        : `Scenario MCQs — ${selectedScenarioMcqTopic}`;
+    document.getElementById('examTitle').textContent = title;
+    document.getElementById('examScore').classList.add('hidden');
+    document.getElementById('examScoreCard').classList.add('hidden');
+    document.getElementById('examSubmitBtn').classList.add('hidden');
+    document.getElementById('examNextBtn').classList.remove('hidden');
+
+    clearInterval(examTimerInterval);
+    examTimeSeconds = 0;
+    document.getElementById('examTimer').textContent = 'Practice';
+
+    showPage('examPage');
+    renderExamQuestion();
+}
+
+function getExamQuestionLabel(q) {
+    const levelTag = q.level === 6 && q.difficulty === 'hard' ? ' · L6 Hard' : '';
+    if (q.scenarioTitle) {
+        const base = q.scenarioTopic ? `${q.scenarioTopic} · ${q.scenarioTitle}` : q.scenarioTitle;
+        return base + levelTag;
+    }
+    if (q.scenarioTopic) return q.scenarioTopic + levelTag;
+    return (q.module || 'Question') + levelTag;
 }
 
 function startModuleMCQ() {
@@ -1038,7 +1132,7 @@ function renderExamQuestion() {
     const container = document.getElementById('examQuestionContainer');
 
     // Progress
-    document.getElementById('examProgressText').textContent = `Question ${currentExamIndex + 1} of ${examQuestions.length} — ${q.module}`;
+    document.getElementById('examProgressText').textContent = `Question ${currentExamIndex + 1} of ${examQuestions.length} — ${getExamQuestionLabel(q)}`;
     const pct = ((currentExamIndex + 1) / examQuestions.length) * 100;
     document.getElementById('examProgressBar').style.width = `${pct}%`;
 

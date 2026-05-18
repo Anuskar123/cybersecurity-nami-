@@ -43,6 +43,7 @@
             <button class="tab-btn active" data-tab="notes">📖 Study Notes</button>
             <button class="tab-btn" data-tab="mcq">📝 MCQ Practice</button>
             <button class="tab-btn" data-tab="scenarios">🎯 Scenario Questions</button>
+            <button class="tab-btn" data-tab="scenario-mcq">✅ Scenario MCQs</button>
             <button class="tab-btn" data-tab="mocktest">📘 Mock Test</button>
             <button class="tab-btn" data-tab="terminology">📚 Terminology</button>
             <button class="tab-btn" data-tab="cheatsheet">📋 Cheat Sheet</button>
@@ -80,6 +81,18 @@
             <div id="scenarioList">
                 <!-- Populated by JS -->
             </div>
+        </div>
+
+        <!-- TAB: Scenario MCQs -->
+        <div id="tab-scenario-mcq" class="tab-panel hidden">
+            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">TCA Level 6 (hard) MCQs: all <strong>24 scenario topics</strong> plus <strong>Mock Test Q1–Q5</strong> (bank malware, crypto, <strong>network security &amp; firewalls</strong>, VPN/PKI, PGP keys). Filter by topic, then start.</p>
+            <div class="filter-bar" id="scenarioMcqFilterBar">
+                <button class="filter-pill active" data-scenario-topic="all">All Scenario Topics</button>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <span id="scenarioMcqCount" style="font-size: 0.85rem; color: var(--text-secondary);"></span>
+            </div>
+            <button class="btn btn-primary" style="max-width: 300px;" onclick="startScenarioMCQ()">Start Scenario MCQs</button>
         </div>
 
         <!-- TAB: Mock Test (CSY3023 May 2025) -->
@@ -199,9 +212,10 @@
     <script src="assets/js/questions4.js"></script>
     <script src="assets/js/questions5.js"></script>
     <script src="assets/js/scenarios.js"></script>
+    <script src="assets/js/scenario-mcqs.js?v=3"></script>
     <script src="assets/js/mocktest.js"></script>
     <script src="assets/js/terminology.js?v=2"></script>
     <script src="assets/js/cheatsheet.js?v=2"></script>
-    <script src="assets/js/app.js?v=5"></script>
+    <script src="assets/js/app.js?v=7"></script>
 </body>
 </html>

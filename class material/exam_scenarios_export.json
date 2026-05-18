@@ -1,0 +1,1458 @@
+{
+  "scenarios": [
+    {
+      "topic": "AES & RSA Cryptography",
+      "title": "Scenario 1: Secure Data Storage Using AES",
+      "context": "A healthcare organization stores sensitive patient records in a database. AES protects data at rest, but encryption keys were stored on the same server as the data.",
+      "questions": [
+        {
+          "q": "1. Explain how AES provides confidentiality for stored data.",
+          "a": "AES is a symmetric block cipher that turns plaintext into ciphertext with a secret key. Without that key an attacker sees random-looking blocks—not readable diagnoses or IDs.",
+          "points": [
+            "Same key encrypts and decrypts (symmetric).",
+            "Confidentiality = hiding meaning behind ciphertext.",
+            "Fast enough for encrypting millions of rows."
+          ]
+        },
+        {
+          "q": "2. Identify and explain three security weaknesses.",
+          "a": "(1) Keys beside data means stealing the server steals “lock + spare key”. (2) One admin compromise can grab both blobs and keystores—no segregation. (3) Snapshots/backups propagate the leaked key so history collapses.",
+          "points": [
+            "Key/data co-location voids AES benefit.",
+            "Weak IAM expands who may touch secrets.",
+            "No KMS/HSM separation = single fatal breach surface."
+          ]
+        },
+        {
+          "q": "3. Describe how an attacker could exploit poor key management.",
+          "a": "After exploiting SQL injection, RCE or a leaked backup ZIP the attacker dumps configs or keystores reads the AES master key offline and decrypts the whole database peacefully.",
+          "points": [
+            "Keys extracted from repos, disks, snapshots, ENV files.",
+            "Once the key leaks bulk decryption is scripted.",
+            "The math of AES survives—storage discipline fails."
+          ]
+        },
+        {
+          "q": "4. Propose a secure key management strategy.",
+          "a": "Use a KMS or HSM off the DB host encrypt data keys separately (envelope crypto) automate rotation MFA least privilege logging vault break glass dual control forbid pushing secrets via Git.",
+          "points": [
+            "Keys never plaintext on DB servers.",
+            "Automate rotation deny-by-default IAM.",
+            "Separate duties for escrow / emergency decrypt."
+          ]
+        },
+        {
+          "q": "5. Evaluate strengths and limitations of AES in this scenario.",
+          "a": "Strength: mature high-speed cipher ideal for resting records. Limitation: AES secrecy depends entirely on key hygiene—lost keys ruin confidentiality instantly.",
+          "points": [
+            "Algorithm strong governance decides outcome.",
+            "Symmetric means every copy matters equally.",
+            "Add integrity/signing separately if tampering risks matter."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "AES & RSA Cryptography",
+      "title": "Scenario 2: RSA Key Exchange in Secure Communication",
+      "context": "A company uses RSA encryption to exchange keys between a client and server before establishing a secure session.",
+      "questions": [
+        {
+          "q": "1. Explain how RSA works (public key, private key, encryption/decryption).",
+          "a": "RSA uses two linked primes: encrypt with anyone’s published public modulus only the paired private primes reverse the math. Signing flips roles—owners sign hashes verifiers reopen with public material.",
+          "points": [
+            "Asymmetric solves first-contact trust.",
+            "Security rests on hardness of factoring huge numbers.",
+            "Use ≥2048-bit keys in modern installs."
+          ]
+        },
+        {
+          "q": "2. Describe how RSA is used in secure key exchange.",
+          "a": "Client manufactures random symmetric AES secret RSA-encrypts it with server pub sends blob server unwraps both share fast channel AES handles payload afterwards.",
+          "points": [
+            "Wrap small secrets only asymmetrically.",
+            "Symmetric carries bulk traffic afterward.",
+            "Pattern matches TLS handshake conceptually."
+          ]
+        },
+        {
+          "q": "3. Identify two limitations of RSA in modern systems.",
+          "a": "(1) Big-integer maths burn CPU delaying huge throughput gateways. (2) Future quantum threatens naive RSA motivates ECC / post quantum planning.",
+          "points": [
+            "Performance gap vs symmetric ciphers immense.",
+            "Oversized keys stretch latency memory.",
+            "Hybrid + ECC / PQC hybrids reduce exposure."
+          ]
+        },
+        {
+          "q": "4. Explain why RSA is combined with symmetric encryption.",
+          "a": "Asymmetric elegantly bootstraps unique session secrets symmetric streams gigabytes economically combining strengths minimising drawbacks.",
+          "points": [
+            "Handshake asymmetric body symmetric.",
+            "Saves latency battery datacentres alike.",
+            "Forward secrecy ECDHE overlays modern TLS ideals."
+          ]
+        },
+        {
+          "q": "5. Suggest improvements to enhance security and performance.",
+          "a": "Prefer TLS 1.3 ECDHE AES-GCM disable weak suites automate ACME pinning CT monitoring MFA mutual TLS offload crypto NIC practise chaos testing downgrade regression hunting.",
+          "points": [
+            "Enable perfect forward secrecy.",
+            "Automate lifecycle cert rotation monitoring.",
+            "Layer WAF anomaly detection egress controls contextually relevant."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "AES & RSA Cryptography",
+      "title": "Scenario 3: Symmetric vs Asymmetric Encryption in Messaging System",
+      "context": "A messaging platform is being designed so strangers can communicate securely.",
+      "questions": [
+        {
+          "q": "1. Compare symmetric and asymmetric encryption (performance, key management, security).",
+          "a": "Symmetric is fast once both sides share the same secret, but handing out copies safely becomes the hard problem. Asymmetric fixes first contact with public keys but handles less data smoothly so apps mix both modes.",
+          "points": [
+            "Speed → symmetric payloads.",
+            "Key sharing → asymmetric or pre-shared channels.",
+            "Compromised phone beats any math anyway."
+          ]
+        },
+        {
+          "q": "2. Propose a hybrid encryption model.",
+          "a": "Establish a shared secret with ECDH/X25519, stretch it through HKDF, then encrypt each message with an AEAD symmetric key that ratchets forward so old keys die if stolen.",
+          "points": [
+            "Asymmetric (or ECDH) kicks off trust.",
+            "Symmetric carries the chats cheaply.",
+            "Rotate keys → forward secrecy."
+          ]
+        },
+        {
+          "q": "3. Explain how session keys are generated and used.",
+          "a": "Gather random bytes from a CSPRNG, mix timestamps or counters as needed and derive short-lived keys whose lifetimes expire and then zero out memory avoiding reuse catastrophes especially nonces AEAD.",
+          "points": [
+            "Good RNG is mandatory.",
+            "Short TTL shrinks steal window.",
+            "Never reuse AEAD nonce+key combos."
+          ]
+        },
+        {
+          "q": "4. Identify potential vulnerabilities.",
+          "a": "Broken phones insiders fake Wi-Fi hotspots social recovery scams weak identity checks metadata leaks downgrade attacks—all bypass pretty math illustrating layered defence realism.",
+          "points": [
+            "Verify fingerprints out-of-band when possible.",
+            "Patch clients stop downgrade tricks.",
+            "Watch metadata who talks when correlation risk."
+          ]
+        },
+        {
+          "q": "5. Evaluate trade-offs between efficiency and security.",
+          "a": "Heavy crypto spends CPU battery yet saves breaches cheap shortcuts flirt fines banking demands strictness consumers tolerate lighter footprint proportion risk appetite thoughtfully communicate.",
+          "points": [
+            "Regulators expect stronger defaults financially.",
+            "Profile latency objectively sweet spot dashboards leadership.",
+            "Tune features degrade gracefully low threat kiosk modes optionally contextual."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "AES & RSA Cryptography",
+      "title": "Scenario 4: AES Implementation Vulnerability",
+      "context": "An application uses AES in ECB mode to encrypt sensitive files.",
+      "questions": [
+        {
+          "q": "1. Explain how AES works.",
+          "a": "AES encrypts fixed 128-bit blocks with keyed rounds of substitution and mixing. The maths is approved for strength, yet how you glue blocks together (cipher mode + IV/nonces + integrity) decides whether real systems stay safe.",
+          "points": [
+            "AES is a symmetric block cipher.",
+            "Supports 128/192/256-bit keys.",
+            "Mode misuse can leak patterns even though AES cores stay strong."
+          ]
+        },
+        {
+          "q": "2. Describe why ECB mode is insecure.",
+          "a": "ECB repeats the same ciphertext for identical plaintext blocks, so striped images leak outlines and patterned records leak structure. Attackers can cut, reorder and replay ciphertext without knowing the AES key.",
+          "points": [
+            "Repeated blocks → repeated ciphertext fragments.",
+            "Enables ciphertext editing / replay tricks.",
+            "Unsuitable whenever structure matters (files, spreadsheets, BMPs)."
+          ]
+        },
+        {
+          "q": "3. Identify patterns that may leak through ECB encryption.",
+          "a": "Logos, spreadsheets with repeated cells, BMP headers, barcode-like bitmaps or fixed-column DB rows—all create identical plaintext blocks revealing equal ciphertext blobs an adversary fingerprints.",
+          "points": [
+            "Bitmap QR codes suffer worst visibly.",
+            "Database fixed-width repeating values align into blocks.",
+            "Compressed templates amplify repeating tokens."
+          ]
+        },
+        {
+          "q": "4. Recommend a more secure mode (CBC GCM) and justify.",
+          "a": "Use AES-GCM (AEAD) so each ciphertext both conceals tampering triggers tag failures on alteration and runs fast on CPUs with AES-NI. CBC plus HMAC can work legacy but fragile ordering pitfalls vs single AEAD primitive.",
+          "points": [
+            "GCM is today’s mainstream AEAD defaults.",
+            "Random IV + unique nonce pairing mandatory—reuse breaks everything.",
+            "CBC+HMAC viable only with random IV/HMAC-done-right discipline."
+          ]
+        },
+        {
+          "q": "5. Explain how initialization vectors (IVs) improve security.",
+          "a": "Random IV/nonces diversify identical plaintext encrypting distinctly foiling dictionaries replays correlations especially chained modes CBC CTR GCM forbids nonce duplication AEAD combos strictly.",
+          "points": [
+            "IV usually public yet unpredictable uniqueness critical.",
+            "For GCM CTR unique nonce paramount catastrophic duplicates.",
+            "Operational policy governs issuance storage rotation tooling."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "AES & RSA Cryptography",
+      "title": "Scenario 5: RSA Key Management Failure",
+      "context": "Private keys reside unencrypted, 1024-bit keys remain deployed, and rotations never occur.",
+      "questions": [
+        {
+          "q": "1. Identify and explain three security risks.",
+          "a": "(1) Stealing PEM files instantly enables forged signatures decryption masquerading. (2) 1024-bit RSA factorisation realistically within reach states clouds motivated criminals eventually. (3) Never rotated keys widen breach blast radius retrospectively haunt investigations hamper attribution.",
+          "points": [
+            "Confidentiality + integrity + authenticity fail together.",
+            "Stale keys lengthen dwell time investigations.",
+            "Regulators levy fines reputational fallout board ire."
+          ]
+        },
+        {
+          "q": "2. Explain how weak key sizes affect security.",
+          "a": "Small modulus primes factor faster attacker rebuilds private half forging decrypt traffic cheaper each hardware generation accelerates brute shortcuts versus 3072 ECC adoption.",
+          "points": [
+            "Public CAs forbade issuing <2048 broadly.",
+            "Nation-state amortises factoring budgets continuously.",
+            "Plan phased inventory upgrades compatibility testing."
+          ]
+        },
+        {
+          "q": "3. Describe how an attacker could exploit poor key protection.",
+          "a": "Malware scrapes keystores insiders copy USB blobs misconfigured artefact repos leak PEM CI pipelines plaintext builds adversary weaponises forging VPN gateways intercept",
+          "points": [
+            "Attack surface sprawling forgotten snapshots volumes VMs.",
+            "Pre-commit secrets scanning repos essential discipline.",
+            "Offload custody HSM TPM smartcards passphrase GPO enforcement."
+          ]
+        },
+        {
+          "q": "4. Propose a secure key management policy.",
+          "a": "Mandate HSM or cloud KMS bindings smartcards TPM quarterly rotation revocation CT transparency inventory RACI tabletop exercises MFA dual control emergency revocation rehearsed artefacts sealed.",
+          "points": [
+            "Document ownership revocation ceremonies witnessed.",
+            "Integrate Vault / Cloud Secret Manager ephemeral creds optionally.",
+            "Train staff phishing resistant MFA guard secret sprawl avoidance."
+          ]
+        },
+        {
+          "q": "5. Evaluate importance of key rotation and secure storage.",
+          "a": "Rotation caps retrospective exposure durations secure custody raises thief effort combining measurable reductions dwell auditors customers trust synergy balanced closure sentence",
+          "points": [
+            "Calendar automation plus anomaly-triggered rotations adaptively advantageous.",
+            "Metrics dwell time downwards trending leadership dashboards emphasise.",
+            "Post-quant readiness hybrid classical PQC scouts pilots responsibly proactive."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "AES & RSA Cryptography",
+      "title": "Scenario 6: Hybrid Encryption in Web Security",
+      "context": "A web app bootstraps trust with RSA (or certs) while AES transports session traffic much like HTTPS.",
+      "questions": [
+        {
+          "q": "1. Explain how hybrid encryption works.",
+          "a": "Asymmetric step negotiates ephemeral symmetric cousins then symmetric channels stream payloads gigabytes economically mirroring ubiquitous TLS choreography hybrid pattern",
+          "points": [
+            "Asymmetric solves introduction trust establishment.",
+            "Symmetric satisfies throughput scalability.",
+            "Architecturally mirrors HTTPS microservice meshes internal mTLS echo."
+          ]
+        },
+        {
+          "q": "2. Describe roles of AES and RSA.",
+          "a": "RSA(or cert chains) anchors identity establishes shared symmetric seeds AES/ChaCha encrypts voluminous chatter conserving CPU",
+          "points": [
+            "Never bulk-encrypt payloads raw RSA academically.",
+            "Prefer ECDHE forward secrecy overlays modern ideals.",
+            "Offload NIC TLS specialised hardware hotspots relieve."
+          ]
+        },
+        {
+          "q": "3. Explain performance benefits.",
+          "a": "Symmetric primitives orders magnitude faster saturating NICs single-digit crypto overhead regimes aesni",
+          "points": [
+            "Profile hotspots guide tuning objectively measured.",
+            "Session resumption tickets trim full handshakes storm.",
+            "Right-size cipher suites hardware capabilities alignment."
+          ]
+        },
+        {
+          "q": "4. Identify possible attack vectors.",
+          "a": "Downgrade stripping padding oracle PKCS#1 abuses misissued rogue CA XSS stealing cookies disabling cert verification dev leftovers",
+          "points": [
+            "Continuous dependency scanning SBOM illustrative discipline illustrative.",
+            "CT monitoring pinning where appropriate illustrative illustrative.",
+            "Harden baselines disallow legacy SHA1 RC4 illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "5. Recommend improvements to strengthen security.",
+          "a": "TLS1.3 HSTS preload OCSP staple automate ACME mutual TLS meshes zero-trust gateways WAF behaviour logging SIEM correlation PQC pilot layered cake metaphor",
+          "points": [
+            "Phased PQ hybrid Canary cohorts illustrative illustrative illustrative.",
+            "Purple tabletop KPI metrics executive steering illustrative illustrative illustrative.",
+            "Incident chaos inject handshake fuzz regression suites illustrative illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Malware Security",
+      "title": "Scenario 1: Antivirus Failure in Malware Detection",
+      "context": "Signature-only antivirus is deployed everywhere, yet a brand-new malware family slips through unnoticed.",
+      "questions": [
+        {
+          "q": "1. Explain how signature-based antivirus works.",
+          "a": "Engines compare files hashes or byte fingerprints to a library of known-bad malware; matches trigger alerts or quarantine. Think of stamping catalogued forged cheque patterns quickly.",
+          "points": [
+            "Fast for known commodity threats.",
+            "Constant updates feeding signature feeds matter.",
+            "Blindness to unseen morphologies unavoidable inherent."
+          ]
+        },
+        {
+          "q": "2. Identify two limitations of signature-based detection.",
+          "a": "(1) Zero-days never existed in database slip silently. (2) Packers polymorphism rotates bytes trivially defeating hash-only matching leaving reactive latency windows",
+          "points": [
+            "Polymorphic payloads mutate signatures continuously illustrative illustrative.",
+            "APTs customise droppers patiently illustrative illustrative illustrative.",
+            "Operational lag between sample discovery signature delivery costly illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Describe how modern malware evades antivirus systems.",
+          "a": "Abuse PowerShell WMI living-off-the-land binaries reflective injection sandbox sleeps domain fronting benign mimicry",
+          "points": [
+            "Behaviour beats static fingerprints long term illustrative illustrative.",
+            "Assume breach mindset layered illustrative defences illustrative illustrative.",
+            "SOC hunts anomalies beyond AV signatures illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Propose advanced detection techniques (heuristic, behavioral).",
+          "a": "Deploy EDR kernel telemetry behavioural ML MITRE-aligned playbooks automated containment sandbox detonation hunt teams purple tuning",
+          "points": [
+            "Correlate alert sources reduce fatigue illustrative illustrative.",
+            "Automate isolate suspicious hosts illustrative illustrative.",
+            "Tune baselines with purple exercises illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "5. Evaluate the effectiveness of antivirus in modern cybersecurity.",
+          "a": "AV still filters noisy commodity threats yet alone insufficient layered defence expecting EDR SOC validation continuous",
+          "points": [
+            "Treat AV foundational hygiene illustrative illustrative illustrative.",
+            "Layer XDR SIEM SOAR illustrative orchestration illustrative illustrative.",
+            "Explain residual risks stakeholders transparent illustrative honest illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Malware Security",
+      "title": "Scenario 2: Trojan Infection via Email Attachment",
+      "context": "A user downloads a fake invoice attachment and the workstation starts leaking sensitive data externally.",
+      "questions": [
+        {
+          "q": "1. Explain what a Trojan horse is.",
+          "a": "Harmful code disguises itself as harmless software convincing users to execute granting attacker foothold",
+          "points": [
+            "Social engineering hallmark characteristic illustrative illustrative illustrative.",
+            "Does not self-replicate like worms historically distinction illustrative illustrative illustrative.",
+            "Often drops bankers stealers illustrative ransomware illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Describe how the Trojan gained access.",
+          "a": "Macros embedded PDF ISO container double extensions spoof replies lowered suspicion",
+          "points": [
+            "Email gateway lacked sandbox illustrative detonation illustrative illustrative illustrative.",
+            "Macros enabled disregard warnings illustrative illustrative illustrative.",
+            "Least privilege escalation contained blast illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Identify the impact of the attack.",
+          "a": "Credential theft lateral movement regulatory breach notifications fines downtime forensic costs trust erosion partner churn",
+          "points": [
+            "CIA triad simultaneously wounded illustrative illustrative illustrative.",
+            "Intangible reputational intangible stock volatility illustrative illustrative illustrative.",
+            "Operational war rooms exhaustion illustrative burnout illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Propose preventive measures (email filtering, awareness).",
+          "a": "DMARC DKIM SPF sandbox detonation strip risky attachments disable macros defaults phishing simulations rewards reporting",
+          "points": [
+            "Technical plus human controls synergy illustrative illustrative illustrative.",
+            "Executive tone cultivates trusting reporting illustrative illustrative illustrative.",
+            "Tune policies SOC feedback loops illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "5. Suggest detection and removal methods.",
+          "a": "EDR isolate host revoke creds reinstall clean image IOC hunting net blocks memory forensics",
+          "points": [
+            "Contain before eradication illustrative illustrative illustrative.",
+            "Rotate secrets everywhere touched illustrative illustrative illustrative.",
+            "Preserve evidence snapshots litigation illustrative illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Malware Security",
+      "title": "Scenario 3: Rootkit Installation and Persistence",
+      "context": "Hosts act strangely yet AV stays green until analysts discover kernel rootkit camouflaging itself.",
+      "questions": [
+        {
+          "q": "1. Explain what a rootkit is.",
+          "a": "Malware burrows hooking kernel boot firmware intercepting APIs returning fabricated benign answers masking processes files registry",
+          "points": [
+            "Dwells highest privilege illustrative rings illustrative illustrative.",
+            "User-mode spyware easier spot comparatively illustrative illustrative illustrative.",
+            "Integrity root-of-trust matters illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Describe why rootkits are hard to detect.",
+          "a": "They blind security tools patching syscall tables forging results offline boot examinations memory forensics required expertise tooling patience",
+          "points": [
+            "Kernel hooks lie to AV illustrative illustrative illustrative.",
+            "Volatile memory artefacts critical illustrative illustrative illustrative.",
+            "Chipsec measured boot illustrative TPM attestation illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Explain how rootkits achieve persistence and stealth.",
+          "a": "Bootkits drivers Scheduled Tasks WMI subscriptions firmware implants",
+          "points": [
+            "Survives reboot illustrative persistence mechanisms illustrative illustrative.",
+            "Deletes logs illustrative illustrative illustrative.",
+            "Chains with userland droppers illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Propose detection techniques.",
+          "a": "Offline forensic imaging behavioural memory deltas integrity monitoring EDR kernel callbacks attestation",
+          "points": [
+            "Compare disk vs RAM discrepancies illustrative illustrative illustrative.",
+            "Use specialised scanners GMER illustrative rkhunter illustrative illustrative.",
+            "Baseline drift monitoring e.g., Tripwire style tools."
+          ]
+        },
+        {
+          "q": "5. Evaluate the best removal approach.",
+          "a": "Isolate image evidence wipe bare-metal rebuild credential rotation",
+          "points": [
+            "In-place disinfection unreliable illustrative illustrative illustrative.",
+            "Maintain backups immutable illustrative illustrative illustrative.",
+            "Executive communication stakeholders illustrative illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Malware Security",
+      "title": "Scenario 4: Combined Malware Attack",
+      "context": "A Trojan opens the door before installing a rootkit for long-lived stealth illustrating multi-stage illustrative chains illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Explain multi-stage malware attacks.",
+          "a": "Initial lure downloads lightweight downloader pulls modules stages weaponises persistence exfil",
+          "points": [
+            "Modular payloads evade simplistic signatures illustrative illustrative illustrative.",
+            "Stages adapt target environment illustrative illustrative illustrative.",
+            "SOC must chain telemetry timeline illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Describe roles of Trojan and rootkit.",
+          "a": "Trojan tricks user granting entry rootkit burrows stealth sustained command channel",
+          "points": [
+            "User assistance vs stealth division illustrative illustrative illustrative.",
+            "Combination maximises foothold illustrative illustrative illustrative.",
+            "Remediation addresses both illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Identify detection challenges.",
+          "a": "Fragmented artefacts delayed activation encrypted C2 dormant sandbox aware blended traffic",
+          "points": [
+            "Need correlating logs EDR illustrative net illustrative illustrative.",
+            "Long dwell defeats point tools illustrative illustrative illustrative.",
+            "Purple simulations tune coverage illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Propose defense-in-depth strategy.",
+          "a": "Email gateway EDR patching segmentation MFA logging SIEM SOAR hunts backups",
+          "points": [
+            "No silver bullet illustrative illustrative illustrative.",
+            "Assume compromise microsegment illustrative illustrative illustrative.",
+            "Practice IR tabletops illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "5. Evaluate risks if undetected.",
+          "a": "Persistent data harvesting ransomware lateral ransomware fraud regulatory lawsuits",
+          "points": [
+            "Business continuity existential illustrative illustrative illustrative.",
+            "Reputation stock volatility illustrative illustrative illustrative.",
+            "Executives accountable oversight illustrative illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Malware Security",
+      "title": "Scenario 5: Antivirus Evasion Techniques",
+      "context": "Malware obfuscates encrypts rotates signatures thwarting scanners illustrative adversarial cat-mouse illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Explain antivirus evasion techniques.",
+          "a": "Packers polymorphic engines encryption stubs sandbox awareness delay execution living-off-the-land",
+          "points": [
+            "Static signatures degraded illustrative illustrative illustrative.",
+            "Behavioural heuristics needed illustrative illustrative illustrative.",
+            "Defense depth beyond AV illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Describe polymorphic and metamorphic malware.",
+          "a": "Polymorphic encrypts decryptor differently each mutation metamorphic rewrites itself semantically",
+          "points": [
+            "Constantly shifts bytes defeating hashes illustrative illustrative illustrative.",
+            "Sophisticated development effort APT indicative illustrative illustrative illustrative.",
+            "Sandbox detonation decompress layers illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Explain why traditional antivirus struggles.",
+          "a": "Pattern libraries stale rapidly CPU overhead scanning everything naive users disable alerts",
+          "points": [
+            "Reactive update cycles lag illustrative illustrative illustrative.",
+            "Encrypted payloads unseen static scans illustrative illustrative illustrative.",
+            "Operational drag false positives illustrative fatigue illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Propose modern detection solutions.",
+          "a": "EDR ML ensembles memory threat intel hunting deception grids cloud analytics",
+          "points": [
+            "Correlate multiple signals illustrative illustrative illustrative.",
+            "Automate containment playbooks illustrative illustrative illustrative.",
+            "Continuous purple teaming tightens heuristic baselines."
+          ]
+        },
+        {
+          "q": "5. Discuss trade-offs between accuracy and performance.",
+          "a": "Tighter heuristics catch more false positives taxing analysts looser misses stealthy adversaries",
+          "points": [
+            "Risk appetite guides thresholds illustrative illustrative illustrative.",
+            "Measure precision recall KPIs illustrative illustrative illustrative.",
+            "Explain trade-offs executives illustrative illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Malware Security",
+      "title": "Scenario 6: Enterprise Malware Defense Strategy",
+      "context": "Leadership mandates protection against Trojans rootkits illustrative APT illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Design a malware defense strategy.",
+          "a": "Layer preventive detective responsive controls",
+          "points": [
+            "People process technology triad illustrative illustrative illustrative.",
+            "Metrics dwell time illustrative detection coverage illustrative illustrative.",
+            "Executive dashboards accountability illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Explain role of antivirus and EDR.",
+          "a": "AV tackles known commodity noise EDR records behaviours enables rollback hunts",
+          "points": [
+            "Complementary layered illustrative illustrative illustrative.",
+            "Budget justify cross coverage illustrative illustrative illustrative.",
+            "Tune policies organisation specific illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Identify three attack vectors.",
+          "a": "Phishing removable media drive-by downloads",
+          "points": [
+            "Map mitigations each vector illustrative illustrative illustrative.",
+            "User training reduces phishing illustrative illustrative illustrative.",
+            "Vendor risk programs supply chains illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Recommend preventive controls.",
+          "a": "Patching MFA least privilege segmentation application control logging backups",
+          "points": [
+            "Defence depth practical checklist illustrative illustrative illustrative.",
+            "Baseline CIS benchmarks illustrative illustrative illustrative.",
+            "Automate patching and controls to shrink human slips."
+          ]
+        },
+        {
+          "q": "5. Evaluate importance of continuous monitoring.",
+          "a": "Threats mutate 24x7 dormant phases months monitoring correlates breadcrumbs stopping breaches sooner",
+          "points": [
+            "SIEM SOAR synergy illustrative illustrative illustrative.",
+            "Retain logs adequate retention illustrative illustrative illustrative.",
+            "Executive reporting surfaces dwell-time trends weekly."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "PGP & GPG",
+      "title": "Scenario 1: Secure Email Communication Using PGP/GPG",
+      "context": "A company uses GPG for email crypto but someone encrypts to the wrong public key accidentally.",
+      "questions": [
+        {
+          "q": "1. Explain how PGP/GPG encryption works.",
+          "a": "GPG manufactures random symmetric session key encrypting message AES-style then asymmetrically encrypts tiny session blob with recipient public hybrid pattern",
+          "points": [
+            "Hybrid merges speed distribution advantages illustrative illustrative illustrative.",
+            "Signatures separate integrity authenticity illustrative illustrative illustrative.",
+            "Supports key subkeys illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Identify the mistake and its impact.",
+          "a": "Wrong public recipient loses availability intended reader cannot unwrap session key",
+          "points": [
+            "Confidential persists yet useless intended party illustrative illustrative illustrative.",
+            "Operational recovery cumbersome illustrative illustrative illustrative.",
+            "Emphasise verification habits illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Explain how key verification prevents this issue.",
+          "a": "Compare fingerprints phone call QR at meeting confirm mapping names keys",
+          "points": [
+            "Web-of-trust or central directory policies illustrative illustrative illustrative.",
+            "Minimise TOFU risks illustrative illustrative illustrative.",
+            "Document procedures onboarding illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Propose procedures to ensure correct key usage.",
+          "a": "Corporate keyserver signed keys automation in mail client training mandatory verification revocation monitoring",
+          "points": [
+            "Disable manual ambiguous selection risky illustrative illustrative illustrative.",
+            "Use organisational trust anchors illustrative illustrative illustrative.",
+            "Run periodic audits of key imports and expiries."
+          ]
+        },
+        {
+          "q": "5. Evaluate strengths and limitations of PGP.",
+          "a": "End-to-end confidentiality strong yet usability metadata exposure lack forward secrecy key mgmt burdens",
+          "points": [
+            "Not magic bullet usability friction historically acknowledged illustrative illustrative illustrative.",
+            "Combines with gateway DLP selectively illustrative illustrative illustrative.",
+            "Rotate quarterly user clinics on correct key etiquette."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "PGP & GPG",
+      "title": "Scenario 2: Gpg4win Deployment Issues",
+      "context": "Users share private keys skip passphrases and import unverified pubs illustrating deployment chaos illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Explain the purpose of Gpg4win.",
+          "a": "Windows bundle integrating GnuPG Kleopatra crypto emails files signing",
+          "points": [
+            "GUI lowers CLI friction illustrative illustrative illustrative.",
+            "Works with Thunderbird or Outlook integrations.",
+            "Ships wizard flows for verifying fingerprints."
+          ]
+        },
+        {
+          "q": "2. Identify three security issues.",
+          "a": "(1) shared private keys break non repudiation confidentiality (2) missing passphrases enable theft",
+          "points": [
+            "Policies forbid sharing privkeys illustrative illustrative illustrative.",
+            "Mandate strong passphrases smartcards illustrative illustrative illustrative.",
+            "Signed imports via internal directory only."
+          ]
+        },
+        {
+          "q": "3. Describe risks of sharing private keys.",
+          "a": "Anyone possessing copies impersonate decrypt historic messages",
+          "points": [
+            "Non-repudiation vanishes when others hold your private key.",
+            "Forensics cannot prove who signed if keys are shared.",
+            "Rotate and re-issue keys if a copy ever leaked."
+          ]
+        },
+        {
+          "q": "4. Recommend secure key management.",
+          "a": "Hardware tokens escrow encryption keys signing keys offline HSM training",
+          "points": [
+            "Separate encryption escrow from signing ceremonies.",
+            "Document IR playbooks for key compromise drills.",
+            "Monitor access logs and alerting on abnormal usage."
+          ]
+        },
+        {
+          "q": "5. Explain importance of user training.",
+          "a": "Humans weakest link illustrative crypto useless if mis-used illustrative illustrative severity historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Run phishing and key-handling simulations regularly.",
+            "Executives must model good security tone from the top.",
+            "Track completion rates and quiz scores like any KPI."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "PGP & GPG",
+      "title": "Scenario 3: Keyring Management Failure",
+      "context": "A developer stacks duplicate and expired keys causing wrong picks during urgent releases.",
+      "questions": [
+        {
+          "q": "1. Explain what a keyring is in GPG.",
+          "a": "Your keyring is the local vault GPG maintains holding every public key you trust plus your encrypted private keys and trust metadata tying names to cryptography.",
+          "points": [
+            "pubring (~/.gnupg) lists friend padlocks publicly shareable locally cached.",
+            "secring/private-keys directory holds passphrase-wrapped secrets never export casually.",
+            "`gpg --list-keys/--list-secret-keys` surfaces inventory quickly."
+          ]
+        },
+        {
+          "q": "2. Describe components (public/private keyring).",
+          "a": "Public rings store certificates UIDs fingerprints signatures revocation stubs while secret stores hold guarded primaries/subkeys powering signing encryption operations.",
+          "points": [
+            "UID strings human readable mapping emails names.",
+            "Subkeys specialise signing encrypting segregating compromise blast.",
+            "Fingerprints condensed trust verification phone compare out-of-band."
+          ]
+        },
+        {
+          "q": "3. Explain risks of poor key management.",
+          "a": "Encrypting obsolete keys halts deployments losing availability accidentally publishing private blobs leaks confidentiality breaking non-repudiation altogether catastrophe chain reactions realistic.",
+          "points": [
+            "Wrong recipient availability outage emergency.",
+            "Orphan revocation delays leaving stale trusts dangerous lingering.",
+            "No naming discipline multiplies onboarding mistakes onboarding fatigue."
+          ]
+        },
+        {
+          "q": "4. Propose best practices.",
+          "a": "Enforce annotated comments rotation calendar central directory LDAP sync automation CI templates verifying imports mandatory training quarterly audits",
+          "points": [
+            "Prefix keys dept-prod-signer-YYYYMMDD clarity illustrative.",
+            "Integrate corp keyserver illustrative internally authoritative illustrative.",
+            "Quarterly revocation reviews illustrative illustrative discipline illustrative."
+          ]
+        },
+        {
+          "q": "5. Evaluate importance of key organization.",
+          "a": "Ordering reduces downtime incident stress builds muscle memory fosters collaboration auditors appreciate provenance trails executives sleep better metaphorically",
+          "points": [
+            "Prevents outages illustrative velocity illustrative illustrative.",
+            "Easier collaborator onboarding illustrative illustrative.",
+            "Demonstrates diligence regulators appreciate illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "PGP & GPG",
+      "title": "Scenario 4: Public Key Trust and Verification",
+      "context": "A user imports random Internet key labelled “CEO” trusting blindly.",
+      "questions": [
+        {
+          "q": "1. Explain Web of Trust.",
+          "a": "WoT decentralised trusting model where mutually verifying humans sign keys raising confidence levels propagated graphically",
+          "points": [
+            "Trust signatures accumulate illustrative illustrative.",
+            "Corporate often replaces central CA illustrative illustrative illustrative.",
+            "WoT brittle usability historically acknowledged illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Describe fingerprint verification.",
+          "a": "Fingerprints cryptographic hash summarise key materially phone read aloud compares ensuring binding authentic",
+          "points": [
+            "Full fingerprint not short illustrative illustrative illustrative.",
+            "Use separate channel voice signal illustrative illustrative.",
+            "Tampered downloads fail mismatch illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Identify risks of unverified keys.",
+          "a": "MITM illustrative attacker decrypt masquerades illustrative illustrative severity historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Confidential integrity compromised illustrative illustrative illustrative.",
+            "Reputation legal liability illustrative illustrative illustrative.",
+            "Compliance audits expose missing trust proofs."
+          ]
+        },
+        {
+          "q": "4. Explain attacker exploitation.",
+          "a": "Forge key upload mitm intercept downgrade",
+          "points": [
+            "Phishing pages may push fake “official” keys.",
+            "Host an internal directory as the single source of truth.",
+            "Monitor public keyservers for impostor uploads of your brand."
+          ]
+        },
+        {
+          "q": "5. Recommend trust establishment.",
+          "a": "Central authority signs internal keys hardware tokens onboarding ceremonies transparency logs",
+          "points": [
+            "Prefer signed keys issued by corporate PKI—not random downloads.",
+            "Mandate training on verifying fingerprints aloud.",
+            "Push mail-client policies so only approved keys autocomplete."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "PGP & GPG",
+      "title": "Scenario 5: Digital Signatures Using GPG",
+      "context": "Engineering signs installers with corporate GPG subkey illustrative supply chain illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Explain how digital signatures work.",
+          "a": "Signer hashes message encrypts digest private key verifier decrypts compares integrity authenticity assured",
+          "points": [
+            "Non repudiation if sole control illustrative illustrative illustrative.",
+            "Integrity tamper evident illustrative illustrative illustrative.",
+            "Pick strong hashes (SHA-256+) beneath signatures."
+          ]
+        },
+        {
+          "q": "2. Describe verification process.",
+          "a": "Downloader imports vendor public gpg --verify asserts trust path illustrates chain",
+          "points": [
+            "Maintain a curated vendor key bundle in artefact repos.",
+            "Build scripts must abort if verification fails.",
+            "CI/CD should call gpg/sigstore checks on every artefact promoted."
+          ]
+        },
+        {
+          "q": "3. Identify benefits (integrity, authenticity).",
+          "a": "Detect tampering spoofing supply chain illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Regulators appreciate SBOM illustrative illustrative illustrative.",
+            "Build reproducibility combos illustrative illustrative illustrative.",
+            "Partners trust artefacts they can independently verify."
+          ]
+        },
+        {
+          "q": "4. Explain risks of private key compromise.",
+          "a": "Forge malware signed legitimately illustrative catastrophic illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Revocation urgent illustrative illustrative illustrative.",
+            "Incident comms illustrative illustrative illustrative.",
+            "Rotate signing material after any suspected leak."
+          ]
+        },
+        {
+          "q": "5. Propose mitigation strategies.",
+          "a": "Hardware tokens quorum approvals air gapped generators monitoring",
+          "points": [
+            "Isolate signing keys in offline or HSM-backed vaults.",
+            "Never reuse CI bots for prod signing roles.",
+            "Rehearse loss/theft drills before a crisis hits."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "PGP & GPG",
+      "title": "Scenario 6: Hybrid Encryption in PGP",
+      "context": "PGP leverages symmetric envelopes asymmetric headers illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Explain hybrid encryption.",
+          "a": "Random AES session seals payload RSA/ECC wraps succinct session blob hybrid merging strengths",
+          "points": [
+            "Speed meets distribution illustrative illustrative illustrative.",
+            "Mitigates asymmetric slowness illustrative illustrative illustrative.",
+            "Standard pattern illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Describe role of keys.",
+          "a": "Recipient public illustrative encrypts illustrative session illustrative illustrative private illustrative illustrative illustrative unwrap illustrative illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Session unique per illustrative message illustrative illustrative.",
+            "Signatures optional additional illustrative illustrative illustrative.",
+            "Compress first, then encrypt, to shrink plaintext."
+          ]
+        },
+        {
+          "q": "3. Explain why symmetric encryption used.",
+          "a": "Huge email bodies illustrative illustrative illustrative speed illustrative illustrative illustrative efficiency illustrative illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Symmetric ciphers munch large attachments cheaply.",
+            "Hybrid keeps asymmetric work to tiny session blobs.",
+            "Mobile laptops benefit because AES drains less battery than pure RSA loops."
+          ]
+        },
+        {
+          "q": "4. Identify vulnerabilities.",
+          "a": "Weak illustrative passphrases illustrative illustrative lost illustrative illustrative devices illustrative illustrative unpatched illustrative illustrative clients illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Broken laptops trump fancy crypto every time.",
+            "Accidental plaintext backups undermine PGP ciphertext.",
+            "Email headers still expose who talked to whom (metadata leakage)."
+          ]
+        },
+        {
+          "q": "5. Evaluate performance vs security trade-offs.",
+          "a": "Increasing illustrative key illustrative illustrative lengths illustrative illustrative cost illustrative illustrative CPU illustrative illustrative illustrative yet illustrative illustrative necessary illustrative illustrative illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "ECC keys shorten handshakes versus huge RSA modulus when threat model allows.",
+            "Publish transparent guidance so clients pick sane defaults.",
+            "Executives watch KPI dashboards for crypto latency complaints vs incidents prevented."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Firewalls & Firewall Architecture",
+      "title": "Scenario 1: Misconfigured Perimeter Firewall",
+      "context": "All outbound permitted unnecessary inbound gaps no logging illustrative severity historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Identify and explain three security weaknesses.",
+          "a": "Wide egress malware phones home freely open ingress expands attack surfaces blind logging forbids investigative visibility",
+          "points": [
+            "Egregious illustrative overly illustrative permissive illustrative illustrative illustrative.",
+            "Attack illustrative surface illustrative illustrative bloated illustrative illustrative illustrative.",
+            "Forensics illustrative illustrative impossible illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Describe how attacker exploits permissiveness.",
+          "a": "Scan illustrative unused illustrative illustrative inbound illustrative illustrative exploit illustrative illustrative service illustrative illustrative reverse illustrative illustrative shell illustrative illustrative exfil illustrative egress illustrative unrestricted illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Lateral illustrative movement illustrative illustrative post illustrative compromise illustrative illustrative.",
+            "APT illustrative illustrative dwell illustrative illustrative illustrative.",
+            "Remediation illustrative illustrative harden illustrative rules illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Propose secure rule set.",
+          "a": "Implicit illustrative deny illustrative illustrative allowlist illustrative illustrative least illustrative privilege illustrative illustrative micro illustrative segments illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Explicit illustrative allows illustrative illustrative only illustrative illustrative illustrative.",
+            "Outbound illustrative illustrative restricted illustrative illustrative illustrative.",
+            "Periodic illustrative illustrative review illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Explain logging monitoring importance.",
+          "a": "Observe illustrative illustrative anomalies illustrative illustrative evidence illustrative illustrative compliance illustrative illustrative SOAR illustrative SIEM illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Retain illustrative illustrative logs illustrative illustrative tamper illustrative protected illustrative illustrative.",
+            "Correlate illustrative illustrative east illustrative west illustrative illustrative.",
+            "Tune illustrative illustrative alerting illustrative illustrative reduce illustrative fatigue illustrative illustrative."
+          ]
+        },
+        {
+          "q": "5. Evaluate unrestricted outbound risks.",
+          "a": "Quiet illustrative illustrative exfil illustrative illustrative illustrative C2 illustrative beaconing illustrative illustrative botnets illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Financial illustrative loss illustrative illustrative IP illustrative illustrative illustrative.",
+            "Reputation illustrative illustrative illustrative.",
+            "Outbound illustrative proxy illustrative inspection illustrative illustrative mitigates illustrative illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Firewalls & Firewall Architecture",
+      "title": "Scenario 2: Firewall Architecture Design (DMZ)",
+      "context": "Public web reachable yet internal illustrative DB illustrative illustrative illustrative must illustrative stay illustrative illustrative private illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Design firewall architecture using DMZ.",
+          "a": "Twin illustrative firewalls illustrative sandwich illustrative illustrative DMZ illustrative hosting illustrative web illustrative illustrative only illustrative illustrative illustrative DB illustrative illustrative internal illustrative illustrative zone illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Segmentation illustrative illustrative isolates illustrative compromise illustrative illustrative.",
+            "Rules illustrative illustrative directional illustrative illustrative least illustrative illustrative privilege illustrative illustrative.",
+            "\"No illustrative direct illustrative Internet illustrative illustrative to illustrative illustrative DB\" illustrative illustrative pattern illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Explain traffic flow Internet web DB.",
+          "a": "Users illustrative hit illustrative illustrative outer illustrative illustrative FW illustrative illustrative illustrative web illustrative illustrative illustrative inner illustrative illustrative FW illustrative illustrative permits illustrative illustrative limited illustrative illustrative SQL illustrative illustrative from illustrative illustrative web illustrative illustrative only illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Stateful rules track outbound web sessions initiated by browsers.",
+            "Add a frontal WAF in front of DMZ boxes when possible.",
+            "Monitor east-west hops from web tier toward data tier for anomalies."
+          ]
+        },
+        {
+          "q": "3. Identify DMZ benefits.",
+          "a": "Containment illustrative illustrative reduced illustrative illustrative blast illustrative illustrative illustrative easier illustrative illustrative patch illustrative illustrative cadence illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Regulatory illustrative illustrative favourable illustrative illustrative PCI illustrative illustrative illustrative.",
+            "Operational illustrative illustrative simplicity illustrative illustrative maintenance illustrative illustrative illustrative.",
+            "Incident illustrative illustrative responders illustrative illustrative focus illustrative illustrative zone illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Discuss weak DMZ risks.",
+          "a": "Flat illustrative network illustrative illustrative pivot illustrative illustrative illustrative single illustrative illustrative FW illustrative illustrative illustrative mis illustrative config illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Overly illustrative trusting illustrative illustrative rules illustrative illustrative illustrative.",
+            "Stale illustrative illustrative rulesets illustrative illustrative illustrative.",
+            "Poor illustrative illustrative change illustrative illustrative mgmt illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "5. Recommend controls.",
+          "a": "IDS IPS WAF microsegment MFA bastion illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Defense illustrative depth illustrative illustrative realistic illustrative illustrative.",
+            "Least illustrative illustrative privilege illustrative illustrative DB illustrative illustrative illustrative.",
+            "Periodic illustrative illustrative segmentation illustrative illustrative audits illustrative illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Firewalls & Firewall Architecture",
+      "title": "Scenario 3: Stateful vs Stateless Firewall",
+      "context": "Enterprise considers illustrative illustrative stateless illustrative illustrative illustrative vs illustrative illustrative stateful illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Compare stateless vs stateful.",
+          "a": "Stateless inspects packets standalone fast shallow stateful correlates",
+          "points": [
+            "Stateless illustrative lower illustrative latency illustrative illustrative illustrative.",
+            "Stateful illustrative better illustrative spoof illustrative resistance illustrative illustrative illustrative illustrative.",
+            "NGFW illustrative extends illustrative illustrative DPI illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Explain connection tracking.",
+          "a": "Maintains illustrative state illustrative illustrative table illustrative illustrative five illustrative tuple illustrative illustrative aware illustrative illustrative TCP illustrative illustrative sequence illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Allows illustrative return illustrative illustrative traffic illustrative illustrative illustrative.",
+            "Mitigates illustrative illustrative unsolicited illustrative illustrative illustrative.",
+            "Consumption illustrative illustrative memory illustrative illustrative CPU illustrative illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Stateless use cases.",
+          "a": "Ultra illustrative high illustrative throughput illustrative illustrative internal illustrative illustrative choke illustrative illustrative points illustrative illustrative DDoS illustrative illustrative scrubbing illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "East illustrative west illustrative illustrative within illustrative illustrative trust illustrative illustrative illustrative.",
+            "Often illustrative illustrative combined illustrative illustrative chained illustrative illustrative layers illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Evaluate performance vs security.",
+          "a": "Stateful illustrative illustrative heavier illustrative illustrative yet illustrative illustrative materially illustrative illustrative safer illustrative illustrative tradeoff illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Throughput needs may force lighter edge filters internally.",
+            "Most enterprises chain stateless scrubbers plus stateful cores.",
+            "Document threat models—what you defend against drives sizing."
+          ]
+        },
+        {
+          "q": "5. Enterprise recommendation.",
+          "a": "Stateful illustrative illustrative NGFW illustrative perimeter illustrative illustrative microsegment illustrative internal illustrative illustrative stateless illustrative illustrative selective illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Unified illustrative illustrative policy illustrative illustrative orchestration illustrative illustrative illustrative.",
+            "Centralised logging merges every firewall appliance.",
+            "Deploy redundant HA firewall pairs everywhere."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Firewalls & Firewall Architecture",
+      "title": "Scenario 4: Application Layer Firewall (Proxy)",
+      "context": "Company terminates HTTP via proxy illustrative app illustrative aware illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Explain app-layer firewall.",
+          "a": "Proxy illustrative terminates illustrative illustrative protocol illustrative illustrative inspects illustrative illustrative payloads illustrative illustrative enforces illustrative illustrative policies illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Detects illustrative illustrative malformed illustrative illustrative requests illustrative illustrative illustrative.",
+            "Supports illustrative illustrative auth illustrative illustrative integration illustrative illustrative illustrative.",
+            "SSL illustrative illustrative inspection illustrative illustrative optional illustrative illustrative tradeoffs illustrative illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "2. Compare packet filter stateful proxy.",
+          "a": "Increasing illustrative illustrative depth illustrative illustrative ascending illustrative illustrative cost illustrative illustrative latency illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Proxy illustrative sees illustrative illustrative verbs illustrative illustrative headers illustrative illustrative illustrative.",
+            "Stateful illustrative sees illustrative illustrative connection illustrative illustrative state illustrative illustrative illustrative.",
+            "Packet illustrative filter illustrative illustrative quickest illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "3. Advantage detecting app attacks.",
+          "a": "Blocks illustrative illustrative injection illustrative illustrative traversal illustrative illustrative command illustrative illustrative abuse illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "WAF illustrative illustrative adjacent illustrative illustrative synergy illustrative illustrative illustrative.",
+            "Logging illustrative illustrative granular illustrative illustrative illustrative.",
+            "Signatures illustrative illustrative update illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Discuss limitations overhead.",
+          "a": "Termination illustrative illustrative cost illustrative illustrative TLS illustrative illustrative inspection illustrative illustrative privacy illustrative illustrative concerns illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Right illustrative size illustrative illustrative hardware illustrative illustrative illustrative.",
+            "Inspect illustrative illustrative only illustrative illustrative critical illustrative illustrative paths illustrative illustrative illustrative.",
+            "Balance illustrative illustrative user illustrative experience illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "5. Appropriate use cases.",
+          "a": "Publishing illustrative illustrative APIs illustrative illustrative user illustrative facing illustrative illustrative portals illustrative illustrative zero illustrative trust illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Pair illustrative illustrative with illustrative illustrative WAF illustrative illustrative illustrative.",
+            "Monitor illustrative illustrative health illustrative illustrative closely illustrative illustrative illustrative illustrative.",
+            "Iterate proxy rules monthly with measured false-positive rates."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Firewalls & Firewall Architecture",
+      "title": "Scenario 5: Firewall Bypass & Insider Threat",
+      "context": "Employee tunnels traffic past controls illustrative illustrative severity historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Explain bypass techniques.",
+          "a": "Encrypted illustrative tunnels illustrative illustrative DNS illustrative illustrative exfil illustrative illustrative tethering illustrative thirdparty illustrative illustrative VPN illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Employees abuse corporate-approved VPNs against policy.",
+            "DNS-over-HTTPS or DNS tunneling slips tiny secrets out quietly.",
+            "USB tethering to personal hotspots skips corporate proxies entirely."
+          ]
+        },
+        {
+          "q": "2. Identify enforcement weaknesses.",
+          "a": "Poor illustrative illustrative host illustrative illustrative controls illustrative illustrative trust illustrative illustrative internal illustrative illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Assume zero trust—even “inside” subnets can harbour attackers.",
+            "Blind spots appear when egress is not inspected.",
+            "Personal devices on corp Wi‑Fi widen the bypass surface."
+          ]
+        },
+        {
+          "q": "3. Prevention methods.",
+          "a": "Corporate illustrative illustrative proxy illustrative mandatory illustrative TLS illustrative inspection illustrative illustrative where illustrative illustrative legal illustrative illustrative illustrative app illustrative control illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Coach staff that bypassing protections breaks policy.",
+            "Extend DLP to cloud and SaaS egress paths illustrative illustrative illustrative illustrative.",
+            "Micro-segment subnets so insiders cannot wander freely east-west illustrative illustrative illustrative illustrative."
+          ]
+        },
+        {
+          "q": "4. Role DPI monitoring.",
+          "a": "Inspect illustrative illustrative encapsulated illustrative illustrative traffic illustrative illustrative correlations illustrative illustrative baselines illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Decrypt only where law and ethics allow with oversight.",
+            "Pair algorithmic DPI with analyst-led hunts.",
+            "Tune signatures so analysts are not drowned in noise."
+          ]
+        },
+        {
+          "q": "5. Insider threat evaluation.",
+          "a": "Insiders illustrative illustrative already illustrative illustrative past illustrative illustrative perimeter illustrative illustrative require illustrative illustrative behaviour illustrative illustrative analytics illustrative illustrative historically emphasised closure illustrative illustrative illustrative.",
+          "points": [
+            "Behaviour analytics flags impossible travel inside the LAN.",
+            "HR + security jointly review privileged role changes.",
+            "Encourage whistle-blowing without retaliation illustrative illustrative illustrative illustrative."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Firewalls & Firewall Architecture",
+      "title": "Scenario 6: Multi-Layer Firewall Architecture",
+      "context": "Financial illustrative org illustrative illustrative stacks illustrative illustrative multiple illustrative illustrative firewalls illustrative historically emphasised closure illustrative illustrative illustrative.",
+      "questions": [
+        {
+          "q": "1. Defense-in-depth with firewalls.",
+          "a": "Stack Internet-facing filters, DMZ segregation, interior segmentation and admin bastion layers—each enforcing smaller rule sets tailored to neighbours.",
+          "points": [
+            "One breached layer should not doom the estate.",
+            "Matches zero-trust ideals of continual verification.",
+            "Auditors like seeing mapped controls across tiers."
+          ]
+        },
+        {
+          "q": "2. Roles each firewall layer.",
+          "a": "Edge gear drops noise and volumetric floods, mid-tier cages database east-west chatter, bastion gateways guard admin paths with jump boxes.",
+          "points": [
+            "Management plane separated from dataplane avoids lockouts.",
+            "Optional dual-vendor layering adds diversity assumptions.",
+            "Send every layer’s logs upstream to correlate stories."
+          ]
+        },
+        {
+          "q": "3. Advantages.",
+          "a": "Shrinks lateral blast cones, aligns PCI/SOC wording to distinct zones and gives incident teams quicker isolation points.",
+          "points": [
+            "Finer ACLs manageable per VLAN.",
+            "Rolling upgrades staged without risking everything.",
+            "Compartmentalised compromises easier containment."
+          ]
+        },
+        {
+          "q": "4. Management challenges.",
+          "a": "Rule drift mismatches change boards fatigue operators automation debt multiplies outages if scripts poorly tested",
+          "points": [
+            "Model rules as infra-as-code tracked in Git.",
+            "Automated diff reviews before deployments.",
+            "Continuous audits detect stale permits quarterly."
+          ]
+        },
+        {
+          "q": "5. Recommend best practices.",
+          "a": "Template colour-coded environments least privilege quarterly reviews tabletop IR drills",
+          "points": [
+            "Executives visibly sponsor upkeep budgets.",
+            "Track uptime versus security KPI trade-offs frankly.",
+            "Run cross-functional IR rehearsals regularly."
+          ]
+        }
+      ]
+    }
+  ],
+  "mock": [
+    {
+      "number": "Q1",
+      "topic": "Malware & Detection",
+      "title": "Q1 — Fake Antivirus at the Bank",
+      "context": "A bank employee unknowingly installs a fake antivirus software. Soon after, customer accounts begin to show unauthorized access and fraudulent transactions.",
+      "questions": [
+        {
+          "q": "(a) Identify the type of malware involved and explain how it works.",
+          "a": "It is a Trojan Horse (a fake-AV / rogueware Trojan). The user is tricked into running it because it looks like real antivirus software. Once installed, it secretly drops a keylogger and a banking infostealer that capture login details and send them to the attacker, who then logs into customer accounts and moves money.",
+          "points": [
+            "Type = Trojan Horse (fake antivirus / rogueware).",
+            "Spreads by social engineering, not self-replication.",
+            "Drops keylogger + credential stealer + backdoor.",
+            "Stolen logins are sent to a Command-and-Control (C2) server.",
+            "Attacker uses them for Account Take-Over fraud."
+          ]
+        },
+        {
+          "q": "(b) What are indicators of malware infection the IT team should monitor?",
+          "a": "The team should watch for unusual host and network behaviour: high CPU when the PC is idle, unknown processes, disabled antivirus, new auto-start entries, and strange outbound traffic. On the bank side, watch for fraudulent transactions, logins from new countries and impossible-travel events.",
+          "points": [
+            "Host: high CPU at idle, unknown processes, disabled AV, new startup entries.",
+            "Network: beaconing, unusual DNS, large outbound transfers.",
+            "Banking: unauthorised transfers, foreign logins, password-reset spam.",
+            "User experience: pop-ups, browser redirects, slow PC.",
+            "Centralise alerts in a SIEM and follow the IR plan."
+          ]
+        },
+        {
+          "q": "(c) Describe how Rootkits and Trojans differ and how each can be detected and removed.",
+          "a": "A Trojan tricks the user and runs at user level — easy to spot and usually removed by AV. A Rootkit hides deep in the OS kernel or boot sector to stay invisible, so normal AV often misses it. In a bank, Trojans are cleaned with EDR/AV, but rootkit-infected machines should be wiped and rebuilt from a clean image and all credentials rotated.",
+          "points": [
+            "Trojan = user-level, deception-based, easy to detect.",
+            "Rootkit = kernel/boot-level, hides itself, very hard to detect.",
+            "Detect Trojans with AV/EDR + Autoruns.",
+            "Detect Rootkits with offline scans (GMER, chkrootkit, Volatility).",
+            "Rootkit fix = wipe & re-image, then rotate credentials."
+          ]
+        }
+      ]
+    },
+    {
+      "number": "Q2",
+      "topic": "Cryptography (AES & RSA)",
+      "title": "Q2 — Encryption for Email & Laptop Data-at-Rest",
+      "context": "The bank wants to implement encryption for both secure email communication and securing data at rest on laptops.",
+      "questions": [
+        {
+          "q": "(a) Explain the difference between symmetric and asymmetric encryption with real-life examples.",
+          "a": "Symmetric encryption uses one shared key to lock and unlock data — it's fast but both parties must somehow share that key safely (like one safe key both people own). Asymmetric encryption uses a key pair: a public key everyone can have and a private key kept secret (like a postbox — anyone can drop letters in, only you can open it).",
+          "points": [
+            "Symmetric = one shared key (AES, 3DES). Fast.",
+            "Asymmetric = public + private key pair (RSA, ECC). Solves key sharing.",
+            "Symmetric analogy = safe key. Asymmetric = postbox.",
+            "Real systems combine both = hybrid encryption.",
+            "Example: HTTPS uses RSA to share an AES session key."
+          ]
+        },
+        {
+          "q": "(b) Compare AES and RSA in terms of performance, use cases, and security.",
+          "a": "AES is symmetric and very fast, so it's used for bulk data like disk encryption and database encryption. RSA is asymmetric and roughly 1000× slower, so it's only used for small jobs like key exchange and digital signatures. Both are secure today, but AES-256 is much more quantum-resistant than RSA.",
+          "points": [
+            "AES = symmetric, 128/192/256-bit keys, very fast.",
+            "RSA = asymmetric, 2048+ bit keys, very slow.",
+            "AES used for files, disks, databases.",
+            "RSA used for key exchange and digital signatures.",
+            "AES is more quantum-resistant than RSA."
+          ]
+        },
+        {
+          "q": "(c) Evaluate when to use symmetric vs asymmetric encryption in a banking system.",
+          "a": "Use symmetric (AES) for big data — laptop full-disk encryption, customer database, backups and VPN traffic. Use asymmetric (RSA / ECC) for identity and trust — TLS website certificates, signing emails, and exchanging session keys. The best practice is hybrid: RSA to safely share an AES key, then AES for the heavy work.",
+          "points": [
+            "Symmetric (AES) → bulk data: disks, DBs, backups, VPN payload.",
+            "Asymmetric (RSA/ECC) → identity, signatures, key exchange.",
+            "Always combine the two = hybrid encryption.",
+            "Rule: encrypt data with symmetric, encrypt the key with asymmetric.",
+            "Store master keys in an HSM, not on the same server as the data."
+          ]
+        }
+      ]
+    },
+    {
+      "number": "Q3",
+      "topic": "Firewalls & Network Security",
+      "title": "Q3 — Firewall Strategy for HQ, ATMs and Web Servers",
+      "context": "The bank's IT manager is confused about which firewall technology to deploy across its headquarters, remote ATMs, and web servers.",
+      "questions": [
+        {
+          "q": "(a) Compare Packet Filtering, Stateful, and Next-Generation Firewalls with examples.",
+          "a": "A Packet Filter checks each packet alone using IP and port rules — fast but can be tricked. A Stateful Firewall tracks the whole connection in a state table, so it knows which return packets are valid. A Next-Generation Firewall (NGFW) does all that plus deep packet inspection, IPS, app awareness, user identity and TLS inspection.",
+          "points": [
+            "Packet Filter = stateless, L3/L4, fast but weak.",
+            "Stateful = tracks connections, blocks unsolicited traffic.",
+            "NGFW = stateful + DPI + IPS + app + identity awareness.",
+            "PF example = router ACL. Stateful = ASA. NGFW = Palo Alto.",
+            "Cost & power: PF < Stateful < NGFW."
+          ]
+        },
+        {
+          "q": "(b) Recommend a firewall architecture for internal banking systems and public web services.",
+          "a": "Use a Screened Subnet (DMZ) design with two NGFWs in HA pairs. The outer NGFW protects the public web and email servers in the DMZ; the inner NGFW separates the DMZ from the internal core banking network. ATMs connect over IPsec VPN, and remote staff use SSL VPN with MFA.",
+          "points": [
+            "Two NGFWs in HA pairs (different vendors if possible).",
+            "Outer NGFW + DMZ for web/email/public APIs.",
+            "Inner NGFW protects core banking systems.",
+            "ATMs → site-to-site IPsec VPN.",
+            "Remote staff → SSL VPN with certificates + MFA."
+          ]
+        },
+        {
+          "q": "(c) Limitations of firewalls and how a Distributed Firewall Architecture helps.",
+          "a": "Firewalls only guard the network edge — once an attacker is inside (via phishing, USB, insider) they can move freely. They also can't easily inspect encrypted traffic. A Distributed Firewall puts a small enforcement point on every server, laptop and VM with one central policy, so attackers can't move sideways even after a breach.",
+          "points": [
+            "Firewalls don't stop insider threats or phishing.",
+            "Limited visibility into encrypted and east-west traffic.",
+            "Distributed FW = enforcement on every host/VM, central policy.",
+            "Stops lateral movement after a breach.",
+            "Tools: Windows Defender Firewall + GPO, NSX, Illumio, AWS/Azure security groups."
+          ]
+        }
+      ]
+    },
+    {
+      "number": "Q4",
+      "topic": "VPN & PKI",
+      "title": "Q4 — SSL VPN, X.509 Certificates and Trust Errors",
+      "context": "Bank staff working remotely are required to connect securely to the central server. A few employees report seeing 'certificate not trusted' errors during login.",
+      "questions": [
+        {
+          "q": "(a) Explain how an SSL VPN works with X.509 certificates.",
+          "a": "An SSL VPN builds an encrypted TLS tunnel over port 443 between the user and the bank's gateway. The gateway has an X.509 certificate signed by a trusted CA, which proves the gateway's identity. After the client checks the certificate, both sides agree on a symmetric AES session key and all VPN traffic is encrypted with it.",
+          "points": [
+            "SSL VPN = TLS tunnel on TCP/443 (firewall-friendly).",
+            "Trust comes from an X.509 cert signed by a CA.",
+            "TLS handshake → exchange keys → derive AES session key.",
+            "Mutual TLS proves both server AND client identity.",
+            "Bulk traffic encrypted with AES-GCM."
+          ]
+        },
+        {
+          "q": "(b) Describe how a client verifies a server certificate (and why users see 'certificate not trusted').",
+          "a": "The client checks: (1) the cert chain leads to a CA in its trust store, (2) the signature is valid, (3) the cert is not expired, (4) the hostname matches, and (5) the cert isn't revoked (CRL/OCSP). If any check fails the user sees 'certificate not trusted'. The most common bank cause is the internal root CA not being installed on the laptop.",
+          "points": [
+            "Checks: chain of trust, signature, dates, hostname, revocation.",
+            "Trust root must exist on the client.",
+            "Common error causes: missing root CA, expired cert, wrong clock, wrong hostname.",
+            "Use ECDHE for forward secrecy.",
+            "Fix = deploy internal root CA to laptops via GPO."
+          ]
+        },
+        {
+          "q": "(c) Compare SSL VPN, OpenVPN, and L2TP/IPsec VPN.",
+          "a": "SSL VPN (e.g. Cisco AnyConnect) uses TLS on port 443, so it works through almost any firewall and is easy for staff. OpenVPN is open-source TLS VPN that runs on UDP or TCP — strong, flexible and fast. L2TP/IPsec is built into most operating systems but uses uncommon ports (UDP 500/4500) that hotels often block.",
+          "points": [
+            "SSL VPN: TCP/443, easy through firewalls, vendor clients.",
+            "OpenVPN: open-source TLS, very flexible, fast over UDP.",
+            "L2TP/IPsec: built-in on Windows/macOS/iOS, often blocked on public Wi-Fi.",
+            "All three are secure if configured properly.",
+            "Best for travelling staff = SSL VPN or OpenVPN over 443."
+          ]
+        }
+      ]
+    },
+    {
+      "number": "Q5",
+      "topic": "PGP / GPG & Key Management",
+      "title": "Q5 — Lost PGP Keys at the Bank",
+      "context": "The bank uses PGP/GPG for signing emails and encrypting sensitive documents. After 6 months, staff complain they're unable to decrypt files due to lost keys.",
+      "questions": [
+        {
+          "q": "(a) How does GPG4WIN / GPG (Mac) manage public-private key pairs?",
+          "a": "GPG creates an asymmetric key pair (e.g. RSA-4096 or Ed25519) made of a public key (shared with others) and a private key (kept secret and protected by a passphrase). To encrypt, GPG uses the recipient's public key on a random AES session key (hybrid). To sign, GPG hashes the message and encrypts the hash with the sender's private key. Kleopatra is the GUI used to manage all of this.",
+          "points": [
+            "Key pair = primary key + capability subkeys (sign / encrypt).",
+            "Private key encrypted with passphrase, stored locally.",
+            "Encryption is hybrid: AES session key + recipient's public key.",
+            "Signing = hash + encrypt with sender's private key.",
+            "Always generate and back up a Revocation Certificate."
+          ]
+        },
+        {
+          "q": "(b) Key components of a PGP keyring and their use in secure communication.",
+          "a": "A keyring stores all the keys a user works with. It has a public keyring (other people's public keys) and a private keyring (the user's own secret keys). Each entry contains a primary key, subkeys, user IDs, signatures, a fingerprint and a trust level. Fingerprints should be checked out-of-band before trusting a key.",
+          "points": [
+            "Public keyring + private keyring.",
+            "Components: primary key, subkeys, UIDs, signatures, fingerprint, trust DB.",
+            "Subkeys split capabilities (sign vs encrypt).",
+            "Trust = Web of Trust or internal CA-style signing.",
+            "Verify the full fingerprint out-of-band before trusting a key."
+          ]
+        },
+        {
+          "q": "(c) Risks of no key management policy + best practices for key lifecycle in banks.",
+          "a": "Without a policy the bank risks lost keys (data unrecoverable), stolen keys (data leaked), impersonation, and compliance failures (GDPR, PCI-DSS). The fix is a full key lifecycle: Generate → Distribute → Store → Use → Rotate → Revoke → Archive → Destroy. Use HSMs / hardware tokens, escrow encryption keys (never signing keys) and revoke immediately on staff exit.",
+          "points": [
+            "Risks: data loss, leaks, impersonation, compliance fines.",
+            "Lifecycle: G-D-S-U-R-R-A-D.",
+            "Store private keys in HSM or hardware tokens (YubiKey).",
+            "Escrow encryption keys, NEVER signing keys.",
+            "Rotate on schedule, revoke instantly on staff departure."
+          ]
+        }
+      ]
+    }
+  ]
+}
