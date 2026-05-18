@@ -1,8 +1,8 @@
 // Scenario MCQs — TCA Level 6 (hard)
-// 24 DOCX scenarios + CSY3023 Mock Test (May 2025) bank scenarios incl. network security & VPN
+// Anti-bias: option lengths balanced (~11-14 words); correct index varied
+// 24 DOCX scenarios + CSY3023 Mock Test (May 2025)
 
 const scenarioMcqQuestions = [
-    // ===== AES & RSA Cryptography =====
     {
         id: "smcq-cr-1a",
         scenarioTopic: "AES & RSA Cryptography",
@@ -10,15 +10,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Secure Data Storage Using AES",
         difficulty: "hard",
         level: 6,
-        question: "A healthcare provider encrypts patient records with AES-256 but stores the data encryption key on the same compromised database host. Which statement most accurately evaluates the residual risk?",
+        question: "AES-256 protects patient records, but the DEK sits on the same compromised database host. Which evaluation is most accurate?",
         options: [
-            "Confidentiality fails because the symmetric algorithm is unsuitable for databases",
-            "The cryptographic primitive remains sound but key governance voids the control",
-            "Integrity is violated because AES does not support authenticated encryption modes",
-            "Availability is impacted because envelope encryption increases query latency"
+            "The AES algorithm itself is unsuitable for storing structured relational health records",
+            "The cipher remains valid but co-located keys nullify the confidentiality control",
+            "Integrity fails because AES cannot operate in any authenticated encryption mode",
+            "Availability fails because envelope encryption necessarily increases database query time",
         ],
         correctAnswer: 1,
-        explanation: "AES still provides confidentiality when keys are protected. Co-locating keys with ciphertext means a single host breach exposes both—the failure is operational key management, not the cipher."
+        explanation: "AES is sound when keys are secret. One host breach exposing key and ciphertext is a governance failure, not algorithm failure."
     },
     {
         id: "smcq-cr-1b",
@@ -27,15 +27,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Secure Data Storage Using AES",
         difficulty: "hard",
         level: 6,
-        question: "Which architecture best addresses envelope encryption for data at rest in this hospital scenario?",
+        question: "Which design best implements envelope encryption for hospital data at rest?",
         options: [
-            "Derive the master key from the database administrator's login password",
-            "Wrap data keys with a KMS/HSM master key off the database tier",
-            "Rotate ciphertext weekly while retaining the same static AES key",
-            "Publish the encrypted DEK alongside the ciphertext for transparency"
+            "Derive the master key solely from the database administrator account password hash",
+            "Wrap each DEK with a KMS or HSM master key off the database tier",
+            "Re-encrypt all ciphertext weekly while keeping one static AES key unchanged",
+            "Store the plaintext DEK in the same table as the patient record ciphertext",
         ],
         correctAnswer: 1,
-        explanation: "Envelope encryption stores encrypted data keys with records while the master key lives in a KMS/HSM. This separates duties, enables rotation, and keeps plaintext keys off the DB server."
+        explanation: "Master keys in KMS/HSM keep plaintext DEKs off the DB host and support rotation and audit."
     },
     {
         id: "smcq-cr-2a",
@@ -44,15 +44,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "RSA Key Exchange",
         difficulty: "hard",
         level: 6,
-        question: "During RSA-based key transport in a legacy TLS handshake, what limitation most motivates hybrid encryption for bulk session traffic?",
+        question: "In legacy TLS using RSA key transport, why is hybrid encryption used for session data?",
         options: [
-            "RSA cannot encrypt values larger than the modulus without padding oracle risk",
-            "RSA public keys cannot be distributed via X.509 certificate chains",
-            "Symmetric keys cannot be derived from hash functions in TLS 1.3",
-            "AES-GCM mandates elliptic curve keys instead of RSA moduli"
+            "RSA cannot encrypt payloads larger than the modulus without oracle-related risks",
+            "RSA public keys may never be distributed inside an X.509 certificate chain",
+            "TLS 1.3 forbids deriving symmetric keys from any hash function output",
+            "AES-GCM requires elliptic curve keys and cannot work with RSA moduli",
         ],
         correctAnswer: 0,
-        explanation: "RSA encrypts small payloads only (e.g. a session key). Performance and block-size constraints make asymmetric encryption impractical for high-volume data—hence hybrid designs."
+        explanation: "RSA suits small secrets only; bulk traffic needs fast symmetric ciphers."
     },
     {
         id: "smcq-cr-2b",
@@ -61,15 +61,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "RSA Key Exchange",
         difficulty: "hard",
         level: 6,
-        question: "An auditor flags static RSA key transport without ephemeral Diffie-Hellman. What is the primary security concern?",
+        question: "Static RSA key transport without ephemeral Diffie-Hellman is flagged. What is the main risk?",
         options: [
-            "Loss of forward secrecy if the long-term private key is later compromised",
-            "Inability to negotiate AES-256 as the bulk encryption algorithm",
-            "Mandatory downgrade to ECB mode for symmetric record protection",
-            "Violation of ISO 27001 control A.8.24 on network segregation"
+            "Captured sessions may be decrypted if the long-term private key is later exposed",
+            "Clients cannot negotiate AES-256 as the record-layer bulk encryption algorithm",
+            "The server must downgrade symmetric protection to ECB mode for all TLS records",
+            "The design automatically violates ISO 27001 control A.8.24 on network segregation",
         ],
         correctAnswer: 0,
-        explanation: "Static RSA key transport does not provide forward secrecy. Captured ciphertext could be decrypted later if the server's long-term private key is exposed—ECDHE addresses this in modern TLS."
+        explanation: "Without ephemeral DH there is no forward secrecy for past session keys."
     },
     {
         id: "smcq-cr-3a",
@@ -78,15 +78,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Symmetric vs Asymmetric in Messaging",
         difficulty: "hard",
         level: 6,
-        question: "A stranger-to-stranger messaging platform must establish confidentiality without a pre-shared secret. Which design decision is most defensible at Level 6?",
+        question: "Strangers must message securely without a pre-shared secret. Which design is most defensible?",
         options: [
-            "Distribute one organisational AES key embedded in the client installer",
-            "Use asymmetric key agreement then derive session keys with a KDF",
-            "Rely on transport TLS alone and store messages plaintext on servers",
-            "Encrypt metadata with RSA and leave message bodies unencrypted"
+            "Ship one organisational AES key inside every client installer package worldwide",
+            "Agree keys asymmetrically then derive session keys using an approved KDF",
+            "Use transport TLS only and persist all message bodies as plaintext on servers",
+            "Encrypt routing metadata with RSA while leaving all message bodies unencrypted",
         ],
         correctAnswer: 1,
-        explanation: "Asymmetric agreement (RSA/ECDH) solves the key-distribution problem for strangers. A KDF derives session keys for efficient AEAD message encryption with rotation for forward secrecy."
+        explanation: "ECDH/RSA solves first contact; KDF-derived AEAD keys carry payloads efficiently."
     },
     {
         id: "smcq-cr-3b",
@@ -95,15 +95,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Symmetric vs Asymmetric in Messaging",
         difficulty: "hard",
         level: 6,
-        question: "Which threat remains most plausible even when message bodies use AES-GCM with fresh nonces per message?",
+        question: "Bodies use AES-GCM with unique nonces per message. Which threat remains most plausible?",
         options: [
-            "Brute-force exhaustion of a 128-bit AES key within one session",
-            "Endpoint compromise or metadata correlation across ciphertext headers",
-            "Automatic recovery of plaintext if the RSA modulus is 4096-bit",
-            "Collision attacks against SHA-1 message authentication codes"
+            "An adversary brute-forces a 128-bit AES session key during one short chat",
+            "Endpoint compromise or metadata correlation may expose communication patterns",
+            "A 4096-bit RSA modulus forces downgrade of all ciphertext to plaintext",
+            "SHA-1 collisions inside the application break confidentiality of payloads",
         ],
         correctAnswer: 1,
-        explanation: "Strong algorithms do not protect compromised devices, social engineering, or traffic analysis on metadata. Defence in depth requires endpoint security and minimal metadata retention."
+        explanation: "Strong crypto does not fix compromised devices or metadata analysis."
     },
     {
         id: "smcq-cr-4a",
@@ -112,15 +112,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "AES ECB Implementation Vulnerability",
         difficulty: "hard",
         level: 6,
-        question: "An application encrypts medical imaging files with AES-128-ECB. Why does confidentiality remain weak despite a strong block cipher?",
+        question: "Medical images are encrypted with AES-128-ECB. Why can confidentiality still be weak?",
         options: [
-            "ECB requires transmission of the private key with each ciphertext block",
-            "Deterministic encryption preserves structural patterns in the plaintext",
-            "ECB mandates 56-bit effective key strength like legacy DES systems",
-            "The mode prevents use of hardware AES-NI acceleration entirely"
+            "ECB requires publishing the private decryption key with every ciphertext block",
+            "Identical plaintext blocks produce identical ciphertext blocks revealing structure",
+            "ECB limits effective key strength to fifty-six bits like legacy DES systems",
+            "ECB prevents use of hardware AES-NI acceleration on modern server processors",
         ],
         correctAnswer: 1,
-        explanation: "ECB encrypts identical plaintext blocks to identical ciphertext blocks, leaking patterns (e.g. in bitmaps or fixed-field records). The AES core is fine; the mode of operation is flawed."
+        explanation: "Pattern leakage in ECB is a mode failure, not weakness of the AES round function."
     },
     {
         id: "smcq-cr-4b",
@@ -129,15 +129,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "AES ECB Implementation Vulnerability",
         difficulty: "hard",
         level: 6,
-        question: "Which migration path satisfies both confidentiality and integrity for large files with minimal operational risk?",
+        question: "Which migration gives confidentiality and integrity for large files with sound practice?",
         options: [
-            "AES-ECB with a random IV prepended once per entire file object",
-            "AES-GCM with unique nonces and authentication tags per encryption",
-            "Triple-DES in CBC mode without an HMAC over the ciphertext",
-            "RSA-4096 direct encryption of each 128-bit file segment"
+            "AES-ECB with one random IV prepended once at the start of each file",
+            "AES-GCM with unique nonces and authentication tags verified per object",
+            "Triple-DES CBC mode without an HMAC computed over the ciphertext stream",
+            "RSA-4096 encrypting each sixteen-byte segment of the file independently",
         ],
         correctAnswer: 1,
-        explanation: "AES-GCM is an AEAD mode providing encryption and authentication. Unique nonces per object are mandatory—nonce reuse under the same key catastrophically breaks GCM."
+        explanation: "GCM is AEAD; nonce reuse under one key catastrophically breaks GCM security."
     },
     {
         id: "smcq-cr-5a",
@@ -146,15 +146,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "RSA Key Management Failure",
         difficulty: "hard",
         level: 6,
-        question: "An organisation deploys 1024-bit RSA signing keys in plaintext PEM files with no rotation policy. Which combined impact is most severe?",
+        question: "1024-bit RSA signing keys sit in plaintext PEM files with no rotation. Worst combined impact?",
         options: [
-            "Only non-repudiation is affected; confidentiality remains unaffected",
-            "Factoring risk, undetected forgery, and prolonged retrospective exposure",
-            "Mandatory failure of TLS 1.3 cipher suite negotiation with clients",
-            "Automatic invalidation of all AES data-encryption keys enterprise-wide"
+            "Only non-repudiation is lost while confidentiality of stored data stays intact",
+            "Factoring risk forgery risk and extended retrospective exposure all increase sharply",
+            "TLS 1.3 handshakes fail because cipher suite negotiation becomes impossible",
+            "All AES data-encryption keys enterprise-wide are invalidated automatically",
         ],
         correctAnswer: 1,
-        explanation: "Weak moduli may be factorable; stolen PEMs enable signing/decryption forgery; static keys extend blast radius of any past compromise—violating confidentiality, integrity, and authenticity."
+        explanation: "Weak moduli, stolen PEMs, and static keys expand confidentiality integrity and authenticity risk."
     },
     {
         id: "smcq-cr-5b",
@@ -163,15 +163,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "RSA Key Management Failure",
         difficulty: "hard",
         level: 6,
-        question: "Which control set best aligns with NIST key-management guidance for high-value RSA private keys?",
+        question: "Which control set best matches NIST guidance for high-value RSA private keys?",
         options: [
-            "Store keys in Git with AES-ECB protection and annual manual rotation",
-            "HSM-backed storage, MFA, automated rotation, and audited revocation",
-            "Email encrypted PEM files to security officers for offline archiving",
-            "Share one corporate private key to simplify certificate renewal"
+            "Store keys in Git with AES-ECB protection and rotate them manually each year",
+            "Use HSM storage MFA access paths automated rotation and audited revocation",
+            "Email passphrase-protected PEM files to security officers for offline archiving",
+            "Deploy one shared corporate private key to simplify certificate renewal tasks",
         ],
         correctAnswer: 1,
-        explanation: "NIST SP 800-57 emphasises secure generation, storage in HSMs, access control, rotation, and revocation. Shared or repository-stored plaintext keys violate these principles."
+        explanation: "HSMs rotation MFA and revocation address storage and lifecycle requirements."
     },
     {
         id: "smcq-cr-6a",
@@ -180,15 +180,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Hybrid Encryption in Web Security",
         difficulty: "hard",
         level: 6,
-        question: "In a HTTPS transaction, which component is primarily responsible for bulk application data confidentiality after the handshake?",
+        question: "After an HTTPS handshake, which layer primarily protects bulk application data?",
         options: [
-            "The server's RSA certificate public modulus encrypting each HTTP packet",
-            "Symmetric record protection using negotiated AEAD ciphers like AES-GCM",
-            "Base64 encoding of HTML resources within the X.509 certificate",
-            "SHA-256 hashing of TLS handshake messages without encryption"
+            "The server RSA certificate public modulus encrypting each HTTP packet directly",
+            "Symmetric record protection using negotiated AEAD ciphers such as AES-GCM",
+            "Base64 encoding of HTML resources embedded inside the X.509 certificate object",
+            "SHA-256 hashing of handshake messages without encrypting application payloads",
         ],
         correctAnswer: 1,
-        explanation: "The handshake authenticates peers and establishes symmetric keys; record layer AEAD ciphers encrypt high-volume HTTP data efficiently—hybrid encryption in practice."
+        explanation: "Handshake establishes keys; AEAD record ciphers encrypt high-volume HTTP data."
     },
     {
         id: "smcq-cr-6b",
@@ -197,18 +197,16 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Hybrid Encryption in Web Security",
         difficulty: "hard",
         level: 6,
-        question: "TLS 1.3 removes static RSA key transport. What security property does mandatory (EC)DHE primarily strengthen?",
+        question: "TLS 1.3 removes static RSA key transport. What does mandatory (EC)DHE mainly improve?",
         options: [
-            "Perfect forward secrecy for session keys independent of long-term keys",
-            "Mandatory use of 3DES for backward compatibility with legacy clients",
-            "Elimination of the need for certificate authority trust anchors",
-            "Guaranteed resistance to all future quantum cryptanalysis attacks"
+            "Forward secrecy for session keys even if long-term authentication keys leak later",
+            "Mandatory use of triple-DES for backward compatibility with legacy web clients",
+            "Elimination of all need for certificate authority trust anchors on clients",
+            "Guaranteed resistance to every future quantum cryptanalysis attack on the web",
         ],
         correctAnswer: 0,
-        explanation: "Ephemeral Diffie-Hellman provides forward secrecy: compromise of the certificate's private key does not decrypt previously captured sessions—a major TLS 1.3 improvement."
+        explanation: "Ephemeral DH separates session secrecy from compromise of long-term keys."
     },
-
-    // ===== Malware Security =====
     {
         id: "smcq-ml-1a",
         scenarioTopic: "Malware Security",
@@ -216,15 +214,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Antivirus Failure",
         difficulty: "hard",
         level: 6,
-        question: "Signature-only AV fails against a novel malware family. Which fundamental limitation of hash-based detection does this illustrate?",
+        question: "Signature AV misses a novel malware family. Which limitation does this demonstrate?",
         options: [
-            "Heuristic engines cannot run on 64-bit operating system kernels",
-            "Unknown or polymorphic variants lack entries in the signature database",
-            "Antivirus products are prohibited from scanning encrypted NTFS volumes",
-            "Zero-day exploits always target hardware rather than software layers"
+            "Heuristic engines are prohibited from scanning sixty-four-bit Windows kernels",
+            "Unknown or polymorphic samples lack matching entries in the signature database",
+            "Antivirus products cannot scan files stored on encrypted NTFS volumes at all",
+            "Zero-day exploits always target hardware layers rather than software layers",
         ],
         correctAnswer: 1,
-        explanation: "Signature AV is reactive—it matches known patterns. Zero-days and packed/polymorphic malware evade until analysts publish signatures, creating an inherent detection gap."
+        explanation: "Signature AV is reactive until analysts publish patterns for new variants."
     },
     {
         id: "smcq-ml-1b",
@@ -233,15 +231,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Antivirus Failure",
         difficulty: "hard",
         level: 6,
-        question: "Which layered control most directly addresses the gap left by signature antivirus in this scenario?",
+        question: "Which layered control most directly closes the gap left by signature antivirus?",
         options: [
-            "Disable macro security to reduce false positives on documents",
-            "EDR with behavioural analytics and sandbox detonation pipelines",
-            "Remove SIEM logging to improve endpoint CPU performance",
-            "Permit unsigned PowerShell execution for administrative efficiency"
+            "Disable Office macro security to reduce false positives on inbound documents",
+            "EDR behavioural analytics combined with sandbox detonation of unknown files",
+            "Remove SIEM logging entirely to improve endpoint CPU utilisation metrics",
+            "Permit unsigned PowerShell execution for all standard user workstations",
         ],
         correctAnswer: 1,
-        explanation: "EDR observes process behaviour, memory injection, and lateral movement. Sandboxing detonates unknown files pre-delivery—complementing signatures in a defence-in-depth model."
+        explanation: "Behaviour and sandboxing detect actions and files hashes cannot yet label."
     },
     {
         id: "smcq-ml-2a",
@@ -250,15 +248,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Trojan via Email",
         difficulty: "hard",
         level: 6,
-        question: "After a user executes a malicious invoice attachment, sensitive data is exfiltrated. Which malware classification and propagation model apply?",
+        question: "A malicious invoice attachment leads to data exfiltration. Classification and propagation?",
         options: [
-            "Self-replicating network worm spreading without user interaction",
-            "Socially engineered Trojan requiring explicit user execution",
-            "Fileless virus infecting every executable on the file system",
-            "Boot sector rootkit modifying the master boot record only"
+            "Self-replicating network worm spreading across subnets without user action",
+            "Socially engineered Trojan requiring explicit execution by the victim user",
+            "Fileless virus infecting every portable executable on the local file system",
+            "Boot-sector rootkit modifying the master boot record on first email open",
         ],
         correctAnswer: 1,
-        explanation: "Trojans masquerade as legitimate files and rely on deception—not autonomous propagation like worms. Email lures are a primary delivery vector."
+        explanation: "Trojans rely on deception and user execution; they do not self-propagate like worms."
     },
     {
         id: "smcq-ml-2b",
@@ -267,15 +265,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Trojan via Email",
         difficulty: "hard",
         level: 6,
-        question: "Which preventive control combination offers the strongest reduction in Trojan success via email?",
+        question: "Which combination best reduces Trojan success through the email channel?",
         options: [
-            "SPF-only configuration without attachment inspection or user training",
-            "Sandboxing, macro restriction, DMARC alignment, and phishing simulations",
-            "Blocking all outbound SMTP to prevent internal mail relay abuse",
-            "Granting local administrator rights to reduce UAC prompt fatigue"
+            "Configure SPF records only without attachment inspection or security awareness",
+            "Sandbox attachments restrict macros align DMARC and run phishing simulations",
+            "Block all outbound SMTP relay to prevent internal mail server abuse entirely",
+            "Grant local administrator rights to all staff to avoid UAC prompt fatigue",
         ],
         correctAnswer: 1,
-        explanation: "Technical controls (sandbox, macro policies, DMARC) plus human factors (awareness, reporting culture) address both delivery and execution stages of email-borne Trojans."
+        explanation: "Technical controls plus user training address delivery and execution stages."
     },
     {
         id: "smcq-ml-3a",
@@ -284,15 +282,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Rootkit Installation",
         difficulty: "hard",
         level: 6,
-        question: "A kernel rootkit persists while user-mode AV reports a clean system. Why is user-mode scanning insufficient?",
+        question: "Kernel rootkit persists while user-mode AV stays green. Why is scanning insufficient?",
         options: [
-            "Rootkits only infect BIOS and cannot hook operating system APIs",
-            "Kernel hooks can filter results returned to security software",
-            "AV signatures are incompatible with 128-bit AES encryption",
-            "Rootkits automatically uninstall when the user logs off"
+            "Rootkits infect only legacy BIOS chips and never hook operating system APIs",
+            "Kernel hooks can falsify data returned to user-mode security products",
+            "Rootkits require no administrative privileges on modern Windows platforms",
+            "Rootkits uninstall themselves automatically whenever the interactive user logs off",
         ],
         correctAnswer: 1,
-        explanation: "Kernel rootkits intercept syscalls and alter what AV sees (hidden processes/files). Trusted measurements require offline analysis, memory forensics, or attested boot chains."
+        explanation: "Kernel malware hides processes and files from tools that trust the OS view."
     },
     {
         id: "smcq-ml-3b",
@@ -301,15 +299,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Rootkit Installation",
         difficulty: "hard",
         level: 6,
-        question: "What is the industry-accepted remediation approach after confirmed kernel-level compromise?",
+        question: "What remediation is accepted after confirmed kernel-level compromise?",
         options: [
-            "Run a second antivirus product until one report shows clean",
-            "Isolate, forensically image, then rebuild from trusted gold media",
-            "Delete suspicious files while preserving the existing OS installation",
-            "Disable Windows Defender to prevent hook conflicts with the rootkit"
+            "Install a second antivirus suite until one vendor report shows a clean scan",
+            "Isolate forensically image the host then rebuild from trusted gold media",
+            "Delete suspicious files manually while keeping the current OS installation",
+            "Disable Windows Defender to stop hook conflicts with the rootkit component",
         ],
         correctAnswer: 1,
-        explanation: "In-place cleaning cannot be trusted when the kernel is compromised. Rebuild, rotate credentials, and preserve evidence for investigation and regulatory obligations."
+        explanation: "In-place cleaning is unreliable; rebuild and rotate credentials."
     },
     {
         id: "smcq-ml-4a",
@@ -318,15 +316,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Combined Malware Attack",
         difficulty: "hard",
         level: 6,
-        question: "A Trojan establishes foothold before deploying a kernel rootkit. What operational challenge does this multi-stage pattern create for SOC analysts?",
+        question: "A Trojan drops a kernel rootkit in stages. What SOC challenge does this create?",
         options: [
-            "All artefacts appear simultaneously on a single host event log",
-            "Indicators emerge asynchronously across hosts and time windows",
-            "Antivirus automatically correlates stages without SIEM integration",
-            "Encrypted C2 is impossible when more than one stage exists"
+            "All malicious artefacts appear simultaneously in one host security log",
+            "Indicators surface at different times and often on different monitored hosts",
+            "Antivirus automatically correlates every stage without any SIEM integration",
+            "Encrypted command-and-control becomes impossible when two stages are used",
         ],
         correctAnswer: 1,
-        explanation: "Staged attacks separate downloader, persistence, and stealth components. Correlating sparse events across EDR, proxy, and DNS logs is required—single-tool detection often misses stages."
+        explanation: "Staged attacks need correlation across EDR proxy DNS and timeline data."
     },
     {
         id: "smcq-ml-4b",
@@ -335,15 +333,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Combined Malware Attack",
         difficulty: "hard",
         level: 6,
-        question: "If the multi-stage attack remains undetected for months, which business impact aligns with extended dwell time?",
+        question: "If the attack stays undetected for months, which business impact is most likely?",
         options: [
-            "Only temporary performance degradation on the initial workstation",
-            "Sustained exfiltration, lateral movement, and regulatory breach risk",
-            "Automatic patching of vulnerabilities by the rootkit component",
-            "Guaranteed encryption of backups by the first-stage Trojan only"
+            "Only brief performance degradation on the first infected workstation occurs",
+            "Sustained exfiltration lateral movement and regulatory breach exposure grow",
+            "The rootkit component automatically patches all exploited vulnerabilities found",
+            "Only the first-stage Trojan encrypts backups without any lateral activity",
         ],
         correctAnswer: 1,
-        explanation: "Long dwell enables credential theft, data exfiltration, ransomware deployment, and compliance failures—far beyond a single-endpoint performance issue."
+        explanation: "Long dwell enables fraud exfiltration and compliance failures beyond one PC."
     },
     {
         id: "smcq-ml-5a",
@@ -352,15 +350,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Antivirus Evasion",
         difficulty: "hard",
         level: 6,
-        question: "Polymorphic malware changes its on-disk representation while preserving behaviour. Which detection philosophy counters this evasion?",
+        question: "Polymorphic malware changes on-disk bytes while behaviour stays similar. Best counter?",
         options: [
-            "Increasing signature database size without behavioural telemetry",
-            "Behavioural and anomaly-based analysis independent of static hashes",
-            "Disabling heuristic scanning to eliminate false positive alerts",
-            "Whitelisting all signed Microsoft binaries without execution monitoring"
+            "Increase signature database size without collecting any behavioural telemetry",
+            "Behavioural and anomaly detection not relying on static file hash matching",
+            "Disable heuristic scanning completely to eliminate all false positive alerts",
+            "Whitelist every Microsoft-signed binary without monitoring execution behaviour",
         ],
         correctAnswer: 1,
-        explanation: "Polymorphism defeats static hashes. Behavioural detection (API calls, injection, C2 patterns) targets what the malware does, not its exact byte sequence."
+        explanation: "Behaviour analysis targets actions when byte signatures keep changing."
     },
     {
         id: "smcq-ml-5b",
@@ -369,15 +367,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Antivirus Evasion",
         difficulty: "hard",
         level: 6,
-        question: "An attacker abuses signed PowerShell to download a second-stage payload. This is best described as:",
+        question: "Signed PowerShell downloads a second-stage payload. This is best described as:",
         options: [
-            "A buffer overflow against the PowerShell scripting engine",
-            "Living-off-the-land using trusted binaries to blend with admin activity",
-            "A hardware supply-chain compromise of the CPU microcode",
-            "Mandatory exploitation of an unpatched SMBv1 remote code flaw"
+            "A buffer overflow exploit against the PowerShell language runtime engine itself",
+            "Living-off-the-land abuse of trusted binaries blending with admin activity",
+            "A hardware supply-chain compromise of CPU microcode on the endpoint device",
+            "Mandatory remote exploitation of an unpatched SMB version one service flaw",
         ],
         correctAnswer: 1,
-        explanation: "LOLBins leverage legitimate tools (PowerShell, WMI, rundll32) to evade simple file-based rules while appearing as normal administrative behaviour—requiring script control and EDR."
+        explanation: "LOLBins evade naive file rules while looking like legitimate administration."
     },
     {
         id: "smcq-ml-6a",
@@ -386,15 +384,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Enterprise Malware Defence",
         difficulty: "hard",
         level: 6,
-        question: "Leadership demands defence against Trojans and rootkits across the estate. Which strategy reflects defence-in-depth at Level 6?",
+        question: "Leadership requires defence against Trojans and rootkits estate-wide. Best strategy?",
         options: [
-            "Deploy signature AV on endpoints and defer all other controls",
-            "Combine preventive, detective, and response controls with segmentation",
-            "Block all internet egress to eliminate malware download paths",
-            "Rely on annual penetration tests instead of continuous monitoring"
+            "Deploy signature antivirus on endpoints and defer every other security control",
+            "Combine preventive detective and response controls with network segmentation",
+            "Block all internet egress permanently to stop any malware download paths",
+            "Rely on annual penetration tests instead of any continuous security monitoring",
         ],
         correctAnswer: 1,
-        explanation: "Effective programmes layer patching, application control, EDR, segmentation, backups, SOC monitoring, and IR playbooks—no single product covers all attack phases."
+        explanation: "Layered people process and technology controls cover multiple attack phases."
     },
     {
         id: "smcq-ml-6b",
@@ -403,18 +401,16 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Enterprise Malware Defence",
         difficulty: "hard",
         level: 6,
-        question: "Why is continuous monitoring emphasised over point-in-time antivirus scans in modern SOCs?",
+        question: "Why is continuous monitoring emphasised over point-in-time antivirus scans?",
         options: [
-            "Threat actors pause activity only during scheduled AV scan windows",
-            "Adversaries operate persistently; correlation reduces mean time to detect",
-            "Regulations prohibit retention of security logs beyond twenty-four hours",
-            "Signature updates eliminate the need for human threat hunters entirely"
+            "Threat actors halt all activity during scheduled antivirus scan windows only",
+            "Persistent adversaries require correlation over time to reduce mean-time-to-detect",
+            "Regulations prohibit retaining security event logs beyond twenty-four hours total",
+            "Signature updates remove the need for human threat-hunting activities entirely",
         ],
         correctAnswer: 1,
-        explanation: "APT campaigns may lie dormant or move slowly. SIEM/EDR with retained telemetry and hunting reduces dwell time—aligned with NIST Detect and Respond functions."
+        explanation: "SIEM and EDR over retained telemetry catch slow and low-noise campaigns."
     },
-
-    // ===== PGP & GPG =====
     {
         id: "smcq-pgp-1a",
         scenarioTopic: "PGP & GPG",
@@ -422,15 +418,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Secure Email with PGP",
         difficulty: "hard",
         level: 6,
-        question: "A ciphertext is encrypted to the wrong recipient public key. Which security property is primarily violated from the sender's intended perspective?",
+        question: "Ciphertext was encrypted to the wrong recipient public key. Primary impact for the sender?",
         options: [
-            "Confidentiality toward the intended recipient (availability of plaintext)",
-            "Integrity of the OpenPGP packet structure during SMTP transit",
-            "Authenticity of the X.509 TLS certificate on the mail gateway",
-            "Non-repudiation because symmetric session keys were reused"
+            "Confidentiality toward the intended recipient is lost in practice (cannot decrypt)",
+            "Integrity of the OpenPGP packet format is broken during SMTP relay transit",
+            "Authenticity of the perimeter TLS certificate on the gateway is invalidated",
+            "Non-repudiation fails because symmetric session keys were reused across mails",
         ],
         correctAnswer: 0,
-        explanation: "The message remains confidential to whoever holds the matching private key—but the intended recipient cannot decrypt. This is an operational key-selection failure, not algorithm breakage."
+        explanation: "Wrong key means the intended party cannot decrypt; another holder may."
     },
     {
         id: "smcq-pgp-1b",
@@ -439,15 +435,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Secure Email with PGP",
         difficulty: "hard",
         level: 6,
-        question: "Which practice most effectively mitigates wrong-key encryption in an organisational GPG deployment?",
+        question: "Which practice best prevents wrong-key encryption in organisational GPG mail?",
         options: [
-            "Trust keys labelled 'CEO' on public keyservers without verification",
-            "Out-of-band fingerprint verification and a signed internal key directory",
-            "Disable subkeys to reduce the number of selectable public keys",
-            "Encrypt only the subject line while leaving the body in plaintext"
+            "Trust any key labelled CEO on public keyservers without further verification",
+            "Verify fingerprints out-of-band and use a signed internal key directory",
+            "Disable encryption subkeys to reduce the number of selectable public keys",
+            "Encrypt only subject lines while leaving all message bodies in plaintext",
         ],
         correctAnswer: 1,
-        explanation: "Fingerprint verification binds identity to keys. Corporate keyservers with signed keys and mail-client policies reduce TOFU and MITM risks when selecting recipients."
+        explanation: "Out-of-band fingerprint checks bind identity to the correct public key."
     },
     {
         id: "smcq-pgp-2a",
@@ -456,15 +452,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Gpg4win Deployment Issues",
         difficulty: "hard",
         level: 6,
-        question: "Staff share one departmental private key without passphrases on shared drives. Which properties are collectively undermined?",
+        question: "Staff share one departmental private key without passphrases on shared drives. Impact?",
         options: [
-            "Only availability, because decryption becomes faster for the team",
-            "Accountability, non-repudiation, and confidentiality on key compromise",
-            "Algorithm strength of the AES session cipher inside OpenPGP",
-            "Compatibility with S/MIME gateways at the mail perimeter"
+            "Only availability improves because decryption becomes faster for the whole team",
+            "Accountability non-repudiation and confidentiality on compromise are undermined",
+            "The symmetric session cipher inside OpenPGP is weakened to DES automatically",
+            "S/MIME gateway interoperability at the mail perimeter is permanently lost",
         ],
         correctAnswer: 1,
-        explanation: "Shared private keys prevent attributing actions to individuals, enable insider abuse, and magnify impact of any copy leaking—violating core PKI trust assumptions."
+        explanation: "Shared private keys prevent attribution and magnify leak impact."
     },
     {
         id: "smcq-pgp-2b",
@@ -473,15 +469,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Gpg4win Deployment Issues",
         difficulty: "hard",
         level: 6,
-        question: "Importing unverified public keys from the internet into Kleopatra primarily exposes the organisation to:",
+        question: "Importing unverified public keys from the internet into Kleopatra mainly enables:",
         options: [
-            "Man-in-the-middle substitution of keys during encrypted communication",
-            "Automatic downgrade of AES-256 to DES within the OpenPGP layer",
-            "Deletion of all private keys stored in the Windows certificate store",
-            "Mandatory transition from hybrid to pure asymmetric encryption"
+            "Man-in-the-middle substitution of keys during encrypted communication sessions",
+            "Automatic downgrade from AES-256 to DES within the OpenPGP message layer",
+            "Deletion of all private keys stored in the Windows certificate trust store",
+            "Mandatory migration from hybrid encryption to pure asymmetric payload encryption",
         ],
         correctAnswer: 0,
-        explanation: "Unverified keys may belong to an attacker. Messages encrypted to the fake key are readable by the adversary; forged signatures may appear legitimate."
+        explanation: "Fake keys let an attacker decrypt traffic or forge apparent legitimacy."
     },
     {
         id: "smcq-pgp-3a",
@@ -490,15 +486,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Keyring Management Failure",
         difficulty: "hard",
         level: 6,
-        question: "A developer's keyring contains duplicate and expired keys for the same UID. What is the most likely operational consequence during a release?",
+        question: "A keyring holds duplicate and expired keys for one UID. Likely release impact?",
         options: [
-            "Automatic upgrade to post-quantum algorithms by GnuPG",
-            "Encryption to an obsolete key causing failed decryption workflows",
-            "Mandatory revocation of the entire organisational root of trust",
-            "Loss of symmetric compression before the encryption step"
+            "GnuPG automatically upgrades all keys to post-quantum algorithms overnight",
+            "Encryption to an obsolete key causes failed decryption in release pipelines",
+            "The organisational root of trust is revoked automatically by the keyserver",
+            "Compression before encryption is disabled for all outgoing release artefacts",
         ],
         correctAnswer: 1,
-        explanation: "Poor key hygiene causes wrong-key selection, failed CI decrypt steps, and delayed incident response—availability and integrity of release pipelines suffer."
+        explanation: "Wrong or stale keys break CI decrypt steps and delay incident response."
     },
     {
         id: "smcq-pgp-3b",
@@ -507,15 +503,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Keyring Management Failure",
         difficulty: "hard",
         level: 6,
-        question: "In GnuPG, what is the primary distinction between the public keyring and secret key store?",
+        question: "What is the primary distinction between GnuPG public and secret key material?",
         options: [
-            "Public keys encrypt data; secret keys only verify digital signatures",
-            "Public material identifies recipients; secret material performs signing/decryption",
-            "Secret keys are published to keyservers; public keys remain offline only",
-            "Both rings must be stored in /etc/passwd for POSIX compliance"
+            "Public keys encrypt payloads; secret keys are used only to verify signatures",
+            "Public material identifies others; secret material performs sign and decrypt",
+            "Secret keys are published to keyservers; public keys must remain offline only",
+            "Both rings must be stored in the system password file for POSIX compliance",
         ],
         correctAnswer: 1,
-        explanation: "Public keys (and certs) enable encryption to others and signature verification. Secret keys—passphrase-protected—decrypt messages and create signatures."
+        explanation: "Public keys encrypt to others; secret keys decrypt and create signatures."
     },
     {
         id: "smcq-pgp-4a",
@@ -524,15 +520,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Public Key Trust",
         difficulty: "hard",
         level: 6,
-        question: "A user imports a key labelled 'CEO' from a public keyserver without fingerprint checks. Which attack model is enabled?",
+        question: "A user imports a key labelled CEO from a keyserver without fingerprint checks. Risk?",
         options: [
-            "Brute-force factoring of the 2048-bit RSA modulus in real time",
-            "Man-in-the-middle impersonation using an attacker-controlled keypair",
-            "Downgrade of TLS 1.3 to SSLv3 on the corporate mail gateway",
-            "Collision attack against the SHA-256 hash inside the signed message"
+            "Real-time factoring of a 2048-bit RSA modulus becomes trivial on clients",
+            "Man-in-the-middle impersonation using an attacker-controlled public key pair",
+            "Automatic downgrade from TLS 1.3 to SSL version three on the mail gateway",
+            "Collision attacks on SHA-256 hashes embedded in signed message bodies",
         ],
         correctAnswer: 1,
-        explanation: "Anyone can upload keys with arbitrary UIDs. Without fingerprint verification, encrypting to 'CEO' may protect content for an attacker, not the executive."
+        explanation: "Anyone can upload arbitrary UIDs; encryption may go to an impostor."
     },
     {
         id: "smcq-pgp-4b",
@@ -541,15 +537,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Public Key Trust",
         difficulty: "hard",
         level: 6,
-        question: "How does the OpenPGP Web of Trust differ from a corporate PKI hierarchy?",
+        question: "How does OpenPGP Web of Trust differ from a corporate PKI hierarchy?",
         options: [
-            "WoT is decentralised peer signatures; PKI uses central CA issuance",
-            "WoT mandates X.509v3 certificates for all email users",
-            "PKI eliminates the need for any public key distribution",
-            "WoT requires hardware tokens for every encryption operation"
+            "WoT uses decentralised peer signatures; PKI relies on central CA issuance",
+            "WoT mandates X.509 version three certificates for every corporate email user",
+            "PKI eliminates any need to distribute public keys to communicating parties",
+            "WoT requires a hardware token for every single encryption operation performed",
         ],
         correctAnswer: 0,
-        explanation: "WoT propagates trust via user key signatures. Enterprises often prefer central CAs or internal directories with policy-controlled issuance and revocation."
+        explanation: "WoT propagates trust via signatures; enterprises often use internal CAs."
     },
     {
         id: "smcq-pgp-5a",
@@ -558,15 +554,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Digital Signatures Using GPG",
         difficulty: "hard",
         level: 6,
-        question: "When verifying a GPG signature on a software installer, what assurance does a successful verification provide?",
+        question: "Successful GPG signature verification on an installer primarily assures:",
         options: [
-            "The binary is free from runtime memory vulnerabilities",
-            "The payload matches what the signer's private key authenticated",
-            "The download occurred over TLS 1.3 exclusively",
-            "The signing key can never be compromised in the future"
+            "The binary contains no memory-safety vulnerabilities at runtime on clients",
+            "The payload matches content authenticated by the signer's private key",
+            "The download channel used transport layer TLS version 1.3 exclusively",
+            "The signing key cannot possibly be compromised at any future point in time",
         ],
         correctAnswer: 1,
-        explanation: "Signatures prove integrity and authenticity relative to the signer's key—they do not guarantee code quality, transport security, or future key safety."
+        explanation: "Signatures prove integrity and authenticity relative to that key—not code quality."
     },
     {
         id: "smcq-pgp-5b",
@@ -575,15 +571,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Digital Signatures Using GPG",
         difficulty: "hard",
         level: 6,
-        question: "A software-signing private key is exfiltrated. What must the organisation prioritise?",
+        question: "A software-signing private key is exfiltrated. What should the organisation prioritise?",
         options: [
-            "Publish the private key internally to maintain build continuity",
-            "Revoke the key, rotate signing material, and investigate forged artefacts",
-            "Disable TLS on the download portal to speed incident response",
-            "Re-encrypt all historical releases with AES-ECB for obfuscation"
+            "Publish the private key internally so build pipelines continue without delay",
+            "Revoke the key rotate signing material and hunt for forged release artefacts",
+            "Disable TLS on the public download portal to accelerate incident response",
+            "Re-encrypt historical releases with AES-ECB to obscure prior signatures",
         ],
         correctAnswer: 1,
-        explanation: "Attackers can sign malware as legitimate. Immediate revocation, key rotation in HSMs, artefact scanning, and customer notification are critical supply-chain responses."
+        explanation: "Attackers can sign malware as legitimate; revoke rotate and scan artefacts."
     },
     {
         id: "smcq-pgp-6a",
@@ -592,15 +588,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Hybrid Encryption in PGP",
         difficulty: "hard",
         level: 6,
-        question: "Why does OpenPGP encrypt the message body with a symmetric session key before asymmetric encryption?",
+        question: "Why does OpenPGP encrypt the message body with a symmetric session key first?",
         options: [
-            "Symmetric ciphers cannot provide confidentiality for email payloads",
-            "Performance and payload size limits of asymmetric operations",
-            "RSA is required to generate random IVs for each MIME part",
-            "Hash functions are slower than block ciphers for large files"
+            "Symmetric ciphers cannot provide confidentiality for email-sized payloads",
+            "Asymmetric operations are too slow for large files and message bodies",
+            "RSA must generate random IV values separately for each MIME part",
+            "Hash functions are always slower than block ciphers for large attachments",
         ],
         correctAnswer: 1,
-        explanation: "Hybrid encryption uses fast symmetric ciphers for bulk data and wraps the small session key with RSA/ECC—standard practice in PGP and TLS alike."
+        explanation: "Hybrid design uses fast symmetric bulk encryption and small asymmetric wraps."
     },
     {
         id: "smcq-pgp-6b",
@@ -609,18 +605,16 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Hybrid Encryption in PGP",
         difficulty: "hard",
         level: 6,
-        question: "Even with encrypted OpenPGP bodies, which information leakage commonly remains?",
+        question: "Even with encrypted OpenPGP bodies, what leakage commonly remains?",
         options: [
-            "Full plaintext of attachments inside the encrypted packet",
-            "Email envelope metadata such as sender, recipient, and timestamps",
-            "The symmetric session key printed in the message header",
-            "Private key primes embedded in every ciphertext block"
+            "Full plaintext of attachments is visible inside the encrypted packet layer",
+            "Envelope metadata such as sender recipient and timestamp may still leak",
+            "The symmetric session key is printed in cleartext in the message header",
+            "Private key prime factors are embedded in each ciphertext block transmitted",
         ],
         correctAnswer: 1,
-        explanation: "PGP protects content, not routing metadata. Traffic analysis and retained headers may still reveal communication patterns—motivating additional transport protections."
+        explanation: "PGP protects content; routing metadata may still enable traffic analysis."
     },
-
-    // ===== Firewalls & Architecture =====
     {
         id: "smcq-fw-1a",
         scenarioTopic: "Firewalls & Firewall Architecture",
@@ -628,15 +622,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Misconfigured Perimeter Firewall",
         difficulty: "hard",
         level: 6,
-        question: "A perimeter firewall permits unrestricted outbound traffic and omits logging on permissive rules. Which risk is most critical for incident response?",
+        question: "Outbound traffic is unrestricted and permissive rules are not logged. Critical IR risk?",
         options: [
-            "Inbound SYN floods cannot be mitigated without stateful inspection",
-            "Covert exfiltration and C2 channels operate without forensic evidence",
-            "DNS responses are automatically encrypted by the firewall engine",
-            "Internal users cannot establish any TCP sessions to the internet"
+            "Inbound SYN flood attacks cannot be mitigated without stateful inspection",
+            "Covert exfiltration and C2 may proceed without usable forensic log evidence",
+            "DNS responses are encrypted automatically by the firewall inspection engine",
+            "Internal users cannot establish any TCP sessions to internet-hosted services",
         ],
         correctAnswer: 1,
-        explanation: "Permissive egress enables data theft and beaconing; absent logs prevent detection and breach investigation—failing detective and accountability controls."
+        explanation: "Open egress plus missing logs hides theft and blocks investigation."
     },
     {
         id: "smcq-fw-1b",
@@ -645,15 +639,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Misconfigured Perimeter Firewall",
         difficulty: "hard",
         level: 6,
-        question: "Which rule-base philosophy aligns with least privilege for internet-facing firewalls?",
+        question: "Which rule-base philosophy matches least privilege on an internet-facing firewall?",
         options: [
-            "Implicit permit with explicit deny statements at the rule base end",
-            "Implicit deny with explicit permit for required flows only",
-            "Permit all UDP to simplify VoIP and streaming media services",
-            "Mirror internal Active Directory groups directly into ACL lines"
+            "Implicit permit with explicit deny statements placed at the end of the list",
+            "Implicit deny with explicit permit rules only for required traffic flows",
+            "Permit all UDP services to simplify VoIP and streaming media deployments",
+            "Mirror internal directory groups directly into access-control lines unfiltered",
         ],
         correctAnswer: 1,
-        explanation: "Default-deny reduces attack surface. Explicit permits should be documented, logged, and reviewed—core to firewall hardening and compliance audits."
+        explanation: "Default-deny with documented explicit permits is standard hardening."
     },
     {
         id: "smcq-fw-2a",
@@ -662,15 +656,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "DMZ Architecture",
         difficulty: "hard",
         level: 6,
-        question: "In a screened-subnet design, what is the primary security purpose of placing web servers in a DMZ?",
+        question: "In a screened-subnet design, why place public web servers in a DMZ?",
         options: [
-            "To grant domain administrators direct RDP from the internet",
-            "To isolate internet-exposed services from the internal core network",
-            "To eliminate the need for TLS certificates on public websites",
-            "To store database backups on the same VLAN as public HTTP"
+            "To allow domain administrators direct RDP access from the public internet",
+            "To isolate internet-exposed services from the internal core network zone",
+            "To eliminate the requirement for TLS certificates on public web properties",
+            "To store database backups on the same VLAN as the public HTTP service",
         ],
         correctAnswer: 1,
-        explanation: "The DMZ contains hardened, exposed services. Inner firewalls restrict paths to sensitive systems—limiting lateral movement if the web tier is compromised."
+        explanation: "DMZ limits blast radius if a public-facing server is compromised."
     },
     {
         id: "smcq-fw-2b",
@@ -679,15 +673,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "DMZ Architecture",
         difficulty: "hard",
         level: 6,
-        question: "Which traffic flow best satisfies PCI-style separation between internet users and a backend database?",
+        question: "Which flow best satisfies separation between internet users and a backend database?",
         options: [
-            "Internet → database (1433) → web server → user",
-            "Internet → DMZ web tier → restricted rule → internal database",
-            "Database initiates HTTPS sessions directly to internet clients",
-            "Flat layer-2 network with a single stateless packet filter"
+            "Internet to database port then web server then return path to the user",
+            "Internet to DMZ web tier then restricted rule to internal database only",
+            "Database initiates HTTPS sessions directly to internet clients without proxy",
+            "Single flat layer-two segment protected by one stateless packet filter only",
         ],
         correctAnswer: 1,
-        explanation: "Users reach the web tier in the DMZ; only the web server's IP may open database ports on the internal zone—never expose SQL directly to the internet."
+        explanation: "Web in DMZ; only web tier may open DB ports on the internal zone."
     },
     {
         id: "smcq-fw-3a",
@@ -696,15 +690,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Stateful vs Stateless",
         difficulty: "hard",
         level: 6,
-        question: "How does connection tracking in a stateful firewall improve security over a pure packet filter?",
+        question: "How does connection tracking in a stateful firewall improve on a packet filter?",
         options: [
-            "It encrypts payload contents at layer three automatically",
-            "It permits return traffic only for established legitimate sessions",
-            "It removes the need for any inbound deny rules on the perimeter",
-            "It guarantees detection of all application-layer SQL injections"
+            "It encrypts all payload contents automatically at the network layer three",
+            "It allows return traffic only for sessions that were legitimately established",
+            "It removes the need for any inbound deny rules on the perimeter device",
+            "It guarantees detection of every application-layer SQL injection attempt made",
         ],
         correctAnswer: 1,
-        explanation: "Stateful inspection maintains a state table matching responses to outbound or allowed flows—blocking unsolicited inbound packets that stateless ACLs might mishandle."
+        explanation: "State tables block unsolicited inbound packets that simple ACLs may admit."
     },
     {
         id: "smcq-fw-3b",
@@ -713,15 +707,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Stateful vs Stateless",
         difficulty: "hard",
         level: 6,
-        question: "Relative to classic stateful firewalls, an NGFW adds which capability most relevant to modern threats?",
+        question: "Compared with classic stateful firewalls, an NGFW most relevantly adds:",
         options: [
-            "Removal of all deep packet inspection to reduce latency",
-            "Application identification, user context, and integrated IPS",
-            "Mandatory use of static NAT for every internal host address",
-            "Exclusive reliance on stateless ACLs for east-west traffic"
+            "Removal of deep packet inspection to reduce latency on all paths",
+            "Application identification user context and integrated intrusion prevention features",
+            "Mandatory static NAT mapping for every internal host address on the LAN",
+            "Exclusive reliance on stateless ACLs for all east-west data-centre traffic",
         ],
         correctAnswer: 1,
-        explanation: "NGFWs classify applications and users, integrate threat intelligence and IPS, and may perform SSL inspection—addressing threats opaque to port/protocol filters."
+        explanation: "NGFWs classify apps and users and often integrate IPS and threat feeds."
     },
     {
         id: "smcq-fw-4a",
@@ -730,15 +724,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Application Layer Firewall",
         difficulty: "hard",
         level: 6,
-        question: "An application-layer proxy firewall terminates client connections and inspects protocol commands. What trade-off is accepted?",
+        question: "An application proxy terminates client connections and inspects commands. Trade-off?",
         options: [
-            "Complete inability to authenticate users at the application layer",
-            "Increased latency and processing cost for deeper visibility",
-            "Mandatory prohibition of HTTPS on all corporate web services",
-            "Elimination of logging because proxies operate in kernel bypass"
+            "Complete inability to authenticate users at the application protocol layer",
+            "Higher latency and processing cost in exchange for deeper protocol visibility",
+            "Mandatory prohibition of HTTPS on all corporate-facing web service endpoints",
+            "Elimination of security logging because proxies always bypass the kernel",
         ],
         correctAnswer: 1,
-        explanation: "Proxies understand HTTP/FTP semantics and can block attacks invisible to L3/L4 filters, but brokering connections adds overhead and operational complexity."
+        explanation: "Proxies see protocol semantics but broker connections at a performance cost."
     },
     {
         id: "smcq-fw-4b",
@@ -747,15 +741,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Application Layer Firewall",
         difficulty: "hard",
         level: 6,
-        question: "Where should a Web Application Firewall (WAF) sit to mitigate OWASP Top 10 attacks against a public API?",
+        question: "Where should a Web Application Firewall sit to mitigate OWASP-style API attacks?",
         options: [
-            "Behind the internal database cluster without internet routing",
-            "In front of the web/application tier inspecting HTTP requests",
-            "Only on end-user laptops inspecting outbound browser cache",
-            "Replacing the organisation's SIEM log aggregation platform"
+            "Behind the internal database cluster with no route to internet clients",
+            "In front of the web or application tier inspecting HTTP request traffic",
+            "Only on end-user laptops inspecting outbound browser disk cache data stores",
+            "Replacing the organisation-wide SIEM log aggregation platform entirely",
         ],
         correctAnswer: 1,
-        explanation: "WAFs analyse HTTP/S traffic for injection, XSS, and bot abuse at the application edge—complementing network firewalls and secure coding practices."
+        explanation: "WAFs analyse HTTP/S at the application edge alongside secure coding."
     },
     {
         id: "smcq-fw-5a",
@@ -764,15 +758,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Firewall Bypass & Insider",
         difficulty: "hard",
         level: 6,
-        question: "An employee tunnels traffic over a personal VPN to evade corporate URL filtering. Which control gap does this exploit?",
+        question: "An employee tunnels traffic over personal VPN to evade URL filtering. Gap exploited?",
         options: [
-            "Perimeter firewalls cannot inspect any encrypted outbound channels",
-            "Uninspected encrypted egress bypasses policy enforcement points",
-            "Stateful firewalls block all UDP including DNS and NTP",
-            "Insiders never possess credentials for internal resources"
+            "Perimeter firewalls cannot inspect any encrypted outbound channel whatsoever",
+            "Encrypted egress bypasses policy enforcement unless inspected or proxied",
+            "Stateful firewalls block all UDP including DNS and network time protocol",
+            "Insider actors never possess valid credentials for internal resource access",
         ],
         correctAnswer: 1,
-        explanation: "Without SSL inspection or egress proxy policies, encrypted tunnels hide destinations and payloads from perimeter controls—requiring endpoint policy and DLP."
+        explanation: "Personal VPN hides destinations from URL filters without egress controls."
     },
     {
         id: "smcq-fw-5b",
@@ -781,15 +775,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Firewall Bypass & Insider",
         difficulty: "hard",
         level: 6,
-        question: "Why are insider threats poorly addressed by perimeter-only firewall strategies?",
+        question: "Why do perimeter-only firewall strategies poorly address insider threats?",
         options: [
-            "Insiders always attack exclusively from external IP addresses",
-            "They may already operate inside with legitimate network access",
-            "Firewalls automatically trust all RFC1918 address space as safe",
-            "Insider attacks are limited to physical theft of paper records"
+            "Insiders always attack exclusively from external public IP address space",
+            "They may already operate inside with legitimate network access privileges",
+            "Firewalls automatically trust all RFC1918 address space as fully safe",
+            "Insider attacks are limited to physical theft of paper records only",
         ],
         correctAnswer: 1,
-        explanation: "Perimeter models assume external adversaries. Zero trust, segmentation, UEBA, and DLP address insiders and lateral movement inside the trust zone."
+        explanation: "Zero trust segmentation UEBA and DLP address internal movement."
     },
     {
         id: "smcq-fw-6a",
@@ -798,15 +792,15 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Multi-Layer Firewall Architecture",
         difficulty: "hard",
         level: 6,
-        question: "In a financial institution with edge, DMZ, and internal segmentation firewalls, what is the primary benefit?",
+        question: "Edge DMZ and internal segmentation firewalls in a bank. Primary benefit?",
         options: [
-            "Guaranteed elimination of all phishing attacks enterprise-wide",
-            "Compartmentalisation limiting lateral movement after initial breach",
-            "Removal of the need for security monitoring on internal VLANs",
-            "Single rule set replicated identically on every device"
+            "Guaranteed elimination of all phishing attacks across the enterprise",
+            "Compartmentalisation that limits lateral movement after an initial breach",
+            "Removal of the need for monitoring on internal VLAN segments entirely",
+            "One identical rule set copied to every device without zone tailoring",
         ],
         correctAnswer: 1,
-        explanation: "Layered firewalls enforce different policies per zone, shrinking blast radius and supporting compliance mappings (e.g. PCI scoped networks)."
+        explanation: "Layered zones shrink blast radius and map to compliance boundaries."
     },
     {
         id: "smcq-fw-6b",
@@ -815,18 +809,16 @@ const scenarioMcqQuestions = [
         scenarioTitle: "Multi-Layer Firewall Architecture",
         difficulty: "hard",
         level: 6,
-        question: "What is the dominant operational challenge when managing multiple firewall tiers?",
+        question: "Dominant operational challenge when managing multiple firewall tiers?",
         options: [
-            "IPv6 cannot traverse more than one firewall in a path",
-            "Rule drift, change control, and consistent policy across zones",
-            "Mandatory replacement of stateful inspection with packet filters",
-            "Prohibition of logging to central SIEM platforms for performance"
+            "IPv6 traffic cannot traverse more than one firewall hop in any path",
+            "Rule drift weak change control and inconsistent policy across zones",
+            "Mandatory replacement of stateful inspection with pure packet filters",
+            "Prohibition of forwarding logs to any central SIEM for performance",
         ],
         correctAnswer: 1,
-        explanation: "Complex estates suffer ACL sprawl and inconsistent changes. Infrastructure-as-code, automated reviews, and periodic audits maintain accuracy and auditability."
+        explanation: "ACL sprawl needs IaC reviews and periodic audits to stay accurate."
     },
-
-    // ===== CSY3023 Mock Test (May 2025) — Bank scenarios =====
     {
         id: "smcq-mt-q1a",
         scenarioTopic: "Mock Test — Malware & Detection",
@@ -835,15 +827,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "A bank employee installs rogueware disguised as antivirus; customer accounts are defrauded. Which malware model and propagation path apply?",
+        question: "Rogueware posing as antivirus defrauds bank customers. Malware model and propagation?",
         options: [
-            "Self-propagating worm scanning RFC1918 subnets autonomously",
-            "Socially engineered Trojan delivering infostealer/keylogger payloads",
-            "Bootkit modifying GPT partitions without user interaction",
-            "Benign adware limited to displaying unwanted advertisements"
+            "Self-propagating worm scanning RFC1918 subnets without any user interaction",
+            "Socially engineered Trojan delivering infostealer and keylogger components",
+            "Bootkit modifying GPT partitions on first open without user execution",
+            "Benign adware limited to displaying unwanted advertisements in the browser",
         ],
         correctAnswer: 1,
-        explanation: "Fake-AV is a Trojan: the user is deceived into executing it. It does not self-replicate; it drops stealers and may beacon to C2 for credential fraud."
+        explanation: "Fake AV is a Trojan requiring user deception; it does not self-replicate."
     },
     {
         id: "smcq-mt-q1b",
@@ -853,15 +845,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "Which indicator set best supports SOC detection of the fake-AV incident described in the mock bank scenario?",
+        question: "Which indicator set best supports SOC detection in the mock bank Trojan scenario?",
         options: [
-            "Only physical tailgating events at the data centre entrance",
-            "Host beaconing, disabled AV, and anomalous banking session geolocation",
-            "Exclusive reliance on weekly full-disk signature scans",
-            "Blocking all inbound SMTP without endpoint telemetry"
+            "Only physical tailgating events recorded at the primary data centre entrance",
+            "Host beaconing disabled AV and anomalous banking session geolocation patterns",
+            "Exclusive reliance on weekly full-disk signature scans without network telemetry",
+            "Blocking all inbound SMTP while disabling endpoint detection and response agents",
         ],
         correctAnswer: 1,
-        explanation: "Combine endpoint (processes, AV tampering, egress) with fraud analytics (impossible travel, ATO). SIEM correlation across both is standard bank SOC practice."
+        explanation: "Correlate endpoint telemetry with fraud analytics and SIEM rules."
     },
     {
         id: "smcq-mt-q2a",
@@ -871,15 +863,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "A bank must encrypt laptop disks and secure email. Which mapping of algorithm class to use case is correct?",
+        question: "A bank must encrypt laptops and secure email. Correct algorithm-to-use-case mapping?",
         options: [
-            "RSA-4096 for full-disk encryption; AES for TLS certificates only",
-            "AES for bulk data at rest; RSA/ECC for key exchange and signatures",
-            "Caesar cipher for databases; MD5 for email confidentiality",
-            "Symmetric keys emailed in plaintext to all branch managers"
+            "RSA-4096 for full-disk encryption with AES reserved for TLS certificates only",
+            "AES for bulk data at rest and RSA or ECC for exchange and signatures",
+            "Caesar cipher for databases and MD5 for email confidentiality protection",
+            "Symmetric keys distributed in plaintext email to all branch managers weekly",
         ],
         correctAnswer: 1,
-        explanation: "Symmetric ciphers (AES) handle volume (BitLocker, DB). Asymmetric keys establish trust and wrap session keys—hybrid designs per mock Q2(c)."
+        explanation: "AES handles volume; asymmetric keys handle trust and key wrapping."
     },
     {
         id: "smcq-mt-q2b",
@@ -889,15 +881,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "Where should a bank store master keys used to protect customer database encryption keys per mock exam guidance?",
+        question: "Where should master keys for customer database DEKs be stored per mock guidance?",
         options: [
-            "In the same MySQL configuration file as the connection string",
-            "In an HSM or KMS segregated from the database tier",
-            "Embedded in the mobile banking app APK for availability",
-            "Printed and stored in each branch manager's desk drawer"
+            "In the same MySQL configuration file as the database connection string entry",
+            "In an HSM or KMS segregated from the database server hardware tier",
+            "Embedded in the mobile banking application package for high availability",
+            "Printed and stored in each branch manager personal office desk drawer",
         ],
         correctAnswer: 1,
-        explanation: "Master keys must not co-reside with ciphertext. HSM/KMS supports envelope encryption, rotation, and dual control expected in financial environments."
+        explanation: "Master keys must not co-reside with ciphertext in financial designs."
     },
     {
         id: "smcq-mt-q3a",
@@ -907,15 +899,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "For the bank's public website and core banking network, which architecture matches the mock screened-subnet recommendation?",
+        question: "Public website and core banking separation in the mock screened-subnet answer?",
         options: [
-            "Single flat VLAN with one stateless router ACL",
-            "Dual NGFWs: outer DMZ for web, inner zone for core banking",
-            "Database servers published directly on public IP addresses",
-            "ATMs bridged to the internet without VPN or encryption"
+            "Single flat VLAN protected by one stateless router access-control list only",
+            "Dual NGFWs with outer DMZ for web and inner zone for core banking",
+            "Database servers published on public IP addresses for simpler routing",
+            "ATMs connected directly to the internet without VPN or encryption layers",
         ],
         correctAnswer: 1,
-        explanation: "Screened subnet (DMZ) with outer/inner firewalls isolates exposed services. Core systems stay behind the inner NGFW—central to mock Q3(b)."
+        explanation: "Outer/inner firewalls and DMZ match mock Q3(b) bank architecture."
     },
     {
         id: "smcq-mt-q3b",
@@ -925,15 +917,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "Remote bank ATMs in the mock scenario should connect to HQ using:",
+        question: "Remote bank ATMs in the mock scenario should connect to headquarters using:",
         options: [
-            "Unencrypted HTTP over the public internet for simplicity",
-            "Site-to-site IPsec VPN with firewall policies on both ends",
-            "RDP port forwarding from each ATM's public IP address",
-            "Emailing transaction logs as ZIP attachments to operations"
+            "Unencrypted HTTP over the public internet for operational simplicity today",
+            "Site-to-site IPsec VPN with firewall policies enforced on both endpoints",
+            "RDP port forwarding from each ATM public IP address to the core network",
+            "Emailing transaction logs as ZIP attachments to the operations mailbox",
         ],
         correctAnswer: 1,
-        explanation: "Mock Q3(b) specifies ATMs → IPsec VPN into the trusted network, combined with NGFW segmentation—not direct internet exposure."
+        explanation: "Mock specifies IPsec VPN for ATM connectivity into the trusted zone."
     },
     {
         id: "smcq-mt-q3c",
@@ -943,15 +935,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "After phishing bypasses the perimeter NGFW, why does a distributed firewall architecture help the bank?",
+        question: "After phishing bypasses the perimeter NGFW, how does distributed firewalling help?",
         options: [
-            "It removes the need for any DMZ or segmentation design",
-            "It enforces policy on each host/VM to block east-west movement",
-            "It replaces all endpoint EDR agents with router ACLs only",
-            "It decrypts all TLS automatically without legal review"
+            "It removes the need for any DMZ or internal segmentation design entirely",
+            "It enforces policy on each host or VM to restrict east-west movement",
+            "It replaces all endpoint EDR agents with router ACLs on the LAN only",
+            "It decrypts all TLS sessions automatically without legal or privacy review",
         ],
         correctAnswer: 1,
-        explanation: "Perimeter controls fail once insiders or malware are inside. Host-level enforcement (GPO, NSX, cloud SGs) limits lateral movement per mock Q3(c)."
+        explanation: "Host-level enforcement limits lateral movement per mock Q3(c)."
     },
     {
         id: "smcq-mt-q3d",
@@ -961,15 +953,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "Which capability progression correctly orders firewall technologies in the mock Q3(a) comparison?",
+        question: "Correct capability progression for packet filter stateful and NGFW in mock Q3(a)?",
         options: [
-            "NGFW → stateless ACL → stateful inspection → proxy only",
-            "Stateless packet filter → stateful inspection → NGFW with DPI/IPS",
-            "Proxy only → hub repeater → MAC filtering → WAF",
-            "IDS → antivirus → spam filter → stateless ACL"
+            "NGFW then stateless ACL then stateful inspection then application proxy only",
+            "Stateless filter then stateful inspection then NGFW with DPI and IPS",
+            "Application proxy then network hub then MAC filter then web application firewall",
+            "Intrusion detection then antivirus then spam filter then stateless ACL only",
         ],
         correctAnswer: 1,
-        explanation: "Packet filters inspect headers only; stateful tracks sessions; NGFW adds application/user context and integrated IPS—exact mock exam ladder."
+        explanation: "Mock orders increasing inspection depth ending at NGFW with DPI/IPS."
     },
     {
         id: "smcq-mt-q4a",
@@ -979,15 +971,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "In the bank SSL VPN scenario, what does a valid gateway X.509 certificate primarily prove to the client?",
+        question: "In the bank SSL VPN scenario, a valid gateway certificate primarily proves to the client:",
         options: [
-            "That all employee passwords meet complexity requirements",
-            "That the TLS endpoint belongs to the expected bank gateway identity",
-            "That AES-256-GCM is the only cipher permitted worldwide",
-            "That the client workstation has no malware installed"
+            "That all employee passwords meet organisational complexity policy requirements",
+            "That the TLS endpoint identity matches the expected bank gateway identity",
+            "That AES-256-GCM is the only cipher permitted on all global TLS deployments",
+            "That the client workstation contains no malware before tunnel establishment",
         ],
         correctAnswer: 1,
-        explanation: "Server certificates bind identity to a public key signed by a trusted CA. Clients verify chain, dates, hostname, and revocation before trusting the tunnel."
+        explanation: "Certificates bind identity to a CA-trusted public key for the gateway."
     },
     {
         id: "smcq-mt-q4b",
@@ -997,15 +989,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "Staff see 'certificate not trusted' on the bank SSL VPN. Which cause is most common in internal PKI deployments?",
+        question: "Staff see certificate not trusted on bank SSL VPN. Most common internal PKI cause?",
         options: [
-            "The user's monitor resolution is below 1920×1080",
-            "The corporate root CA is missing from the laptop trust store",
-            "AES session keys were exposed in the TLS Application Data",
-            "OpenPGP subkeys expired on the mail server"
+            "The user display resolution is below the minimum required desktop standard",
+            "The corporate root CA is missing from the laptop operating system trust store",
+            "AES session keys were exposed in cleartext inside TLS application data records",
+            "OpenPGP encryption subkeys expired on the corporate SMTP relay server",
         ],
         correctAnswer: 1,
-        explanation: "Mock Q4(b): without the internal root in the trust store, the chain fails validation. Deploy root via GPO/MDM and check expiry, hostname, and clock skew."
+        explanation: "Missing internal root breaks chain validation; deploy via GPO or MDM."
     },
     {
         id: "smcq-mt-q4c",
@@ -1015,15 +1007,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "For travelling bank staff behind restrictive hotel firewalls, which VPN approach does the mock exam favour?",
+        question: "For travelling bank staff behind restrictive hotel firewalls, mock Q4(c) favours:",
         options: [
-            "L2TP/IPsec on UDP 500/4500 only, without fallback",
-            "SSL VPN or OpenVPN tunnelled over TCP/443 where possible",
-            "Unencrypted PPP dial-up over analogue telephone lines",
-            "P2P mesh VPN with no central gateway authentication"
+            "L2TP/IPsec on UDP ports five hundred and four thousand five hundred only",
+            "SSL VPN or OpenVPN tunnelled over TCP port four forty-three where possible",
+            "Unencrypted point-to-point dial-up links over analogue telephone circuits only",
+            "Peer-to-peer mesh VPN with no central gateway authentication mechanism used",
         ],
         correctAnswer: 1,
-        explanation: "SSL VPN (TLS 443) and OpenVPN over 443 traverse most firewalls. L2TP/IPsec is often blocked on guest Wi‑Fi—mock Q4(c) comparison."
+        explanation: "TLS on 443 traverses most guest networks; L2TP/IPsec is often blocked."
     },
     {
         id: "smcq-mt-q4d",
@@ -1033,15 +1025,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "After successful SSL VPN certificate validation, how is bulk tunnel traffic protected per hybrid encryption?",
+        question: "After SSL VPN certificate validation succeeds, bulk tunnel traffic is protected by:",
         options: [
-            "Each packet RSA-encrypted with the server's public modulus",
-            "Symmetric AEAD keys derived during the TLS handshake",
-            "Base64 encoding of IP headers without confidentiality",
-            "Permanent use of the X.509 certificate private key for data"
+            "Each IP packet encrypted directly with the server RSA public modulus value",
+            "Symmetric AEAD keys derived during the negotiated TLS handshake process",
+            "Base64 encoding of IP headers without providing confidentiality to payloads",
+            "Continuous use of the X.509 certificate private key for all data frames",
         ],
         correctAnswer: 1,
-        explanation: "TLS negotiates symmetric keys (e.g. AES-GCM) for the tunnel. Certificates authenticate and establish keys—they do not encrypt every packet asymmetrically."
+        explanation: "TLS derives symmetric keys for the tunnel; certs authenticate and establish keys."
     },
     {
         id: "smcq-mt-q5a",
@@ -1051,15 +1043,15 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "Per mock Q5(c), which key-management practice is appropriate for bank encryption subkeys?",
+        question: "Per mock Q5(c), which practice is appropriate for bank encryption subkeys?",
         options: [
-            "Escrow encryption keys in HSM; never escrow signing keys",
-            "Publish all private keys on the intranet for backup",
-            "Share one corporate signing key across all tellers",
-            "Disable revocation certificates to avoid downtime"
+            "Escrow encryption keys in HSM infrastructure but never escrow signing keys",
+            "Publish all private keys on the intranet portal for disaster recovery access",
+            "Share one corporate signing key across all teller workstations for speed",
+            "Disable issuance of revocation certificates to avoid operational downtime",
         ],
         correctAnswer: 0,
-        explanation: "Escrow can recover encrypted data if keys are lost. Signing keys must stay non-exportable—escrowing them would enable forgery."
+        explanation: "Escrow aids recovery; escrow of signing keys would enable forgery."
     },
     {
         id: "smcq-mt-q5b",
@@ -1069,16 +1061,16 @@ const scenarioMcqQuestions = [
         source: "mock",
         difficulty: "hard",
         level: 6,
-        question: "A teller leaves the bank. What immediate action aligns with mock PGP lifecycle guidance?",
+        question: "A teller leaves the bank. Immediate action per mock PGP lifecycle guidance?",
         options: [
-            "Archive their private signing key on USB for the replacement hire",
-            "Revoke keys, rotate affected material, and audit artefacts signed",
-            "Delete only the public keyring so email still arrives",
-            "Disable TLS on VPN so ex-employees cannot connect"
+            "Archive their private signing key on USB media for the replacement employee",
+            "Revoke keys rotate affected material and audit artefacts they signed",
+            "Delete only the public keyring so inbound email delivery still functions",
+            "Disable TLS on the VPN concentrator so former staff cannot reconnect",
         ],
         correctAnswer: 1,
-        explanation: "Staff departure triggers revocation, rotation, and artefact review. Retain escrow only under policy—never leave active signing keys with leavers."
-    }
+        explanation: "Departure requires revocation rotation and review of signed artefacts."
+    },
 ];
 
 window.scenarioMcqQuestions = scenarioMcqQuestions;
